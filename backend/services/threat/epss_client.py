@@ -5,11 +5,13 @@ https://www.first.org/epss/api
 """
 
 import requests
+import sys, os
 from typing import Dict, Optional
 from datetime import datetime
 
-from config import EPSS_API_URL, EPSS_TIMEOUT
-from database import KiberDatabase
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+from config.settings import EPSS_API_URL, EPSS_TIMEOUT
+from services.logging.database import KiberDatabase
 
 
 class EPSSClient:

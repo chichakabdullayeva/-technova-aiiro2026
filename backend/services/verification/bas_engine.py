@@ -6,11 +6,13 @@ that WAF/IPS virtual patches are actively blocking attacks.
 
 import time
 import requests
+import sys, os
 from typing import Dict, Optional
 from datetime import datetime
 
-from config import BAS_TIMEOUT
-from database import KiberDatabase
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+from config.settings import BAS_TIMEOUT
+from services.logging.database import KiberDatabase
 
 
 class BASEngine:

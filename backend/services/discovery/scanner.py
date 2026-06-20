@@ -2,11 +2,13 @@
 
 import json
 import asyncio
+import sys, os
 from typing import List, Dict, Optional
 from datetime import datetime
 
-from config import TARGET_SUBNET, SCAN_TIMEOUT, NMAP_ARGS
-from database import KiberDatabase
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+from config.settings import TARGET_SUBNET, SCAN_TIMEOUT, NMAP_ARGS
+from services.logging.database import KiberDatabase
 
 
 class NetworkScanner:

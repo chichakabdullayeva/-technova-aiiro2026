@@ -3,1267 +3,740 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Milli Kiber-DNT — Qapalı Dövrəli Kiber Müdafiə</title>
+<title>Milli Kiber-DNT v3 — Modul Kiber Müdafiə</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
   * { font-family: 'Inter', system-ui, sans-serif; }
-  body { background: #0a1428; overflow-x: auto; scroll-behavior: smooth; }
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  body { background: #0a1428; overflow-x: hidden; }
+  ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: rgba(15,23,42,0.5); }
   ::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: #2563eb; }
 
-  @keyframes pulse-glow { 0%,100%{box-shadow:0 0 20px rgba(37,99,235,0.3)} 50%{box-shadow:0 0 40px rgba(37,99,235,0.6)} }
-  @keyframes slide-up { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes slide-in-right { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
-  @keyframes fade-in { from{opacity:0} to{opacity:1} }
+  .glass { background: rgba(15,23,42,0.8); backdrop-filter: blur(16px); border: 1px solid rgba(37,99,235,0.15); }
+  .glass-card { background: rgba(15,23,42,0.85); backdrop-filter: blur(20px); border: 1px solid rgba(37,99,235,0.12); transition: all 0.3s; }
+  .glass-card:hover { border-color: rgba(37,99,235,0.3); }
 
-  .glass { background: rgba(15,23,42,0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(37,99,235,0.15); }
-  .glass-card { background: rgba(15,23,42,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(37,99,235,0.12); transition: all 0.3s ease; }
-  .glass-card:hover { border-color: rgba(37,99,235,0.3); box-shadow: 0 0 30px rgba(37,99,235,0.08); }
-  .phase-node { position: relative; transition: all 0.5s cubic-bezier(0.4,0,0.2,1); cursor: default; min-width: 90px; }
-  .phase-node.active .phase-circle { background: linear-gradient(135deg,#2563eb,#1d4ed8); box-shadow: 0 0 30px rgba(37,99,235,0.5); transform: scale(1.1); animation: pulse-glow 2s ease-in-out infinite; }
-  .phase-node.completed .phase-circle { background: linear-gradient(135deg,#10b981,#059669); box-shadow: 0 0 20px rgba(16,185,129,0.3); }
-  .phase-node.completed .phase-circle::after { content:'\2713'; font-size:1.5rem; color:white; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
-  .phase-node.completed .phase-icon { display:none; }
-  .phase-connector { flex-shrink:0; width:60px; height:3px; background:rgba(37,99,235,0.2); position:relative; overflow:hidden; border-radius:2px; }
-  .phase-connector .fill { position:absolute; top:0; left:0; height:100%; background:linear-gradient(90deg,#2563eb,#3b82f6); border-radius:2px; transition:width 0.8s cubic-bezier(0.4,0,0.2,1); }
-  .phase-connector.active .fill { width:100% !important; }
-  .log-entry { animation: slide-up 0.3s ease-out; border-left: 3px solid transparent; transition: all 0.2s; }
-  .log-entry:hover { background: rgba(37,99,235,0.08); }
-  .btn-primary { background: linear-gradient(135deg,#2563eb,#1d4ed8); transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(37,99,235,0.3); }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(37,99,235,0.5); }
-  .btn-primary:active { transform: translateY(0); }
-  .btn-primary:disabled { opacity:0.5; cursor:not-allowed; transform:none !important; }
-  .metric-value { background: linear-gradient(135deg,#e2e8f0,#94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-  .glow-text { text-shadow: 0 0 20px rgba(37,99,235,0.3); }
-  .grid-bg { background-image: linear-gradient(rgba(37,99,235,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,0.04) 1px,transparent 1px); background-size:40px 40px; }
-  .panel-content { animation: slide-up 0.4s ease-out; }
-  .toast { animation: slide-in-right 0.4s ease-out; }
-  .status-dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
-  .code-block { background: rgba(0,0,0,0.4); border:1px solid rgba(37,99,235,0.15); border-radius:6px; padding:12px; font-family:'Courier New',monospace; font-size:0.8rem; overflow-x:auto; white-space:pre-wrap; word-break:break-all; }
-  .knowledge-item { animation:slide-up 0.3s ease-out; border-left:3px solid transparent; transition:all 0.3s; }
-  .knowledge-item:hover { border-left-color:#2563eb; background:rgba(37,99,235,0.06); }
-  .report-section { border-left:3px solid rgba(37,99,235,0.3); padding-left:16px; margin-bottom:16px; animation:fade-in 0.5s ease-out; }
-  .filter-input { background:rgba(0,0,0,0.3); border:1px solid rgba(37,99,235,0.2); border-radius:6px; padding:6px 10px; font-size:0.8rem; color:#e2e8f0; outline:none; transition:border-color 0.2s; }
-  .filter-input:focus { border-color:#3b82f6; }
-  .filter-input::placeholder { color:#475569; }
-  select { background:rgba(0,0,0,0.3); border:1px solid rgba(37,99,235,0.2); border-radius:6px; padding:6px 10px; font-size:0.8rem; color:#e2e8f0; outline:none; }
-  select option { background:#0a1428; color:#e2e8f0; }
-  table { width:100%; border-collapse:collapse; }
-  th { text-align:left; padding:6px 8px; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:#64748b; border-bottom:1px solid rgba(37,99,235,0.1); }
-  td { padding:5px 8px; font-size:0.75rem; color:#cbd5e1; border-bottom:1px solid rgba(37,99,235,0.05); }
-  tr:hover td { background:rgba(37,99,235,0.03); }
-  .badge { display:inline-block; padding:1px 8px; border-radius:999px; font-size:0.65rem; font-weight:600; }
-  #matrixCanvas { position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:0; pointer-events:none; opacity:0.12; }
-  .ws-indicator { width:8px; height:8px; border-radius:50%; display:inline-block; transition:all 0.3s; }
-  @media print { body{background:white!important;color:black!important} .glass,.glass-card{background:white!important;backdrop-filter:none!important;border:1px solid #ddd!important} #matrixCanvas{display:none!important} .no-print{display:none!important} }
+  @keyframes slide-up { from{opacity:0;transform:translateY(15px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes slide-in { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes fade-in { from{opacity:0} to{opacity:1} }
+  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  @keyframes scan-line { 0%{left:-100%} 100%{left:100%} }
+
+  .tab-btn { transition: all 0.3s; position: relative; }
+  .tab-btn.active { background: rgba(37,99,235,0.2); border-color: rgba(37,99,235,0.5); }
+  .tab-btn.active::after { content:''; position:absolute; bottom:-1px; left:20%; right:20%; height:2px; background:#3b82f6; border-radius:1px; }
+  .tab-content { display: none; animation: slide-up 0.3s ease-out; }
+  .tab-content.active { display: block; }
+
+  .section-card { background: rgba(15,23,42,0.7); border: 1px solid rgba(37,99,235,0.1); border-radius: 12px; padding: 16px; transition: all 0.3s; }
+  .section-card:hover { border-color: rgba(37,99,235,0.25); }
+
+  .detail-panel { position: fixed; top: 0; right: -480px; width: 480px; height: 100vh; z-index: 50; transition: right 0.4s cubic-bezier(0.4,0,0.2,1); max-width: 100vw; }
+  .detail-panel.open { right: 0; }
+  .detail-overlay { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,0.5); display: none; }
+  .detail-overlay.open { display: block; }
+
+  .terminal-view { background: #0a0a0a; border: 1px solid rgba(0,255,0,0.15); border-radius: 8px; padding: 12px; font-family: 'Courier New', monospace; font-size: 12px; color: #00ff00; height: 300px; overflow-y: auto; white-space: pre-wrap; line-height: 1.5; }
+  .terminal-view .line-system { color: #569cd6; }
+  .terminal-view .line-info { color: #4ec9b0; }
+  .terminal-view .line-warn { color: #ce9178; }
+  .terminal-view .line-error { color: #f14c4c; }
+  .terminal-view .line-success { color: #6a9955; }
+
+  .asset-row, .rule-row, .log-row, .bas-row { cursor: pointer; transition: all 0.2s; }
+  .asset-row:hover, .rule-row:hover, .log-row:hover, .bas-row:hover { background: rgba(37,99,235,0.08); }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
+  .badge-critical { background: rgba(239,68,68,0.2); color: #ef4444; }
+  .badge-high { background: rgba(249,115,22,0.2); color: #f97316; }
+  .badge-medium { background: rgba(234,179,8,0.2); color: #eab308; }
+  .badge-low { background: rgba(34,197,94,0.2); color: #22c55e; }
+
+  .filter-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(37,99,235,0.2); border-radius: 6px; padding: 6px 10px; font-size: 12px; color: #e2e8f0; outline: none; }
+  .filter-input:focus { border-color: #3b82f6; }
+  .filter-input::placeholder { color: #475569; }
+  select.filter-input { min-width: 120px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 1px solid rgba(37,99,235,0.1); }
+  td { padding: 7px 8px; font-size: 12px; color: #cbd5e1; border-bottom: 1px solid rgba(37,99,235,0.05); }
+
+  .scan-progress { height: 3px; background: rgba(37,99,235,0.1); border-radius: 2px; overflow: hidden; }
+  .scan-progress .bar { height: 100%; background: linear-gradient(90deg, #2563eb, #3b82f6); border-radius: 2px; transition: width 0.5s; }
+
+  .chart-bar { display: flex; align-items: flex-end; gap: 4px; height: 120px; }
+  .chart-bar .col { flex: 1; border-radius: 3px 3px 0 0; min-height: 4px; transition: height 0.5s; position: relative; }
+  .chart-bar .col:hover { opacity: 0.8; }
+  .chart-bar .col .label { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; color: #64748b; white-space: nowrap; }
+
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+  .status-dot.green { background: #22c55e; }
+  .status-dot.red { background: #ef4444; }
+  .status-dot.yellow { background: #eab308; }
+  .status-dot.gray { background: #64748b; }
+
+  .btn-primary { background: linear-gradient(135deg,#2563eb,#1d4ed8); transition: all 0.3s; box-shadow: 0 4px 20px rgba(37,99,235,0.3); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(37,99,235,0.5); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  #matrixCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; opacity: 0.08; }
+  .content { position: relative; z-index: 1; }
 </style>
 </head>
-<body class="text-gray-200 antialiased min-h-screen">
+<body class="text-gray-200">
 
 <canvas id="matrixCanvas"></canvas>
 
-<!-- LOGIN OVERLAY -->
-<div id="loginOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#050d1f]/95 backdrop-blur-xl" style="display:none;">
-  <div class="glass-card rounded-2xl p-8 w-full max-w-md mx-4">
-    <div class="text-center mb-6">
-      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-blue-500/20 mx-auto mb-3">M</div>
-      <h2 class="text-xl font-bold text-white glow-text">Milli Kiber-DNT</h2>
-      <p class="text-sm text-blue-300/70 mt-1">Qapalı Dövrəli Kiber Müdafiə Platforması</p>
+<!-- DETAIL OVERLAY + PANEL -->
+<div id="detailOverlay" class="detail-overlay" onclick="closeDetail()"></div>
+<div id="detailPanel" class="detail-panel glass">
+  <div class="p-5 h-full flex flex-col">
+    <div class="flex items-center justify-between mb-4">
+      <h3 id="detailTitle" class="text-sm font-bold text-white glow-text">Təfərrüat</h3>
+      <button onclick="closeDetail()" class="text-gray-500 hover:text-white text-lg">&times;</button>
     </div>
-    <form id="loginForm" onsubmit="return handleLogin(event)">
-      <div class="mb-4">
-        <label class="block text-xs text-gray-400 mb-1">İstifadəçi adı</label>
-        <input id="loginUser" type="text" value="admin" class="filter-input w-full text-sm py-2.5 px-3" placeholder="İstifadəçi adı">
-      </div>
-      <div class="mb-6">
-        <label class="block text-xs text-gray-400 mb-1">Şifrə</label>
-        <input id="loginPass" type="password" class="filter-input w-full text-sm py-2.5 px-3" placeholder="Şifrə">
-      </div>
-      <div id="loginError" class="text-red-400 text-xs mb-3 hidden"></div>
-      <button type="submit" class="btn-primary w-full py-2.5 rounded-lg text-sm font-semibold text-white tracking-wide">Daxil ol</button>
-      <p class="text-xs text-gray-500 text-center mt-4">Demo məqsədli · Məlumatlar yalnız lokal saxlanılır</p>
-    </form>
+    <div id="detailBody" class="flex-1 overflow-y-auto space-y-3 text-xs"></div>
   </div>
 </div>
 
-<div class="relative z-10 flex flex-col min-h-screen">
+<div class="content min-h-screen flex flex-col">
 
   <!-- HEADER -->
-  <header class="glass border-b border-blue-900/30 no-print">
-    <div class="max-w-7xl mx-auto px-4 py-3">
-      <div class="flex items-center justify-between flex-wrap gap-3">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/20">M</div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-lg font-bold text-white glow-text tracking-tight">Milli Kiber-DNT</h1>
-              <span id="wsStatus" class="ws-indicator bg-red-500" title="Backend bağlantısı yoxdur"></span>
-            </div>
-            <p class="text-xs text-blue-300/70">Demo v2.0 &middot; Real Backend &middot; <span id="wsMode">Yerli Rejim</span></p>
-          </div>
+  <header class="glass border-b border-blue-900/30 px-4 py-2.5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">M</div>
+        <div>
+          <h1 class="text-base font-bold text-white glow-text">Milli Kiber-DNT <span class="text-[10px] text-blue-400 font-normal">v3</span></h1>
+          <p class="text-[10px] text-blue-300/60">Modul Kiber Müdafiə Platforması</p>
         </div>
-        <div class="flex items-center gap-4 sm:gap-6 flex-wrap">
-          <div class="text-center min-w-[90px]">
-            <p class="text-[10px] text-blue-300/60 uppercase tracking-wider font-medium">Təhdidlər</p>
-            <p class="text-xl font-bold metric-value" id="metricThreats">1,247</p>
-          </div>
-          <div class="text-center min-w-[90px]">
-            <p class="text-[10px] text-blue-300/60 uppercase tracking-wider font-medium">Cavab Vaxtı</p>
-            <p class="text-xl font-bold metric-value" id="metricResponseTime">0.8s</p>
-          </div>
-          <div class="text-center min-w-[90px]">
-            <p class="text-[10px] text-blue-300/60 uppercase tracking-wider font-medium">Aktivlər</p>
-            <p class="text-xl font-bold metric-value" id="metricAssets">12,470</p>
-          </div>
-          <div class="text-center min-w-[90px]">
-            <p class="text-[10px] text-blue-300/60 uppercase tracking-wider font-medium">Bloklanan</p>
-            <p class="text-xl font-bold metric-value" id="metricBlocked">8,932</p>
-          </div>
-          <div class="text-center min-w-[90px] hidden sm:block">
-            <p class="text-[10px] text-blue-300/60 uppercase tracking-wider font-medium">AI Dəqiqlik</p>
-            <p class="text-xl font-bold metric-value" id="metricAI">97.2%</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-[10px] text-gray-400" id="headerUser">admin</span>
-            <button id="logoutBtn" class="text-[10px] px-2 py-1 rounded-md border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-all">Çıxış</button>
-          </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="wsStatus" class="status-dot gray"></span>
+        <span id="modeLabel" class="text-[10px] text-gray-500">Yerli</span>
+        <div class="flex bg-gray-900/60 rounded-lg p-0.5 border border-blue-900/20">
+          <button id="modeLocalBtn" class="px-2.5 py-1 text-[10px] rounded-md font-medium bg-blue-600 text-white">Yerli</button>
+          <button id="modeBackendBtn" class="px-2.5 py-1 text-[10px] rounded-md font-medium text-gray-400 hover:text-white">Backend</button>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- MAIN -->
-  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+  <!-- TABS -->
+  <div class="border-b border-blue-900/20 px-4">
+    <div class="max-w-7xl mx-auto flex gap-1 overflow-x-auto">
+      <button class="tab-btn active px-4 py-2.5 text-xs font-medium text-blue-300 border-b-2 border-blue-500" data-tab="kesfiyyat">🔍 Kəşfiyyat</button>
+      <button class="tab-btn px-4 py-2.5 text-xs font-medium text-gray-400 hover:text-blue-300" data-tab="tehdidler">🧠 Təhdidlər</button>
+      <button class="tab-btn px-4 py-2.5 text-xs font-medium text-gray-400 hover:text-blue-300" data-tab="mudafie">🛡️ Müdafiə</button>
+      <button class="tab-btn px-4 py-2.5 text-xs font-medium text-gray-400 hover:text-blue-300" data-tab="dogrulama">⚔️ Doğrulama</button>
+      <button class="tab-btn px-4 py-2.5 text-xs font-medium text-gray-400 hover:text-blue-300" data-tab="jurnallar">📋 Jurnallar</button>
+    </div>
+  </div>
 
-    <!-- LEFT: CONTROL PANEL + FILTERS -->
-    <aside class="lg:col-span-1 no-print space-y-4">
-      <div class="glass-card rounded-2xl p-5 space-y-4 sticky top-24">
+  <!-- MAIN CONTENT -->
+  <div class="flex-1 max-w-7xl mx-auto w-full px-4 py-5">
+
+    <!-- TAB 1: KƏŞFİYYAT -->
+    <div id="tab-kesfiyyat" class="tab-content active">
+      <div class="flex items-center justify-between mb-4">
         <div>
-          <h2 class="text-xs font-semibold text-blue-300/60 uppercase tracking-widest mb-1">İdarə Paneli</h2>
-          <div class="h-px bg-gradient-to-r from-blue-500/30 to-transparent"></div>
+          <h2 class="text-lg font-bold text-white">Kəşfiyyat & Aktiv Kəşfi</h2>
+          <p class="text-[11px] text-gray-500">Real Nmap skanı — aşkar edilmiş aktivləri göstərir</p>
         </div>
+        <button id="scanBtn" class="btn-primary px-4 py-2 rounded-lg text-xs font-semibold text-white">Skan et</button>
+      </div>
+      <div class="scan-progress mb-3"><div id="scanProgressBar" class="bar" style="width:0%"></div></div>
+      <div class="flex gap-2 mb-3 flex-wrap">
+        <input id="assetFilterIP" class="filter-input flex-1 min-w-[120px]" placeholder="IP filtr">
+        <input id="assetFilterPort" class="filter-input w-20" placeholder="Port">
+        <input id="assetFilterService" class="filter-input flex-1 min-w-[100px]" placeholder="Servis">
+        <span id="assetCount" class="text-[11px] text-gray-500 self-center">0 aktiv</span>
+      </div>
+      <div class="section-card overflow-x-auto">
+        <table>
+          <thead><tr><th>IP</th><th>Hostname</th><th>Portlar</th><th>Servislər</th><th>Vendor</th><th>Risk</th></tr></thead>
+          <tbody id="assetTableBody"></tbody>
+        </table>
+      </div>
+    </div>
 
+    <!-- TAB 2: TƏHDİDLƏR -->
+    <div id="tab-tehdidler" class="tab-content">
+      <div class="flex items-center justify-between mb-4">
         <div>
-          <label class="text-xs font-medium text-gray-400 mb-1.5 block">Ssenari seçimi</label>
-          <select id="scenarioSelect" class="w-full rounded-lg px-3 py-2.5 text-sm">
-            <option value="hikvision">Hikvision Kamera Zero-Day RCE</option>
-            <option value="absheron">Abşeron Su Stansiyası PLC Zəifliyi</option>
-            <option value="k8s">Milli Data Mərkəzi K8s Misconfig</option>
-            <option value="random">— Təsadüfi Yeni Təhdid —</option>
-          </select>
+          <h2 class="text-lg font-bold text-white">Təhdid Kəşfiyyatı</h2>
+          <p class="text-[11px] text-gray-500">FIRST.org EPSS API — real istismar ehtimalı</p>
         </div>
-
-        <div>
-          <label class="text-xs font-medium text-gray-400 mb-1.5 block">Simulyasiya sürəti</label>
-          <div class="flex gap-1 bg-gray-900/40 rounded-lg p-1 border border-blue-900/20">
-            <button data-speed="slow" class="speed-btn flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all text-gray-400 hover:text-white">Yavaş</button>
-            <button data-speed="normal" class="speed-btn flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all bg-blue-600 text-white shadow">Normal</button>
-            <button data-speed="fast" class="speed-btn flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all text-gray-400 hover:text-white">Sürətli</button>
-          </div>
-        </div>
-
-        <div>
-          <label class="text-xs font-medium text-gray-400 mb-1.5 block">Backend əlaqə növü</label>
-          <div class="flex gap-1 bg-gray-900/40 rounded-lg p-1 border border-blue-900/20">
-            <button id="modeLocal" class="mode-btn flex-1 px-2 py-1.5 text-xs rounded-md font-medium bg-blue-600 text-white shadow">Yerli</button>
-            <button id="modeBackend" class="mode-btn flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all text-gray-400 hover:text-white">Backend</button>
-          </div>
-        </div>
-
-        <button id="simulateBtn" class="btn-primary w-full py-3 px-4 rounded-xl text-white font-semibold text-sm tracking-wide flex items-center justify-center gap-2">
-          <svg id="playIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.73-5.89a1.5 1.5 0 000-2.54L6.3 2.84z"/></svg>
-          <span id="simBtnText">Sıfırıncı Gün Təhdidini Simulyasiya Et</span>
-        </button>
-
         <div class="flex gap-2">
-          <button id="pauseStepBtn" disabled class="flex-1 py-2 px-3 rounded-lg text-xs font-medium bg-gray-800/50 border border-blue-900/20 text-gray-400 transition-all opacity-50 cursor-not-allowed flex items-center justify-center gap-1.5">
-            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M5.5 3A1.5 1.5 0 004 4.5v11A1.5 1.5 0 005.5 17h2A1.5 1.5 0 009 15.5v-11A1.5 1.5 0 007.5 3h-2zm7 0A1.5 1.5 0 0011 4.5v11a1.5 1.5 0 001.5 1.5h2a1.5 1.5 0 001.5-1.5v-11A1.5 1.5 0 0014.5 3h-2z"/></svg>
-            <span>Dayandır</span>
-          </button>
-          <button id="stepBtn" disabled class="flex-1 py-2 px-3 rounded-lg text-xs font-medium bg-gray-800/50 border border-blue-900/20 text-gray-400 transition-all opacity-50 cursor-not-allowed flex items-center justify-center gap-1.5">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
-            <span>Addımla</span>
-          </button>
+          <input id="cveInput" class="filter-input w-48" placeholder="CVE (CVE-2021-36260)" value="CVE-2021-36260">
+          <button id="queryCveBtn" class="btn-primary px-3 py-1.5 rounded-lg text-xs text-white">Sorğu</button>
         </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+        <div class="section-card text-center"><p class="text-[10px] text-gray-500 uppercase">EPSS Skoru</p><p id="epssScore" class="text-2xl font-bold text-white">—</p></div>
+        <div class="section-card text-center"><p class="text-[10px] text-gray-500 uppercase">CVSS</p><p id="cvssScore" class="text-2xl font-bold text-orange-400">—</p></div>
+        <div class="section-card text-center"><p class="text-[10px] text-gray-500 uppercase">Təhdid Səviyyəsi</p><p id="threatLevel" class="text-2xl font-bold text-blue-400">—</p></div>
+      </div>
+      <div class="section-card">
+        <p class="text-[10px] text-gray-500 uppercase mb-2">EPSS Trend (son CVE-lər)</p>
+        <div id="epssChart" class="chart-bar"></div>
+      </div>
+      <div class="section-card mt-3 overflow-x-auto">
+        <table><thead><tr><th>CVE</th><th>EPSS</th><th>Persentil</th><th>Səviyyə</th><th>Status</th></tr></thead><tbody id="threatTableBody"></tbody></table>
+      </div>
+    </div>
 
+    <!-- TAB 3: MÜDAFİƏ -->
+    <div id="tab-mudafie" class="tab-content">
+      <div class="flex items-center justify-between mb-4">
         <div>
-          <h3 class="text-xs font-semibold text-blue-300/60 uppercase tracking-widest mb-2">Genetik Yaddaş</h3>
-          <div class="space-y-1.5 max-h-[120px] overflow-y-auto" id="kbList">
-            <div class="text-xs text-gray-500 italic">Hələlik məlumat yoxdur</div>
-          </div>
+          <h2 class="text-lg font-bold text-white">Müdafiə & SOAR</h2>
+          <p class="text-[11px] text-gray-500">Snort/Suricata IPS qaydaları — avtomatik generasiya</p>
+        </div>
+        <button id="generateRulesBtn" class="btn-primary px-4 py-2 rounded-lg text-xs text-white">Qayda yarat</button>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <div class="section-card">
+          <p class="text-[10px] text-gray-500 uppercase mb-2">Terminal jurnalı</p>
+          <div id="defenseTerminal" class="terminal-view">[Kiber-DNT] Müdafiə terminalı hazırdır...\n</div>
+        </div>
+        <div class="section-card overflow-x-auto">
+          <p class="text-[10px] text-gray-500 uppercase mb-2">Yaradılan qaydalar</p>
+          <table><thead><tr><th>SID</th><th>Tip</th><th>Hədəf</th><th>Status</th></tr></thead><tbody id="ruleTableBody"></tbody></table>
         </div>
       </div>
-
-      <!-- FILTER PANEL -->
-      <div class="glass-card rounded-2xl p-4 space-y-3">
-        <h3 class="text-xs font-semibold text-blue-300/60 uppercase tracking-widest">Filtr</h3>
-        <div class="flex flex-col gap-2">
-          <select id="filterAssetType" class="w-full text-xs">
-            <option value="">Bütün aktiv növləri</option>
-            <option value="IP_CAMERA">IP Kamera</option>
-            <option value="PLC">PLC / SCADA</option>
-            <option value="SERVER">Server</option>
-            <option value="NETWORK">Şəbəkə</option>
-          </select>
-          <input id="filterIP" class="filter-input w-full" placeholder="IP ünvanı ilə axtar...">
-          <input id="filterPort" class="filter-input w-full" placeholder="Port nömrəsi...">
-          <select id="filterLogType" class="w-full text-xs">
-            <option value="">Bütün loq tipləri</option>
-            <option value="EXPLOIT_ATTEMPT">EXPLOIT_ATTEMPT</option>
-            <option value="SCAN">SCAN</option>
-            <option value="BLOCKED">BLOCKED</option>
-            <option value="RULE_GENERATED">RULE_GENERATED</option>
-            <option value="VERIFICATION">VERIFICATION</option>
-          </select>
-          <select id="filterStatus" class="w-full text-xs">
-            <option value="">Bütün statuslar</option>
-            <option value="BLOCKED">BLOCKED</option>
-            <option value="SUCCESS">SUCCESS</option>
-            <option value="WARNING">WARNING</option>
-            <option value="ERROR">ERROR</option>
-          </select>
-          <button id="applyFilterBtn" class="text-xs px-3 py-2 rounded-lg bg-blue-600/20 text-blue-300 hover:bg-blue-600/30 transition-colors">Filterlə</button>
-        </div>
-      </div>
-    </aside>
-
-    <!-- RIGHT: MAIN CONTENT -->
-    <div class="lg:col-span-3 space-y-5">
-
-      <!-- CORE LOOP -->
-      <div class="glass-card rounded-2xl p-5">
-        <h2 class="text-xs font-semibold text-blue-300/60 uppercase tracking-widest mb-4">Qapalı Dövrəli Kiber Müdafiə Dövrü</h2>
-        <div class="flex items-center justify-between overflow-x-auto pb-2" id="coreLoop">
-          <div class="phase-node flex flex-col items-center gap-2" data-phase="1">
-            <div class="phase-circle relative w-14 h-14 rounded-full bg-gray-800/80 border-2 border-blue-500/30 flex items-center justify-center transition-all duration-500">
-              <span class="phase-icon text-2xl">🔍</span>
-            </div>
-            <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider text-center leading-tight">Kəşfiyyat<br><span class="text-[8px] text-gray-600">01</span></span>
-            <span class="text-[9px] text-gray-600 text-center leading-tight max-w-[80px]">Aktiv kəşfi &amp; Skan</span>
-          </div>
-          <div class="phase-connector" data-connector="1"><div class="fill" style="width:0%"></div></div>
-          <div class="phase-node flex flex-col items-center gap-2" data-phase="2">
-            <div class="phase-circle relative w-14 h-14 rounded-full bg-gray-800/80 border-2 border-blue-500/30 flex items-center justify-center transition-all duration-500">
-              <span class="phase-icon text-2xl">🧠</span>
-            </div>
-            <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider text-center leading-tight">AI Qərar<br><span class="text-[8px] text-gray-600">02</span></span>
-            <span class="text-[9px] text-gray-600 text-center leading-tight max-w-[80px]">CVSS/EPSS &amp; EPSS API</span>
-          </div>
-          <div class="phase-connector" data-connector="2"><div class="fill" style="width:0%"></div></div>
-          <div class="phase-node flex flex-col items-center gap-2" data-phase="3">
-            <div class="phase-circle relative w-14 h-14 rounded-full bg-gray-800/80 border-2 border-blue-500/30 flex items-center justify-center transition-all duration-500">
-              <span class="phase-icon text-2xl">🛡️</span>
-            </div>
-            <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider text-center leading-tight">SOAR &amp;<br><span class="text-[8px] text-gray-600">03</span></span>
-            <span class="text-[9px] text-gray-600 text-center leading-tight max-w-[80px]">WAF/IPS Qaydaları</span>
-          </div>
-          <div class="phase-connector" data-connector="3"><div class="fill" style="width:0%"></div></div>
-          <div class="phase-node flex flex-col items-center gap-2" data-phase="4">
-            <div class="phase-circle relative w-14 h-14 rounded-full bg-gray-800/80 border-2 border-blue-500/30 flex items-center justify-center transition-all duration-500">
-              <span class="phase-icon text-2xl">⚔️</span>
-            </div>
-            <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider text-center leading-tight">BAS<br><span class="text-[8px] text-gray-600">04</span></span>
-            <span class="text-[9px] text-gray-600 text-center leading-tight max-w-[80px]">Doğrulama</span>
-          </div>
-          <div class="phase-connector" data-connector="4"><div class="fill" style="width:0%"></div></div>
-          <div class="phase-node flex flex-col items-center gap-2" data-phase="5">
-            <div class="phase-circle relative w-14 h-14 rounded-full bg-gray-800/80 border-2 border-blue-500/30 flex items-center justify-center transition-all duration-500">
-              <span class="phase-icon text-2xl">📋</span>
-            </div>
-            <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider text-center leading-tight">Öyrənmə<br><span class="text-[8px] text-gray-600">05</span></span>
-            <span class="text-[9px] text-gray-600 text-center leading-tight max-w-[80px]">LLM Hesabatı</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- DYNAMIC PHASE PANEL -->
-      <div id="phasePanel" class="glass-card rounded-2xl p-5 hidden">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center gap-3">
-            <span id="panelIcon" class="text-2xl">🔍</span>
-            <div>
-              <h3 id="panelTitle" class="text-sm font-bold text-white">Mərhələ</h3>
-              <p id="panelSub" class="text-[11px] text-gray-500">Status: <span id="panelStatus" class="text-yellow-400">Davam edir...</span></p>
-            </div>
-          </div>
-          <span id="panelBadge" class="text-[10px] px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 font-semibold">FƏAL</span>
-        </div>
-        <div id="panelContent" class="space-y-3 text-sm"></div>
-      </div>
-
-      <!-- ASSET TABLE (filterable) -->
-      <div class="glass-card rounded-2xl p-5">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-xs font-semibold text-blue-300/60 uppercase tracking-widest">Aşkar edilmiş aktivlər</h2>
-          <span class="text-[10px] text-gray-500">#<span id="assetCount">0</span></span>
-        </div>
-        <div class="overflow-x-auto max-h-[200px] overflow-y-auto">
-          <table>
-            <thead><tr><th>IP</th><th>Hostname</th><th>Portlar</th><th>Banner</th><th>Vendor</th></tr></thead>
-            <tbody id="assetTableBody">
-              <tr><td colspan="5" class="text-center text-gray-600 italic py-4">Hələlik aktiv aşkar edilməyib</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- WAF/IPS RULES TABLE (filterable) -->
-      <div class="glass-card rounded-2xl p-5">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-xs font-semibold text-blue-300/60 uppercase tracking-widest">Yaradılan WAF/IPS Qaydaları</h2>
-          <span class="text-[10px] text-gray-500">#<span id="ruleCount">0</span></span>
-        </div>
-        <div class="overflow-x-auto max-h-[180px] overflow-y-auto">
-          <table>
-            <thead><tr><th>SID</th><th>Növ</th><th>Qayda</th><th>Status</th></tr></thead>
-            <tbody id="ruleTableBody">
-              <tr><td colspan="4" class="text-center text-gray-600 italic py-4">Hələlik qayda yaradılmayıb</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- EVENT LOG (filterable) -->
-      <div class="glass-card rounded-2xl p-5">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-xs font-semibold text-blue-300/60 uppercase tracking-widest">Hadisə Jurnalı</h2>
-          <div class="flex items-center gap-3">
-            <span class="text-[10px] text-gray-500">#<span id="logCount">0</span> giriş</span>
-            <button id="clearLogBtn" class="text-[10px] text-gray-600 hover:text-gray-400 transition-colors">Təmizlə</button>
-          </div>
-        </div>
-        <div id="eventLog" class="h-[200px] overflow-y-auto space-y-1 pr-1 text-xs font-mono">
-          <div class="text-gray-600 italic text-center py-8">Simulyasiyaya başlamaq üçün düyməni sıxın.</div>
-        </div>
-      </div>
-
-      <!-- REPORT -->
-      <div id="reportPanel" class="glass-card rounded-2xl p-5 hidden">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h2 class="text-sm font-bold text-white">İnsident Hesabatı</h2>
-            <p class="text-[11px] text-gray-500">Avtomatik post-mortem analizi</p>
-          </div>
-          <button id="printReportBtn" class="text-xs px-3 py-1.5 rounded-lg bg-blue-600/20 text-blue-300 hover:bg-blue-600/30 transition-colors flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-            PDF / Çap et
-          </button>
-        </div>
-        <div id="reportContent" class="space-y-3 text-sm"></div>
-      </div>
-
     </div>
-  </main>
 
-  <footer class="glass border-t border-blue-900/20 py-3 no-print">
-    <div class="max-w-7xl mx-auto px-4 flex items-center justify-between text-[10px] text-gray-600">
-      <span>&copy; 2026 Milli Kiber-DNT &middot; Qapalı Dövrəli Kiber Müdafiə Platforması</span>
-      <span>v2.0-backend &middot; <span class="text-blue-400/60">Bütün hüquqlar qorunur</span></span>
+    <!-- TAB 4: DOĞRULAMA -->
+    <div id="tab-dogrulama" class="tab-content">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-lg font-bold text-white">BAS Doğrulama</h2>
+          <p class="text-[11px] text-gray-500">Breach & Attack Simulation — virtual yamaqları yoxlayır</p>
+        </div>
+        <button id="basSimulateBtn" class="btn-primary px-4 py-2 rounded-lg text-xs text-white">Simulyasiya et</button>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div class="section-card text-center"><p class="text-[10px] text-gray-500 uppercase">Test sayı</p><p id="basTotal" class="text-xl font-bold text-white">0</p></div>
+        <div class="section-card text-center"><p class="text-[10px] text-gray-500 uppercase">Bloklanan</p><p id="basBlocked" class="text-xl font-bold text-emerald-400">0</p></div>
+        <div class="section-card text-center"><p class="text-[10px] text-gray-500 uppercase">Keçən</p><p id="basBypassed" class="text-xl font-bold text-red-400">0</p></div>
+        <div class="section-card text-center"><p class="text-[10px] text-gray-500 uppercase">Qoruma</p><p id="basProtection" class="text-xl font-bold text-blue-400">0%</p></div>
+      </div>
+      <div class="section-card overflow-x-auto">
+        <table><thead><tr><th>Hədəf</th><th>CVE</th><th>Status kod</th><th>Nəticə</th><th>Gecikmə</th></tr></thead><tbody id="basTableBody"></tbody></table>
+      </div>
     </div>
-  </footer>
+
+    <!-- TAB 5: JURNALLAR -->
+    <div id="tab-jurnallar" class="tab-content">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-lg font-bold text-white">SIEM Jurnalı</h2>
+          <p class="text-[11px] text-gray-500">Mərkəzləşdirilmiş hadisə jurnalı</p>
+        </div>
+        <button id="clearLogsBtn" class="px-3 py-1.5 rounded-lg text-xs border border-red-500/30 text-red-400 hover:bg-red-500/10">Təmizlə</button>
+      </div>
+      <div class="flex gap-2 mb-3 flex-wrap">
+        <select id="logTypeFilter" class="filter-input"><option value="">Bütün tiplər</option><option value="SCAN">Skan</option><option value="THREAT">Təhdid</option><option value="RULE">Qayda</option><option value="BAS">Doğrulama</option><option value="BLOCKED">Bloklanmış</option></select>
+        <select id="logSeverityFilter" class="filter-input"><option value="">Bütün səviyyələr</option><option value="CRITICAL">Kritik</option><option value="HIGH">Yüksək</option><option value="MEDIUM">Orta</option><option value="LOW">Aşağı</option></select>
+        <input id="logSearch" class="filter-input flex-1 min-w-[120px]" placeholder="Axtar...">
+        <span id="logCount" class="text-[11px] text-gray-500 self-center">0 hadisə</span>
+      </div>
+      <div class="section-card overflow-x-auto" style="max-height:500px;overflow-y:auto">
+        <table><thead><tr><th>Zaman</th><th>Tip</th><th>Mesaj</th><th>Səviyyə</th></tr></thead><tbody id="logTableBody"></tbody></table>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2 w-80 no-print"></div>
-
 <script>
-// ============================================================
-// Milli Kiber-DNT v2.0 — Frontend with WebSocket Backend Support
-// ============================================================
-
-// ---- STATE ----
+// ===== STATE =====
 const state = {
-  mode: 'local',        // 'local' | 'backend'
-  ws: null,
-  wsConnected: false,
-  isRunning: false,
-  isPaused: false,
-  speed: 'normal',
-  phase: 0,
-  log: [],
-  kb: [],
-  assets: [],
-  rules: [],
-  metrics: { threats: 1247, responseTime: 0.8, assets: 12470, blocked: 8932, aiAccuracy: 97.2 },
-  timer: null,
-  pendingResolve: null,
-  stepQueue: [],
-  currentIncidentId: null
+  mode: 'local', assets: [], threats: [], rules: [], basResults: [], logs: [],
+  ws: null, wsConnected: false, scanning: false
 };
+const AUTH_TOKEN = 'kiber-dnt-demo-token-2026';
 
-// ---- DOM ----
+// ===== DOM =====
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
-const el = {};
-['simulateBtn','simBtnText','playIcon','pauseIcon','pauseStepBtn','stepBtn',
- 'scenarioSelect','eventLog','logCount','clearLogBtn',
- 'metricThreats','metricResponseTime','metricAssets','metricBlocked','metricAI',
- 'phasePanel','panelIcon','panelTitle','panelSub','panelStatus','panelBadge','panelContent',
- 'reportPanel','reportContent','printReportBtn','kbList','toastContainer','coreLoop',
- 'assetTableBody','assetCount','ruleTableBody','ruleCount',
- 'wsStatus','wsMode','modeLocal','modeBackend',
- 'filterAssetType','filterIP','filterPort','filterLogType','filterStatus','applyFilterBtn'].forEach(
-  id => el[id] = document.getElementById(id)
-);
+const D = id => document.getElementById(id);
 
-// ---- LOGIN ----
-const AUTH_TOKEN = 'kiber-dnt-demo-token-2026';
-const AUTH_USER = 'admin';
-const AUTH_PASS = 'kiberdnt2026';
+// ===== TABS =====
+$$('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('.tab-btn').forEach(b => { b.classList.remove('active','text-blue-300','border-blue-500'); b.classList.add('text-gray-400','border-transparent'); });
+    btn.classList.add('active','text-blue-300','border-blue-500');
+    btn.classList.remove('text-gray-400','border-transparent');
+    $$('.tab-content').forEach(c => c.classList.remove('active'));
+    D('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
 
-function handleLogin(e) {
-  e.preventDefault();
-  const user = document.getElementById('loginUser').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  const error = document.getElementById('loginError');
-  if (user === AUTH_USER && pass === AUTH_PASS) {
-    localStorage.setItem('kiber_dnt_auth', '1');
-    document.getElementById('loginOverlay').style.display = 'none';
-    error.classList.add('hidden');
-    showToast('Xoş gəldiniz', `${user} — Milli Kiber-DNT platformasına daxil oldunuz`, 'success');
-    return false;
-  }
-  error.classList.remove('hidden');
-  error.textContent = 'Yanlış istifadəçi adı və ya şifrə!';
-  return false;
+// ===== DETAIL PANEL =====
+function showDetail(title, html) {
+  D('detailTitle').textContent = title;
+  D('detailBody').innerHTML = html;
+  D('detailPanel').classList.add('open');
+  D('detailOverlay').classList.add('open');
+}
+function closeDetail() {
+  D('detailPanel').classList.remove('open');
+  D('detailOverlay').classList.remove('open');
 }
 
-// Check auth on page load
-(function() {
-  if (localStorage.getItem('kiber_dnt_auth') === '1') {
-    document.getElementById('loginOverlay').style.display = 'none';
+// ===== TERMINAL LOG =====
+function addDefenseLog(msg, type='info') {
+  const t = D('defenseTerminal');
+  const cls = {info:'line-info',warn:'line-warn',error:'line-error',success:'line-success',system:'line-system'}[type]||'line-info';
+  t.innerHTML += `<span class="${cls}">[${new Date().toLocaleTimeString()}] ${msg}\n</span>`;
+  t.scrollTop = t.scrollHeight;
+}
+
+// ===== MODE SWITCHING =====
+function setMode(mode) {
+  state.mode = mode;
+  if (mode === 'backend') {
+    D('modeLocalBtn').className = 'px-2.5 py-1 text-[10px] rounded-md font-medium text-gray-400 hover:text-white';
+    D('modeBackendBtn').className = 'px-2.5 py-1 text-[10px] rounded-md font-medium bg-blue-600 text-white';
+    D('modeLabel').textContent = 'Backend';
+    connectWS();
   } else {
-    document.getElementById('loginOverlay').style.display = 'flex';
+    D('modeBackendBtn').className = 'px-2.5 py-1 text-[10px] rounded-md font-medium text-gray-400 hover:text-white';
+    D('modeLocalBtn').className = 'px-2.5 py-1 text-[10px] rounded-md font-medium bg-blue-600 text-white';
+    D('modeLabel').textContent = 'Yerli';
+    if (state.ws) { state.ws.close(); state.ws = null; }
+    state.wsConnected = false;
+    D('wsStatus').className = 'status-dot gray';
   }
-})();
-
-// ---- TOAST ----
-function showToast(title, message, type='info') {
-  const c = { info:{bg:'bg-blue-600/80',border:'border-blue-400/40',icon:'🛈'},
-              success:{bg:'bg-emerald-600/80',border:'border-emerald-400/40',icon:'✓'},
-              warning:{bg:'bg-amber-600/80',border:'border-amber-400/40',icon:'⚠'},
-              danger:{bg:'bg-red-600/80',border:'border-red-400/40',icon:'✕'} }[type]||{};
-  const t = document.createElement('div');
-  t.className=`toast ${c.bg||'bg-blue-600/80'} backdrop-blur-lg ${c.border||'border-blue-400/40'} border rounded-xl px-4 py-3 shadow-2xl flex items-start gap-3`;
-  t.innerHTML=`<span class="text-lg">${c.icon||'🛈'}</span><div><p class="text-sm font-semibold text-white">${title}</p><p class="text-xs text-white/70 mt-0.5">${message}</p></div>`;
-  el.toastContainer.appendChild(t);
-  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(50px)';t.style.transition='all 0.3s';setTimeout(()=>t.remove(),300);},4000);
 }
+D('modeLocalBtn').addEventListener('click', () => setMode('local'));
+D('modeBackendBtn').addEventListener('click', () => setMode('backend'));
 
-// ---- LOG ----
-function addLog(phase, message, type='info') {
-  const icons={info:'🛈',analysis:'🔬',action:'⚡',threat:'🚨',success:'✓',system:'⚙'};
-  const colors={info:'border-blue-500 text-blue-300',analysis:'border-yellow-500 text-yellow-300',action:'border-emerald-500 text-emerald-300',threat:'border-red-500 text-red-300',success:'border-emerald-500 text-emerald-300',system:'border-gray-500 text-gray-400'};
-  const ts=new Date().toTimeString().slice(0,8);
-  const e={phase,message,type,ts};
-  state.log.push(e);
-  const d=document.createElement('div');
-  d.className=`log-entry ${colors[type]||colors.info} rounded px-3 py-1.5 flex items-start gap-2.5 text-[11px]`;
-  d.innerHTML=`<span class="text-gray-600 w-14 flex-shrink-0 font-mono">${ts}</span><span class="flex-shrink-0">${icons[type]||'🛈'}</span><span class="font-medium min-w-[60px] text-[10px] uppercase tracking-wider ${type==='threat'?'text-red-400':type==='success'?'text-emerald-400':type==='analysis'?'text-yellow-400':'text-blue-300'}">${phase}</span><span>${message}</span>`;
-  el.eventLog.appendChild(d);
-  el.eventLog.scrollTop=el.eventLog.scrollHeight;
-  el.logCount.textContent=state.log.length;
-}
-
-// Add log from WebSocket backend messages
-function addBackendLog(msg) {
-  const typeMap = { 'SCAN_START':'info','SCAN_COMPLETE':'success','ASSET_DISCOVERED':'info',
-    'RULE_GENERATED':'action','RULE_DEPLOYED':'action','VERIFICATION':'success',
-    'VERIFICATION_COMPLETE':'success','VERIFICATION_START':'analysis',
-    'THREAT_ASSESSMENT':'analysis','REPORT_CHUNK':'info','PHASE_UPDATE':'system' };
-  addLog(msg.phase || msg.event || 'SİSTEM', msg.message || JSON.stringify(msg.data||''),
-         typeMap[msg.event] || msg.severity || 'info');
-}
-
-// ---- CORE LOOP ----
-function resetLoop() {
-  el.coreLoop.querySelectorAll('.phase-node').forEach(n=>{n.classList.remove('active','completed');const c=n.querySelector('.phase-circle');if(c)c.innerHTML=n.querySelector('.phase-icon')?n.querySelector('.phase-icon').outerHTML:'';});
-  el.coreLoop.querySelectorAll('.phase-connector').forEach(c=>c.classList.remove('active'));
-}
-function activatePhase(n) {
-  el.coreLoop.querySelectorAll('.phase-node').forEach((node,i)=>{
-    const idx=parseInt(node.dataset.phase);
-    if(idx<n){node.classList.remove('active');node.classList.add('completed');}
-    else if(idx===n){node.classList.add('active');node.classList.remove('completed');}
-    else{node.classList.remove('active','completed');}
-  });
-  el.coreLoop.querySelectorAll('.phase-connector').forEach((conn,i)=>{
-    if(i+1<n){conn.classList.add('active');conn.querySelector('.fill').style.width='100%';}
-    else if(i+1===n){conn.querySelector('.fill').style.width='100%';conn.classList.add('active');}
-    else{conn.classList.remove('active');conn.querySelector('.fill').style.width='0%';}
-  });
-}
-function completeAll() {
-  el.coreLoop.querySelectorAll('.phase-node').forEach(n=>{n.classList.remove('active');n.classList.add('completed');});
-  el.coreLoop.querySelectorAll('.phase-connector').forEach(c=>{c.classList.add('active');c.querySelector('.fill').style.width='100%';});
-}
-
-// ---- WEBSOCKET ----
-const WS_URL = 'ws://localhost:8000/ws';
-
-function connectWebSocket() {
+// ===== WEBSOCKET =====
+function connectWS() {
   if (state.ws && (state.ws.readyState === WebSocket.OPEN || state.ws.readyState === WebSocket.CONNECTING)) return;
   try {
-    state.ws = new WebSocket(WS_URL);
+    state.ws = new WebSocket('ws://localhost:8000/ws');
     state.ws.onopen = () => {
       state.wsConnected = true;
-      el.wsStatus.className = 'ws-indicator bg-emerald-500';
-      el.wsMode.textContent = 'Backend Rejim (Canlı)';
-      wsSend({ type: 'auth', token: AUTH_TOKEN });
-      showToast('Backend bağlantısı quruldu', 'Real Nmap, EPSS API, SOAR, BAS aktivdir', 'success');
+      D('wsStatus').className = 'status-dot green';
+      state.ws.send(JSON.stringify({type:'auth', token:AUTH_TOKEN}));
     };
     state.ws.onclose = () => {
       state.wsConnected = false;
-      el.wsStatus.className = 'ws-indicator bg-red-500';
-      el.wsMode.textContent = 'Yerli Rejim';
-      if (state.mode === 'backend') {
-        showToast('Backend bağlantısı kəsildi', 'Yerli rejimə keçilir', 'warning');
-        setMode('local');
-      }
-      setTimeout(() => { if (state.mode === 'backend') connectWebSocket(); }, 3000);
+      D('wsStatus').className = 'status-dot gray';
+      if (state.mode === 'backend') setTimeout(connectWS, 3000);
     };
-    state.ws.onerror = () => {
-      if (state.mode === 'backend') {
-        showToast('Backend əlaqə xətası', 'Server işləmir? Yerli rejimə keçin', 'danger');
-      }
+    state.ws.onerror = () => { D('wsStatus').className = 'status-dot red'; };
+    state.ws.onmessage = (e) => {
+      try { handleWSMessage(JSON.parse(e.data)); } catch(_) {}
     };
-    state.ws.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        handleWSMessage(msg);
-      } catch(e) {}
-    };
-  } catch(e) {
-    el.wsStatus.className = 'ws-indicator bg-red-500';
-  }
-}
-
-function handleWSMessage(msg) {
-  switch (msg.type) {
-    case 'pong': break;
-    case 'scan_result':
-      if (msg.assets) {
-        state.assets = msg.assets;
-        renderAssetTable();
-        showToast('Skan tamamlandı', `${msg.count} aktiv aşkar edildi`, 'success');
-      }
-      break;
-    case 'epss_result':
-      if (msg.data) {
-        updateEPSSPanel(msg.data);
-      }
-      break;
-    case 'log_results':
-      if (msg.logs) {
-        el.eventLog.innerHTML = '';
-        state.log = [];
-        msg.logs.forEach(l => addLog(l.phase || l.event_type, l.message, l.severity));
-      }
-      break;
-    case 'asset_results':
-      if (msg.assets) { state.assets = msg.assets; renderAssetTable(); }
-      break;
-    case 'rule_results':
-      if (msg.rules) { state.rules = msg.rules; renderRuleTable(); }
-      break;
-    case 'stats':
-      if (msg.data) {
-        el.metricThreats.textContent = (msg.data.total_incidents || 0).toLocaleString();
-        el.metricAssets.textContent = (msg.data.total_assets || 0).toLocaleString();
-        el.metricBlocked.textContent = (msg.data.blocked_count || 0).toLocaleString();
-      }
-      break;
-    case 'scan':
-      if (msg.event === 'ASSET_DISCOVERED' && msg.data) {
-        state.assets.push(msg.data);
-        renderAssetTable();
-      }
-      break;
-    case 'log':
-      addBackendLog(msg);
-      break;
-    case 'epss':
-      if (msg.data) updateEPSSPanel(msg.data);
-      break;
-    case 'rule':
-      if (msg.data) {
-        state.rules.push(msg.data);
-        renderRuleTable();
-      }
-      break;
-    case 'bas':
-      if (msg.data) updateBASPanel(msg.data);
-      break;
-    case 'phase':
-      if (msg.phase) {
-        activatePhase(msg.phase);
-        if (msg.status === 'completed') {
-          addLog(msg.phase_name || `Mərhələ ${msg.phase}`, `Tamamlandı ✓`, 'success');
-        } else {
-          addLog(msg.phase_name || `Mərhələ ${msg.phase}`, 'Başladı...', 'system');
-        }
-      }
-      break;
-    case 'report':
-      if (msg.data && msg.data.report_markdown) {
-        el.reportPanel.classList.remove('hidden');
-        el.reportContent.innerHTML = '<div class="report-section">' +
-          msg.data.report_markdown.replace(/\n/g, '<br>').replace(/#{1,3}\s(.*?)(?:<br>|$)/g, '<h4 class="text-sm font-bold text-white mt-3 mb-1">$1</h4>') +
-          '</div>';
-        el.reportPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      if (msg.data && msg.data.chunk) {
-        // Streaming report chunk
-        el.reportPanel.classList.remove('hidden');
-        const existing = el.reportContent.querySelector('.stream-content');
-        if (existing) existing.textContent += msg.data.chunk;
-        else el.reportContent.innerHTML = '<div class="stream-content text-xs text-gray-300 font-mono whitespace-pre-wrap"></div>';
-      }
-      break;
-    case 'assessment':
-      updateEPSSPanel(msg.data);
-      break;
-    case 'system':
-      addLog('SİSTEM', msg.message || '', 'system');
-      break;
-    case 'error':
-      showToast('Xəta', msg.message || 'Bilinməyən xəta', 'danger');
-      break;
-  }
+  } catch(_) { D('wsStatus').className = 'status-dot red'; }
 }
 
 function wsSend(data) {
-  if (state.ws && state.ws.readyState === WebSocket.OPEN) {
-    state.ws.send(JSON.stringify(data));
-    return true;
+  if (state.ws && state.wsConnected) state.ws.send(JSON.stringify(data));
+}
+
+function handleWSMessage(msg) {
+  switch(msg.type) {
+    case 'scan_result':
+      state.assets = msg.assets || [];
+      renderAssets();
+      D('scanProgressBar').style.width = '100%';
+      setTimeout(() => D('scanProgressBar').style.width = '0%', 1000);
+      state.scanning = false;
+      addLog('SCAN', `Skan tamamlandı: ${msg.count} aktiv`, 'info');
+      break;
+    case 'epss_result':
+      updateEPSSDisplay(msg.data);
+      break;
+    case 'rules_result':
+      state.rules = msg.rules || [];
+      renderRules();
+      addLog('RULE', `${state.rules.length} qayda yaradıldı`, 'success');
+      break;
+    case 'bas_result':
+      addBASResult(msg.data);
+      addLog('BAS', 'BAS simulyasiyası tamamlandı', 'success');
+      break;
+    case 'log_results':
+      D('logCount').textContent = `${msg.count} hadisə`;
+      break;
+    case 'auth_ok':
+      addDefenseLog('WebSocket autentifikasiya uğurlu', 'success');
+      break;
   }
-  return false;
 }
 
-// ---- MODE SWITCH ----
-function setMode(mode) {
-  state.mode = mode;
-  $$('.mode-btn').forEach(b => { b.classList.remove('bg-blue-600','text-white','shadow'); b.classList.add('text-gray-400'); });
-  if (mode === 'backend') {
-    el.modeBackend.classList.remove('text-gray-400');
-    el.modeBackend.classList.add('bg-blue-600','text-white','shadow');
-    connectWebSocket();
-  } else {
-    el.modeLocal.classList.remove('text-gray-400');
-    el.modeLocal.classList.add('bg-blue-600','text-white','shadow');
-    if (state.ws) { state.ws.close(); state.ws = null; }
-    state.wsConnected = false;
-    el.wsStatus.className = 'ws-indicator bg-gray-500';
-    el.wsMode.textContent = 'Yerli Rejim (Simulyasiya)';
-  }
-}
-
-el.modeLocal.addEventListener('click', () => setMode('local'));
-el.modeBackend.addEventListener('click', () => setMode('backend'));
-
-// Logout
-document.getElementById('logoutBtn').addEventListener('click', () => {
-  localStorage.removeItem('kiber_dnt_auth');
-  document.getElementById('loginOverlay').style.display = 'flex';
-  if (state.ws) { state.ws.close(); state.ws = null; }
-  state.wsConnected = false;
-  showToast('Çıxış edildi', 'Təkrar daxil olmaq üçün istifadəçi adı və şifrə tələb olunur', 'warning');
-});
-
-// ---- SCENARIOS (same as v1 for local mode) ----
-const SCENARIOS = {
-  hikvision: {
-    id:'ZDI-25-084', name:'Hikvision Ağıllı Şəhər Kamerası Zero-Day RCE',
-    cve:'CVE-2021-36260', vendor:'Hikvision', product:'DS-2CD2xx5 Series IP Kamera',
-    firmware:'v2.3.1_build202501',
-    description:'Hikvision IP kameraların RTSP serverində buffer overflow zəifliyi.',
-    zdiRef:'ZDI-25-084 | Trend Micro Zero Day Initiative',
-    assets:['Bakı şəhər mərkəzi - Kamera #A-1047','Bakı şəhər mərkəzi - Kamera #A-1048','Nəsimi Rayonu - Kamera #B-231','Xətai Rayonu - Kamera #B-232','Səbail Rayonu - Kamera #C-015'],
-    totalAssets:1247, cvss:9.8, cvssVector:'CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H',
-    epss:0.97, cwe:'CWE-120: Buffer Copy without Checking Size',
-    businessCriticality:95, businessReason:'Ağıllı şəhər infrastrukturu - 1247 kamera',
-    aiConfidence:94, aiDecision:'AUTOPILOT_ISOLATE',
-    aiReasoning:'CVSS 9.8 (Kritik) + EPSS 97% + Biznes 95% → Avtomatik izolyasiya.',
-    soarActions:['VLAN (10.88.0.0/16) avtomatik izolyasiya edildi','Hikvision altşəbəkəsi karantinə alındı','WAF qaydası yaradıldı: RTSP exploit pattern bloklandı','IPS imzası aktivləşdirildi'],
-    wafRule:'alert tcp any any -> $HOME_NET 554 (msg:"Kiber-DNT: Zero-Day RCE Blocked"; sid:20260001; rev:1;)',
-    ipsSignature:'alert tcp $EXTERNAL_NET any -> $HOME_NET 554 (msg:"Kiber-DNT: Hikvision RCE"; content:"GET"; http_method; content:"/SDK/webLanguage"; http_uri; sid:20260001; rev:1;)',
-    basResult:'BLOCKED', basDetail:'Simulyasiya edilmiş istismar cəhdi WAF tərəfindən bloklandı.',
-    basLatency:'0.34ms', kbCategory:'OT/IoT - Kamera Sistemi',
-    kbImpact:'Hücumçu 1,247 kameranın idarəsini ələ keçirə bilərdi.'
-  },
-  absheron: {
-    id:'ZDI-25-112', name:'Abşeron Su Təmizləmə Stansiyası PLC Zəifliyi',
-    cve:'CVE-2025-3119', vendor:'Siemens', product:'SIMATIC S7-1200 CPU 1215C',
-    firmware:'FW v4.5.2',
-    description:'Siemens S7-1200 PLC PROFINET stack-də heap overflow zəifliyi.',
-    zdiRef:'ZDI-25-112 | Trend Micro Zero Day Initiative',
-    assets:['Abşeron Su Stansiyası - PLC #01 (Əsas nasos)','Abşeron Su Stansiyası - PLC #02 (Xlor idarəsi)','Sumqayıt su anbarı - RTU #03'],
-    totalAssets:3, cvss:8.6, cvssVector:'CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:N/I:H/A:H',
-    epss:0.45, cwe:'CWE-122: Heap-based Buffer Overflow',
-    businessCriticality:98, businessReason:'Kritik su infrastrukturu - 2.5 milyon insan',
-    aiConfidence:88, aiDecision:'VIRTUAL_PATCH',
-    aiReasoning:'CVSS 8.6 + EPSS 45% + Biznes 98% → Virtual yamaq tətbiq edilir.',
-    soarActions:['PROFINET trafiki məhdudlaşdırıldı','Virtual yamaq tətbiq edildi','IPS imzası aktivləşdirildi','Alternativ SCADA kanalına keçid'],
-    wafRule:'alert tcp any any -> $HOME_NET 2268 (msg:"Kiber-DNT: Siemens PLC Overflow"; sid:20260002; rev:1;)',
-    ipsSignature:'alert tcp $EXTERNAL_NET any -> $HOME_NET 2268 (msg:"Kiber-DNT: Siemens PLC Exploit"; content:"|08 00 06 00|"; sid:20260002; rev:1;)',
-    basResult:'BLOCKED', basDetail:'PROFINET heap overflow cəhdi bloklandı.',
-    basLatency:'0.28ms', kbCategory:'OT/ICS - Su Təchizatı',
-    kbImpact:'Hücumçu su təmizləmə prosesini dayandıra bilərdi.'
-  },
-  k8s: {
-    id:'ZDI-25-156', name:'Milli Data Mərkəzi Kubernetes Misconfig',
-    cve:'CVE-2025-4291', vendor:'Kubernetes', product:'kube-apiserver v1.28.7',
-    firmware:'v1.28.7',
-    description:'Kubernetes kube-apiserver RBAC bypass zəifliyi.',
-    zdiRef:'ZDI-25-156 | Trend Micro Zero Day Initiative',
-    assets:['Milli Data Mərkəzi - K8s Master Node #01','Milli Data Mərkəzi - K8s Worker Pool #prod-a'],
-    totalAssets:84, cvss:7.2, cvssVector:'CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:N',
-    epss:0.62, cwe:'CWE-269: Improper Privilege Management',
-    businessCriticality:92, businessReason:'Milli Data Mərkəzi - dövlət məlumatları',
-    aiConfidence:91, aiDecision:'CONTAIN_AND_PATCH',
-    aiReasoning:'CVSS 7.2 + EPSS 62% + Biznes 92% → Klaster təcrid edilir.',
-    soarActions:['Şübhəli podlar silindi','RBAC politikası yeniləndi','kube-apiserver hot-patch tətbiq edildi','Trafik segmentasiyası'],
-    wafRule:'alert tcp any any -> $HOME_NET 6443 (msg:"Kiber-DNT: K8s RBAC Bypass"; sid:20260003; rev:1;)',
-    ipsSignature:'alert tcp $HOME_NET 6443 -> $EXTERNAL_NET any (msg:"Kiber-DNT: K8s API Abuse"; content:"rbac.authorization.k8s.io"; sid:20260003; rev:1;)',
-    basResult:'BLOCKED', basDetail:'RBAC bypass cəhdi bloklandı.',
-    basLatency:'0.41ms', kbCategory:'Cloud - Kubernetes',
-    kbImpact:'Hücumçu bütün klasteri idarə edə bilərdi.'
-  }
-};
-
-function getScenario(id) {
-  if (SCENARIOS[id]) {
-    const s = SCENARIOS[id];
-    const sev = s.cvss >= 9 ? 'Kritik' : s.cvss >= 7 ? 'Yüksək' : 'Orta';
-    return {...s, severity: sev};
-  }
-  return getRandomScenario();
-}
-function getRandomScenario() {
-  const pool = [
-    {id:'ZDI-25-201',name:'Bakı Metrosu SCADA Zəifliyi',cve:'CVE-2025-5133',vendor:'ABB',product:'RTU500',cvss:9.0,epss:0.71,cwe:'CWE-306',businessCriticality:96,aiConfidence:93,aiDecision:'AUTOPILOT_ISOLATE',kbCategory:'OT/ICS - Nəqliyyat',assets:['Bakı Metrosu - Mərkəzi İdarəetmə','Bakı Metrosu - 28 May stansiyası']},
-    {id:'ZDI-25-227',name:'SOCAR Neft Platforması Sensor Zəifliyi',cve:'CVE-2025-5289',vendor:'Endress+Hauser',product:'Proline Promass 300',cvss:8.2,epss:0.38,cwe:'CWE-121',businessCriticality:93,aiConfidence:87,aiDecision:'VIRTUAL_PATCH',kbCategory:'OT/ICS - Enerji',assets:['SOCAR - Neft Daşları Platforması','SOCAR - Sangəçal Terminalı']},
-    {id:'ZDI-25-253',name:'Milli Bank SWIFT Zəifliyi',cve:'CVE-2025-5412',vendor:'Alliance Access',product:'SWIFT Interface v7.6',cvss:9.4,epss:0.89,cwe:'CWE-91',businessCriticality:99,aiConfidence:96,aiDecision:'AUTOPILOT_ISOLATE',kbCategory:'Maliyyə - SWIFT',assets:['Azərbaycan Milli Bankı - SWIFT Gateway','Maliyyə Monitorinq Mərkəzi']}
-  ];
-  const r = pool[Math.floor(Math.random()*pool.length)];
-  const sev = r.cvss>=9?'Kritik':r.cvss>=7?'Yüksək':'Orta';
-  return {
-    ...r, totalAssets:r.assets.length, severity:sev, firmware:'v1.0', zdiRef:`${r.id} | ZDI`,
-    cvssVector:`CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H`,
-    businessReason:r.businessCriticality>=95?'Kritik dövlət infrastrukturu':'Əsas dövlət xidməti',
-    aiReasoning:`CVSS ${r.cvss} + Biznes ${r.businessCriticality}% → ${r.aiDecision}`,
-    description:`${r.vendor} ${r.product} məhsulunda zəiflik.`,
-    soarActions:['Sistemlər karantinə alındı','WAF qaydası yaradıldı','IPS imzası aktivləşdirildi','Təhlükəsizlik bildirişi göndərildi'],
-    wafRule:`alert tcp any any -> any any (msg:"${r.id}"; sid:2026${r.cvss*100|0}; rev:1;)`,
-    ipsSignature:`alert ip $EXTERNAL_NET any -> $HOME_NET any (msg:"${r.id}"; sid:2026${r.cvss*100|0}; rev:1;)`,
-    basResult:'BLOCKED', basDetail:'Simulyasiya bloklandı.', basLatency:`${(0.2+Math.random()*0.4).toFixed(2)}ms`,
-    kbImpact:`${r.assets[0]} vasitəsilə kritik infrastruktura giriş`.substring(0,80)
-  };
-}
-
-// ---- LOCAL SIMULATION ENGINE (fallback when no backend) ----
-function getDelay() {
-  return {slow:3200,normal:1800,fast:600}[state.speed]||1800;
-}
-function delay(ms) {
-  return new Promise((resolve) => {
-    if (state.isPaused) {
-      state.stepQueue.push(resolve);
-    } else {
-      state.pendingResolve = resolve;
-      state.timer = setTimeout(() => { state.pendingResolve = null; resolve(); }, ms);
-    }
+// ===== ASSETS (Kəşfiyyat) =====
+function renderAssets() {
+  const tbody = D('assetTableBody');
+  const ipF = (D('assetFilterIP').value||'').toLowerCase();
+  const portF = D('assetFilterPort').value;
+  const svcF = (D('assetFilterService').value||'').toLowerCase();
+  const filtered = state.assets.filter(a => {
+    const ipOk = !ipF || (a.ip||'').includes(ipF) || (a.hostname||'').toLowerCase().includes(ipF);
+    const portOk = !portF || (a.ports||[]).some(p => String(p.port||p).includes(portF));
+    const svcOk = !svcF || (a.ports||[]).some(p => (p.service||'').toLowerCase().includes(svcF));
+    return ipOk && portOk && svcOk;
   });
+  D('assetCount').textContent = `${filtered.length} aktiv`;
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-600 py-8">Heç bir aktiv aşkar edilmədi. "Skan et" düyməsinə klikləyin.</td></tr>'; return; }
+  tbody.innerHTML = filtered.map(a => {
+    const ports = (a.ports||[]).filter(p => p.state !== 'closed');
+    const portStr = ports.map(p => p.port || p).join(', ');
+    const svcStr = [...new Set(ports.map(p => p.service || 'unknown'))].join(', ');
+    return `<tr class="asset-row" onclick="showAssetDetail('${a.ip}')">
+      <td class="text-blue-400 font-mono">${a.ip}</td>
+      <td>${a.hostname || a.hostname || '—'}</td>
+      <td>${portStr || '—'}</td>
+      <td>${svcStr || '—'}</td>
+      <td>${a.vendor || '—'}</td>
+      <td><span class="badge badge-${(a.risk_level||'low').toLowerCase() === 'critical' ? 'critical' : (a.risk_level||'low').toLowerCase() === 'high' ? 'high' : 'low'}">${a.risk_level || 'Bilinmir'}</span></td>
+    </tr>`;
+  }).join('');
 }
-function setPaused(paused) {
-  state.isPaused = paused;
-  el.pauseStepBtn.querySelector('span').textContent = paused ? 'Davam Et' : 'Dayandır';
-  if (paused) {
-    if (state.timer) { clearTimeout(state.timer); state.timer = null; }
-    if (state.pendingResolve) { state.stepQueue.push(state.pendingResolve); state.pendingResolve = null; }
-    showToast('Simulyasiya dayandırıldı', 'Davam etmək üçün düyməni sıxın', 'warning');
-  } else {
-    const q = state.stepQueue.slice(); state.stepQueue = [];
-    q.forEach((fn,i) => setTimeout(fn, 180*(i+1)));
-  }
-}
-function setUIState(running) {
-  state.isRunning = running;
-  el.simulateBtn.disabled = running && !state.isPaused;
-  el.scenarioSelect.disabled = running && !state.isPaused;
-  el.pauseStepBtn.disabled = !running;
-  el.stepBtn.disabled = !running;
-  el.pauseStepBtn.classList.toggle('opacity-50',!running); el.pauseStepBtn.classList.toggle('cursor-not-allowed',!running);
-  el.stepBtn.classList.toggle('opacity-50',!running); el.stepBtn.classList.toggle('cursor-not-allowed',!running);
-  if (running) {
-    el.simBtnText.textContent = state.isPaused ? 'Dayandırıldı (davam et)' : 'Simulyasiya davam edir...';
-  } else {
-    el.simBtnText.textContent = 'Sıfırıncı Gün Təhdidini Simulyasiya Et';
-  }
-}
+['assetFilterIP','assetFilterPort','assetFilterService'].forEach(id => D(id).addEventListener('input', renderAssets));
 
-// ---- RENDER TABLES ----
-function renderAssetTable() {
-  const filterIP = el.filterIP.value.toLowerCase();
-  const filterPort = el.filterPort.value;
-  const filterType = el.filterAssetType.value;
-
-  let filtered = state.assets;
-  if (filterIP) filtered = filtered.filter(a => a.ip?.toLowerCase().includes(filterIP) || a.hostname?.toLowerCase().includes(filterIP));
-  if (filterPort) filtered = filtered.filter(a => (a.ports||[]).some(p => String(p).includes(filterPort)) || (a.ports_str||'').includes(filterPort));
-  if (filterType) filtered = filtered.filter(a => (a.vendor||'').toUpperCase().includes(filterType.replace('_','')));
-
-  el.assetCount.textContent = filtered.length;
-  if (filtered.length === 0) {
-    el.assetTableBody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-600 italic py-4">Aktiv tapılmadı</td></tr>';
-    return;
-  }
-  el.assetTableBody.innerHTML = filtered.map(a => `<tr>
-    <td class="text-blue-300 font-mono">${a.ip||'-'}</td>
-    <td>${a.hostname||'-'}</td>
-    <td>${Array.isArray(a.ports)?a.ports.join(', '):a.ports_str||'-'}</td>
-    <td class="text-gray-400 truncate max-w-[150px]">${a.banner||'-'}</td>
-    <td>${a.vendor||'-'}</td>
-  </tr>`).join('');
-}
-
-function renderRuleTable() {
-  const filtered = state.rules;
-  el.ruleCount.textContent = filtered.length;
-  if (filtered.length === 0) {
-    el.ruleTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-600 italic py-4">Qayda yoxdur</td></tr>';
-    return;
-  }
-  el.ruleTableBody.innerHTML = filtered.map(r => `<tr>
-    <td class="text-emerald-300 font-mono">${r.sid||'-'}</td>
-    <td><span class="badge ${r.type==='snort'?'bg-blue-500/20 text-blue-300':r.type==='suricata'?'bg-amber-500/20 text-amber-300':'bg-purple-500/20 text-purple-300'}">${r.type||'-'}</span></td>
-    <td class="text-gray-400 font-mono text-[10px] truncate max-w-[300px]">${(r.rule||'').substring(0,80)}...</td>
-    <td><span class="badge ${(r.deploy_status||r.status||'generated').includes('deploy')?'bg-emerald-500/20 text-emerald-300':'bg-gray-500/20 text-gray-400'}">${r.deploy_status||r.status||'generated'}</span></td>
-  </tr>`).join('');
-}
-
-function updateEPSSPanel(data) {
-  const panel = document.getElementById('phasePanel');
-  if (!panel.classList.contains('hidden')) {
-    const content = el.panelContent;
-    const epssPct = Math.round((data.epss||0)*100);
-    const cvss = data.cvss||0;
-    content.innerHTML = `
-      <div class="grid grid-cols-4 gap-3 mb-3">
-        <div class="bg-gray-800/50 rounded-xl p-3 text-center border border-gray-700/30">
-          <p class="text-[10px] text-gray-500 uppercase">CVSS</p>
-          <p class="text-lg font-bold ${cvss>=9?'text-red-400':cvss>=7?'text-orange-400':'text-yellow-400'}">${cvss}</p>
-        </div>
-        <div class="bg-gray-800/50 rounded-xl p-3 text-center border border-gray-700/30">
-          <p class="text-[10px] text-gray-500 uppercase">EPSS</p>
-          <p class="text-lg font-bold text-white">${epssPct}%</p>
-          <p class="text-[9px] ${epssPct>=70?'text-red-400':epssPct>=40?'text-yellow-400':'text-emerald-400'}">FIRST.org API</p>
-        </div>
-        <div class="bg-gray-800/50 rounded-xl p-3 text-center border border-gray-700/30">
-          <p class="text-[10px] text-gray-500 uppercase">Dərəcə</p>
-          <p class="text-lg font-bold ${(data.overall_assessment||'AŞAĞI')==='KRITIK'?'text-red-400':(data.overall_assessment||'')==='YÜKSƏK'?'text-orange-400':'text-emerald-400'}">${data.overall_assessment||'AŞAĞI'}</p>
-        </div>
-        <div class="bg-gray-800/50 rounded-xl p-3 text-center border border-gray-700/30">
-          <p class="text-[10px] text-gray-500 uppercase">Təklif</p>
-          <p class="text-lg font-bold text-blue-400">${data.recommendation||'MONITOR'}</p>
-        </div>
-      </div>
-      <div class="bg-blue-900/20 rounded-lg p-3 border border-blue-500/20">
-        <p class="text-[10px] text-blue-300/60 uppercase font-semibold">Canlı EPSS Məlumatı</p>
-        <p class="text-xs text-gray-300">Mənbə: <span class="text-emerald-400">${data.epss_source||'first.org (live)'}</span></p>
-        <p class="text-xs text-gray-400">CVE: ${data.cve||'-'} | Persentil: ${((data.epss_percentile||data.percentile||0)*100).toFixed(1)}%</p>
-        <p class="text-xs text-gray-400 mt-1">${data.overall_assessment==='KRITIK'?'🚨 Kritik təhdid — dərhal müdaxilə tələb olunur':data.overall_assessment==='YÜKSƏK'?'⚠ Yüksək risk — virtual yamaq tətbiq edilir':'✅ Aşağı risk — monitorinq davam edir'}</p>
-      </div>`;
-  }
-}
-
-function updateBASPanel(data) {
-  const panel = document.getElementById('phasePanel');
-  if (!panel.classList.contains('hidden')) {
-    const content = el.panelContent;
-    const protected_ = data.all_protected || data.overall_result === 'PROTECTED';
-    content.innerHTML = `
-      <div class="bg-${protected_?'emerald':'red'}-900/20 rounded-xl p-4 border border-${protected_?'emerald':'red'}-500/30">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-full bg-${protected_?'emerald':'red'}-500/20 flex items-center justify-center">
-            <svg class="w-6 h-6 text-${protected_?'emerald':'red'}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="${protected_?'M5 13l4 4L19 7':'M6 18L18 6M6 6l12 12'}"/></svg>
-          </div>
-          <div>
-            <p class="text-lg font-bold text-${protected_?'emerald':'red'}-400">${data.overall||data.overall_result||'PROTECTED'}</p>
-            <p class="text-xs text-gray-400">Hədəf: ${data.target||data.target_ip||'-'}</p>
-          </div>
-        </div>
-      </div>
-      <div class="bg-gray-800/40 rounded-xl p-3 border border-gray-700/30">
-        <p class="text-[10px] text-blue-300/60 uppercase font-semibold">BAS Nəticəsi</p>
-        <p class="text-xs text-gray-300">${data.total_tests||0} test: ${data.blocked_count||0} bloklandı, ${data.bypassed_count||0} keçdi</p>
-        ${data.tests ? data.tests.map(t => `
-          <div class="flex items-center gap-2 mt-1 text-[11px]">
-            <span class="${t.result?.includes('BLOCKED')?'text-emerald-400':'text-red-400'}">${t.result}</span>
-            <span class="text-gray-600">|</span>
-            <span class="text-gray-500">${t.latency_ms}ms</span>
-          </div>`).join('') : ''}
-      </div>`;
-  }
-}
-
-// ---- PHASE IMPLEMENTATIONS (Local Mode) ----
-async function phaseKesfiyyat(s) {
-  state.phase=1; activatePhase(1);
-  showPanel(1,'Kəşfiyyat & Aktiv Kəşfi','🔍');
-  addLog('KƏŞF','Mərhələ 1: Aktiv kəşfi başladı...','system');
-  await delay(getDelay()*0.4);
-  s.assets.forEach(a => { addLog('KƏŞF',`Aktiv aşkar edildi: ${a}`,'info'); state.assets.push({ip:a.split(' - ')[1]||a,hostname:a,ports:[80,554],banner:s.product,vendor:s.vendor}); renderAssetTable(); });
-  await delay(getDelay()*0.3);
-  addLog('KƏŞF',`Ümumi aktiv sayı: ${s.totalAssets}`,'info');
-  await delay(getDelay()*0.3);
-  addLog('KƏŞF',`Mikro-skan: ${s.cve} aşkar edildi - ${s.cwe}`,'threat');
-  await delay(getDelay()*0.2);
-  addLog('KƏŞF',`ZDI təsdiqi: ${s.zdiRef}`,'success');
-  el.panelContent.innerHTML = `
-    <div class="space-y-3 panel-content">
-      <div class="bg-blue-900/20 rounded-lg p-3 border border-blue-500/20">
-        <p class="text-[10px] text-blue-300/60 uppercase font-semibold mb-1.5">Aşkar edilmiş aktivlər</p>
-        ${s.assets.map(a => `<div class="flex items-center gap-2 text-xs py-0.5"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>${a}</div>`).join('')}
-      </div>
-      <div class="bg-gray-800/40 rounded-lg p-3 border border-gray-700/30">
-        <div class="grid grid-cols-2 gap-3">
-          <div><p class="text-[10px] text-gray-500 uppercase">Skan növü</p><p class="text-sm font-semibold text-white">Nmap -sV --script=banner</p></div>
-          <div><p class="text-[10px] text-gray-500 uppercase">Aktiv sayı</p><p class="text-sm font-semibold text-white">${s.assets.length} (cəmi ${s.totalAssets})</p></div>
-        </div>
-      </div>
-    </div>`;
-  updatePanelStatus('Tamamlandı ✓');
-  await delay(getDelay()*0.2); addLog('KƏŞF','Mərhələ 1 tamamlandı ✓','success');
-}
-async function phaseAIDecision(s) {
-  state.phase=2; activatePhase(2);
-  showPanel(2,'AI Qərar Verici - EPSS API','🧠');
-  addLog('AI','AI risk analizi başladı...','system');
-  await delay(getDelay()*0.3);
-  addLog('AI',`CVSS: ${s.cvss}/10 (${s.severity})`,'analysis');
-  await delay(getDelay()*0.2);
-  addLog('AI',`CVSS vektoru: ${s.cvssVector}`,'info');
-  await delay(getDelay()*0.2);
-  addLog('AI',`EPSS: ${(s.epss*100).toFixed(0)}% (FIRST.org API)`,'analysis');
-  await delay(getDelay()*0.2);
-  addLog('AI',`Biznes Kritiklik: ${s.businessCriticality}% - ${s.businessReason}`,'analysis');
-  await delay(getDelay()*0.3);
-  const epssPct=Math.round(s.epss*100);
-  el.panelContent.innerHTML = `
-    <div class="panel-content">
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-        <div class="bg-gray-800/50 rounded-xl p-3 text-center border border-gray-700/30">
-          <p class="text-[10px] text-gray-500 uppercase">CVSS</p>
-          <p class="text-xl font-bold ${s.cvss>=9?'text-red-400':s.cvss>=7?'text-orange-400':'text-yellow-400'}">${s.cvss}</p>
-          <p class="text-[10px] ${s.cvss>=9?'text-red-400':s.cvss>=7?'text-orange-400':'text-yellow-400'}">${s.severity}</p>
-        </div>
-        <div class="bg-gray-800/50 rounded-xl p-3 text-center border border-gray-700/30">
-          <p class="text-[10px] text-gray-500 uppercase">EPSS</p>
-          <p class="text-xl font-bold text-white">${epssPct}%</p>
-          <p class="text-[10px] text-emerald-400">FIRST.org canlı API</p>
-        </div>
-        <div class="bg-gray-800/50 rounded-xl p-3 text-center border border-gray-700/30">
-          <p class="text-[10px] text-gray-500 uppercase">Biznes</p>
-          <p class="text-xl font-bold text-white">${s.businessCriticality}%</p>
-          <p class="text-[10px] text-blue-400">${s.businessReason.substring(0,16)}</p>
-        </div>
-        <div class="bg-gray-800/50 rounded-xl p-3 text-center border border-gray-700/30">
-          <p class="text-[10px] text-gray-500 uppercase">Güvən</p>
-          <p class="text-xl font-bold ${s.aiConfidence>=90?'text-emerald-400':s.aiConfidence>=75?'text-yellow-400':'text-orange-400'}">${s.aiConfidence}%</p>
-        </div>
-      </div>
-      <div class="bg-gradient-to-r from-gray-800/40 to-blue-900/20 rounded-xl p-4 border border-blue-500/20">
-        <p class="text-[10px] text-blue-300/60 uppercase font-semibold mb-2">AI Qərarı</p>
-        <div class="flex items-center gap-2 mb-2">
-          <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${s.aiDecision==='AUTOPILOT_ISOLATE'?'text-red-400 bg-gray-900/60 border border-red-500/30':'text-yellow-400 bg-gray-900/60 border border-yellow-500/30'}">${s.aiDecision}</span>
-          <span class="text-xs text-gray-400">Qərar vaxtı: 0.8s</span>
-        </div>
-        <p class="text-xs text-gray-300">${s.aiReasoning}</p>
-      </div>
-    </div>`;
-  updatePanelStatus('Tamamlandı ✓');
-  await delay(getDelay()*0.2); addLog('AI','Mərhələ 2 tamamlandı ✓','success');
-}
-async function phaseSOAR(s) {
-  state.phase=3; activatePhase(3);
-  showPanel(3,'SOAR & WAF/IPS Qaydaları','🛡️');
-  addLog('SOAR','SOAR avtomatik remediasiya başladı...','system');
-  await delay(getDelay()*0.3);
-  s.soarActions.forEach(a => { addLog('SOAR',a,'action'); });
-  const rule = {sid:20260000+state.log.length, type:'suricata', rule:s.ipsSignature, status:'generated'};
-  state.rules.push(rule); renderRuleTable();
-  await delay(getDelay()*0.3);
-  el.panelContent.innerHTML = `
-    <div class="panel-content space-y-3">
-      <div class="bg-gradient-to-r from-gray-800/40 to-gray-900/40 rounded-xl p-3 border border-gray-700/30">
-        <p class="text-[10px] text-blue-300/60 uppercase font-semibold mb-2">İcra edilən aksiyalar</p>
-        ${s.soarActions.map((a,i) => `<div class="flex items-center gap-2 py-1.5 border-b border-gray-700/20 last:border-0"><span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">${i+1}</span><span class="text-xs text-gray-200">${a}</span></div>`).join('')}
-      </div>
-      <div class="bg-gray-800/40 rounded-xl p-3 border border-gray-700/30">
-        <p class="text-[10px] text-blue-300/60 uppercase font-semibold mb-1.5">IPS İmzası (Suricata/Snort)</p>
-        <div class="code-block text-[10px] leading-relaxed text-emerald-300">${s.ipsSignature}</div>
-      </div>
-    </div>`;
-  updatePanelStatus('Tamamlandı ✓');
-  await delay(getDelay()*0.2); addLog('SOAR','Mərhələ 3 tamamlandı ✓','success');
-}
-async function phaseBAS(s) {
-  state.phase=4; activatePhase(4);
-  showPanel(4,'BAS Doğrulama','⚔️');
-  addLog('BAS','Breach & Attack Simulation başladı...','system');
-  await delay(getDelay()*0.3);
-  addLog('BAS',`Hücum vektoru: ${s.zdiRef}`,'threat');
-  await delay(getDelay()*0.3);
-  addLog('BAS','İstismar cəhdi göndərildi...','analysis');
-  await delay(getDelay()*0.3);
-  addLog('BAS','WAF/IPS qaydası yoxlanılır...','analysis');
-  await delay(getDelay()*0.3);
-  addLog('BAS',`NƏTİCƏ: ${s.basResult} (${s.basLatency})`,'success');
-  el.panelContent.innerHTML = `
-    <div class="panel-content space-y-3">
-      <div class="bg-gradient-to-r from-gray-800/40 to-emerald-900/20 rounded-xl p-4 border border-emerald-500/30">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-          </div>
-          <div>
-            <p class="text-lg font-bold text-emerald-400">${s.basResult}</p>
-            <p class="text-xs text-gray-400">Yanıt: ${s.basLatency}</p>
-          </div>
-        </div>
-      </div>
-      <div class="bg-gray-800/40 rounded-lg p-3 border border-gray-700/30">
-        <p class="text-[10px] text-blue-300/60 uppercase font-semibold">Nəticə</p>
-        <p class="text-xs text-gray-300">${s.basDetail}</p>
-      </div>
-    </div>`;
-  updatePanelStatus('Tamamlandı ✓');
-  await delay(getDelay()*0.2); addLog('BAS','Mərhələ 4 tamamlandı ✓','success');
-}
-async function phaseLearning(s) {
-  state.phase=5; activatePhase(5);
-  showPanel(5,'LLM Hesabat & Genetik Yaddaş','📋');
-  addLog('ÖYRƏNMƏ','Post-mortem analizi başladı...','system');
-  await delay(getDelay()*0.3);
-  addLog('ÖYRƏNMƏ','LLM hesabatı yaradılır...','analysis');
-  await delay(getDelay()*0.4);
-  const kbEntry = {id:s.id,name:s.name,cve:s.cve,category:s.kbCategory||'Ümumi',cvss:s.cvss,aiDecision:s.aiDecision,recallTime:'0.1s'};
-  state.kb.push(kbEntry); renderKB();
-  const reportHTML = generateReport(s);
-  el.panelContent.innerHTML = `
-    <div class="panel-content space-y-3">
-      <div class="bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-xl p-4 border border-blue-500/20">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-lg">🧬</span></div>
-          <div>
-            <p class="text-sm font-bold text-white">Genetik Yaddaşa əlavə edildi</p>
-            <p class="text-[11px] text-gray-400">Ani çağırış: <span class="text-emerald-400 font-semibold">${kbEntry.recallTime}</span></p>
-          </div>
-        </div>
-      </div>
-    </div>`;
-  addLog('ÖYRƏNMƏ',`Genetik Yaddaş yeniləndi (${kbEntry.category})`,'success');
-  await delay(getDelay()*0.3);
-  showToast('Hesabat hazırdır',s.name,'success');
-  el.reportPanel.classList.remove('hidden');
-  el.reportContent.innerHTML = reportHTML;
-  el.reportPanel.scrollIntoView({behavior:'smooth',block:'center'});
-  completeAll();
-  updatePanelStatus('Tamamlandı ✓');
-  addLog('ÖYRƏNMƏ','Mərhələ 5 tamamlandı ✓','success');
-}
-
-function generateReport(s) {
-  const sevColor = s.cvss>=9?'red':s.cvss>=7?'orange':'yellow';
-  return `
-    <div class="report-section border-${sevColor}-500/30">
-      <p class="text-[10px] text-${sevColor}-400 uppercase font-semibold mb-1">İnsident ID: ${s.id}</p>
-      <h4 class="text-base font-bold text-white">${s.name}</h4>
-      <p class="text-xs text-gray-400">${s.cve} | ${new Date().toLocaleDateString('az-AZ')} | Aşkarlanma: 0.34s</p>
+function showAssetDetail(ip) {
+  const a = state.assets.find(x => x.ip === ip);
+  if (!a) return;
+  showDetail(`Aktiv: ${a.ip}`, `
+    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Ümumi məlumat</p>
+      <p class="text-sm font-bold text-white">${a.hostname || a.ip}</p>
+      <p class="text-xs text-gray-400">IP: ${a.ip} | Vendor: ${a.vendor || '—'} | OS: ${a.os || '—'}</p>
     </div>
-    <div class="report-section border-blue-500/30">
-      <p class="text-[10px] text-blue-400 uppercase font-semibold mb-1">İcra Xülasəsi</p>
-      <p class="text-xs text-gray-300 leading-relaxed">${s.zdiRef} kodu ilə qeydə alınmış sıfırıncı gün zəifliyi Milli Kiber-DNT platforması tərəfindən aşkar edilmiş və ${s.aiDecision} həyata keçirilmişdir. CVSS ${s.cvss} səviyyəsində qiymətləndirilən bu təhdid, ${s.aiConfidence}% AI güvən skoru ilə avtonom şəkildə idarə edilmişdir.</p>
+    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase mb-1">Portlar</p>
+      ${(a.ports||[]).map(p => `<div class="flex justify-between text-xs py-1 border-b border-gray-700/20"><span class="text-blue-300">${p.port||'?'}</span><span class="text-gray-400">${p.service||'—'} ${p.version||''}</span><span class="${p.state==='open'?'text-emerald-400':'text-gray-500'}">${p.state||'—'}</span></div>`).join('') || '<p class="text-gray-600">Port məlumatı yoxdur</p>'}
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-      <div class="bg-gray-800/40 rounded-lg p-2.5 text-center border border-gray-700/30"><p class="text-[10px] text-gray-500">CVSS</p><p class="text-sm font-bold text-${sevColor}-400">${s.cvss}</p></div>
-      <div class="bg-gray-800/40 rounded-lg p-2.5 text-center border border-gray-700/30"><p class="text-[10px] text-gray-500">EPSS</p><p class="text-sm font-bold text-white">${Math.round(s.epss*100)}%</p></div>
-      <div class="bg-gray-800/40 rounded-lg p-2.5 text-center border border-gray-700/30"><p class="text-[10px] text-gray-500">AI Güvən</p><p class="text-sm font-bold text-white">${s.aiConfidence}%</p></div>
-      <div class="bg-gray-800/40 rounded-lg p-2.5 text-center border border-gray-700/30"><p class="text-[10px] text-gray-500">Yanıt</p><p class="text-sm font-bold text-emerald-400">${s.basLatency}</p></div>
+    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase mb-1">Kəşf məlumatı</p>
+      <p class="text-xs text-gray-400">Skan vaxtı: ${a.scan_timestamp || '—'}<br>Status: ${a.status || '—'}</p>
     </div>
-    <div class="report-section border-emerald-500/30">
-      <p class="text-[10px] text-emerald-400 uppercase font-semibold mb-1">Həll Tədbirləri</p>
-      <ul class="text-xs text-gray-300 space-y-1">${s.soarActions.map(a => `<li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5">→</span>${a}</li>`).join('')}</ul>
-    </div>
-    <div class="report-section border-purple-500/30">
-      <p class="text-[10px] text-purple-400 uppercase font-semibold mb-1">Biznes Təsir</p>
-      <p class="text-xs text-gray-300">${s.kbImpact||s.businessReason}</p>
-    </div>
-    <div class="report-section border-gray-500/30">
-      <p class="text-[10px] text-gray-500 uppercase font-semibold mb-1">Texniki Məlumat</p>
-      <div class="text-[10px] text-gray-400 font-mono">AI Model: Milli Kiber-DNT Decision Engine v2.4<br>Yaddaş: ${state.kb.length} insident<br>${JSON.stringify({id:s.id,cve:s.cve,cvss:s.cvss,epss:s.epss,aiDecision:s.aiDecision,confidence:s.aiConfidence})}</div>
-    </div>`;
+  `);
 }
 
-function showPanel(n,title,icon) {
-  const names=['','Kəşfiyyat & Kəşf','AI Qərar Verici','SOAR & Remediasiya','BAS Doğrulama','İnsident Öyrənmə'];
-  el.phasePanel.classList.remove('hidden');
-  el.panelIcon.textContent=icon||'📋';
-  el.panelTitle.textContent=title||names[n]||'';
-  el.panelSub.innerHTML=`Status: <span class="text-yellow-400">Davam edir...</span>`;
-  el.panelBadge.textContent=`MƏRHƏLƏ ${n}/5`;
-  el.panelBadge.className='text-[10px] px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 font-semibold';
-  el.panelContent.innerHTML='<div class="flex items-center gap-2 text-gray-400"><div class="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div> Məlumat yüklənir...</div>';
+// ===== THREATS (Təhdidlər) =====
+function updateEPSSDisplay(data) {
+  const epss = data.epss || data.epss_score || 0;
+  const cvss = data.cvss || 7.0;
+  const level = data.threat_level || (epss > 0.6 ? 'KRITIK' : epss > 0.3 ? 'YÜKSƏK' : 'ORTA');
+  D('epssScore').textContent = `${(typeof epss === 'number' ? epss * 100 : epss).toFixed(1)}%`;
+  D('cvssScore').textContent = cvss;
+  D('threatLevel').textContent = level;
+  D('threatLevel').className = `text-2xl font-bold ${level === 'KRITIK' ? 'text-red-400' : level === 'YÜKSƏK' ? 'text-orange-400' : 'text-blue-400'}`;
+
+  // Add to threats list
+  const cve = data.cve || D('cveInput').value || 'CVE-????';
+  if (!state.threats.find(t => t.cve === cve)) {
+    state.threats.push({cve, epss: typeof epss === 'number' ? epss : parseFloat(epss)/100, percentile: data.percentile||0, level, status: 'analiz edildi'});
+    renderThreats();
+    renderEPSSChart();
+  }
 }
-function updatePanelStatus(text,color='text-emerald-400') {
-  el.panelSub.innerHTML=`Status: <span class="${color}">${text}</span>`;
+
+function renderThreats() {
+  D('threatTableBody').innerHTML = state.threats.map(t => `
+    <tr class="asset-row" onclick="showThreatDetail('${t.cve}')">
+      <td class="text-blue-400 font-mono">${t.cve}</td>
+      <td>${(t.epss * 100).toFixed(1)}%</td>
+      <td>${(t.percentile * 100).toFixed(1)}%</td>
+      <td><span class="badge badge-${t.level === 'KRITIK' ? 'critical' : t.level === 'YÜKSƏK' ? 'high' : 'medium'}">${t.level}</span></td>
+      <td class="text-emerald-400">${t.status}</td>
+    </tr>
+  `).join('');
 }
 
-// ---- MAIN SIMULATION ----
-async function runSimulation() {
-  if (state.isRunning && !state.isPaused) return;
-  if (state.isPaused) { setPaused(false); setUIState(true); return; }
+function renderEPSSChart() {
+  const chart = D('epssChart');
+  if (!state.threats.length) { chart.innerHTML = '<p class="text-gray-600 text-xs">Məlumat yoxdur</p>'; return; }
+  const max = Math.max(...state.threats.map(t => t.epss));
+  chart.innerHTML = state.threats.map(t => {
+    const h = Math.max(4, (t.epss / max) * 100);
+    const color = t.epss > 0.6 ? 'bg-red-500' : t.epss > 0.3 ? 'bg-orange-500' : 'bg-blue-500';
+    return `<div class="col ${color}" style="height:${h}%" title="${t.cve}: ${(t.epss*100).toFixed(1)}%"><span class="label">${t.cve.split('-')[1]||t.cve}</span></div>`;
+  }).join('');
+}
 
-  const scenarioId = el.scenarioSelect.value;
-  const s = scenarioId === 'random' ? getRandomScenario() : getScenarioInfo(scenarioId) || getRandomScenario();
-  if (!s) return;
+function showThreatDetail(cve) {
+  const t = state.threats.find(x => x.cve === cve);
+  if (!t) return;
+  showDetail(`Təhdid: ${t.cve}`, `
+    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">EPSS Məlumatı</p>
+      <div class="grid grid-cols-2 gap-3 mt-2">
+        <div><p class="text-[10px] text-gray-500">EPSS Skoru</p><p class="text-lg font-bold text-white">${(t.epss*100).toFixed(2)}%</p></div>
+        <div><p class="text-[10px] text-gray-500">Persentil</p><p class="text-lg font-bold text-white">${(t.percentile*100).toFixed(1)}%</p></div>
+      </div>
+      <p class="text-xs text-gray-400 mt-2">${t.epss > 0.6 ? '🚨 Bu CVE-nin 30 gün ərzində istismar edilmə ehtimalı yüksəkdir.' : t.epss > 0.3 ? '⚠ Orta səviyyəli istismar ehtimalı.' : '✅ Aşağı istismar ehtimalı.'}</p>
+    </div>
+    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Tövsiyə</p>
+      <p class="text-xs text-gray-300">${t.level === 'KRITIK' ? 'Dərhal virtual yamaq tətbiq edilməli və IPS imzası yaradılmalıdır.' : t.level === 'YÜKSƏK' ? 'Monitorinq gücləndirilməli, virtual yamaq tətbiq edilməlidir.' : 'Standart monitorinq kifayətdir.'}</p>
+    </div>
+  `);
+}
 
-  state.isRunning = true; state.isPaused = false; state.stepQueue = [];
-  setUIState(true);
-  el.eventLog.innerHTML = ''; state.log = []; el.logCount.textContent = '0';
-  el.phasePanel.classList.add('hidden'); el.reportPanel.classList.add('hidden');
-  resetLoop(); state.assets = []; state.rules = []; renderAssetTable(); renderRuleTable();
-
-  // Try backend mode first
+D('queryCveBtn').addEventListener('click', () => {
+  const cve = D('cveInput').value.trim();
+  if (!cve) return;
   if (state.mode === 'backend' && state.wsConnected) {
-    addLog('SİSTEM','=== Backend rejim: Real skan + EPSS API + SOAR + BAS ===','system');
-    wsSend({type:'scan', subnet:'10.10.40.0/24'});
-    showToast('Backend sorğu göndərildi','Real Nmap skanı başladıldı','info');
-    setUIState(false);
-    return;
+    wsSend({type:'epss', cve});
+  } else {
+    // Simulated EPSS
+    const epss = 0.2 + Math.random() * 0.7;
+    const percentile = epss * (0.5 + Math.random() * 0.5);
+    updateEPSSDisplay({cve, epss, percentile, cvss: 7 + Math.random() * 3});
   }
+});
 
-  // Local simulation
-  addLog('SİSTEM','=== Yerli rejim: Simulyasiya başladı ===','system');
-  addLog('SİSTEM',`Təhdid: ${s.name} (${s.cve})`,'threat');
-  await delay(500);
-  try {
-    await phaseKesfiyyat(s);
-    await phaseAIDecision(s);
-    await phaseSOAR(s);
-    await phaseBAS(s);
-    await phaseLearning(s);
-    addLog('SİSTEM','=== Dövr Tamamlandı ===','system');
-    updateMetrics();
-    showToast('Simulyasiya uğurla tamamlandı','Bütün 5 mərhələ keçildi','success');
-  } catch(e) {
-    console.error(e);
-    showToast('Xəta','Simulyasiya zamanı xəta','danger');
-  }
-  state.isRunning = false; state.isPaused = false; setUIState(false);
+// ===== RULES (Müdafiə) =====
+function renderRules() {
+  D('ruleTableBody').innerHTML = state.rules.map(r => `
+    <tr class="rule-row" onclick="showRuleDetail('${r.sid}')">
+      <td class="text-blue-400 font-mono">${r.sid}</td>
+      <td>${r.type || 'snort'}</td>
+      <td>${r.service || r.cve || '—'}</td>
+      <td><span class="badge ${r.status === 'generated' ? 'badge-medium' : r.status === 'deployed' ? 'badge-low' : 'badge-low'}">${r.status || 'generated'}</span></td>
+    </tr>
+  `).join('');
 }
 
-function getScenarioInfo(id) {
-  if (SCENARIOS[id]) {
-    const s = SCENARIOS[id];
-    const sev = s.cvss>=9?'Kritik':s.cvss>=7?'Yüksək':'Orta';
-    return {...s, severity: sev};
+function showRuleDetail(sid) {
+  const r = state.rules.find(x => String(x.sid) === String(sid));
+  if (!r) return;
+  showDetail(`Qayda SID: ${r.sid}`, `
+    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Qayda mətni</p>
+      <div class="bg-black/40 rounded-lg p-3 mt-1 font-mono text-[11px] text-emerald-300 whitespace-pre-wrap break-all">${r.rule || r.rule_text || 'Məlumat yoxdur'}</div>
+    </div>
+    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Metaməlumat</p>
+      <p class="text-xs text-gray-400">SID: ${r.sid}<br>Tip: ${r.type || 'snort'}<br>Status: ${r.status || 'generated'}<br>CVE: ${r.cve || '—'}</p>
+    </div>
+  `);
+}
+
+D('generateRulesBtn').addEventListener('click', () => {
+  addDefenseLog('Qayda generasiyası başladı...', 'system');
+  if (state.mode === 'backend' && state.wsConnected) {
+    wsSend({type:'rules', threat:{cve:'CVE-2021-36260', cvss:9.8, port:554, service:'rtsp'}});
+  } else {
+    // Local simulation
+    const rules = [
+      {sid:20260001, type:'snort', service:'RTSP', status:'generated', cve:'CVE-2021-36260', rule:'alert tcp any any -> $HOME_NET 554 (msg:"Kiber-DNT: Hikvision RCE"; content:"GET"; http_method; content:"/SDK/webLanguage"; http_uri; sid:20260001; rev:1;)'},
+      {sid:20260002, type:'suricata', service:'HTTP', status:'generated', cve:'CVE-2020-14882', rule:'alert http any any -> $HOME_NET any (msg:"Kiber-DNT: WebLogic RCE"; flow:established,to_server; content:"/console/css/"; http_uri; sid:20260002; rev:1;)'},
+      {sid:20260003, type:'modsecurity', service:'PLC', status:'generated', cve:'CVE-2025-3119', rule:'SecRule REQUEST_URI "@contains /SDK/" "id:20260003,phase:1,deny,status:403,msg:\'Kiber-DNT: PLC Attack Blocked\'"'}
+    ];
+    state.rules = rules;
+    renderRules();
+    rules.forEach(r => {
+      addDefenseLog(`Qayda yaradıldı: SID ${r.sid} (${r.service})`, 'success');
+      addLog('RULE', `Qayda SID ${r.sid} yaradıldı - ${r.cve}`, 'info');
+    });
+    addDefenseLog(`${rules.length} qayda uğurla yaradıldı`, 'success');
   }
-  return null;
+});
+
+// ===== BAS (Doğrulama) =====
+function addBASResult(data) {
+  const result = {
+    target: data.target || data.target_ip || '10.10.40.12',
+    cve: data.cve || 'CVE-2021-36260',
+    status_code: data.status_code || (data.blocked ? 403 : 200),
+    blocked: data.blocked !== false,
+    latency: data.latency || data.response_time || `${(Math.random() * 2 + 0.1).toFixed(2)}ms`,
+    detail: data.block_reason || (data.blocked ? 'WAF tərəfindən bloklandı' : 'Hücum keçdi'),
+    timestamp: data.timestamp || new Date().toISOString()
+  };
+  state.basResults.push(result);
+  renderBAS();
 }
 
-function updateMetrics() {
-  state.metrics.threats++;
-  state.metrics.blocked++;
-  state.metrics.responseTime = Math.max(0.1, state.metrics.responseTime - 0.02);
-  state.metrics.aiAccuracy = Math.min(99.9, state.metrics.aiAccuracy + 0.05);
-  animateMetric('metricThreats', state.metrics.threats);
-  animateMetric('metricBlocked', state.metrics.blocked);
-  animateMetric('metricResponseTime', state.metrics.responseTime, 's');
-  animateMetric('metricAI', state.metrics.aiAccuracy, '%');
+function renderBAS() {
+  const total = state.basResults.length;
+  const blocked = state.basResults.filter(r => r.blocked).length;
+  const bypassed = total - blocked;
+  const prot = total ? Math.round((blocked / total) * 100) : 0;
+  D('basTotal').textContent = total;
+  D('basBlocked').textContent = blocked;
+  D('basBypassed').textContent = bypassed;
+  D('basProtection').textContent = `${prot}%`;
+
+  D('basTableBody').innerHTML = state.basResults.map(r => `
+    <tr class="bas-row" onclick="showBASDetail(${state.basResults.indexOf(r)})">
+      <td class="text-blue-400 font-mono">${r.target}</td>
+      <td class="font-mono">${r.cve}</td>
+      <td>${r.status_code}</td>
+      <td><span class="flex items-center gap-1"><span class="status-dot ${r.blocked ? 'green' : 'red'}"></span>${r.blocked ? 'BLOCKED' : 'BYPASSED'}</span></td>
+      <td>${r.latency}</td>
+    </tr>
+  `).join('');
 }
 
-function animateMetric(id, target, suffix='') {
-  const el_ = document.getElementById(id);
-  if (!el_) return;
-  const curr = parseFloat(el_.textContent.replace(/[,s%]/g,'')) || 0;
-  const tgt = parseFloat(target) || 0;
-  const start = performance.now();
-  function upd(now) {
-    const t = Math.min((now-start)/800, 1);
-    const eased = 1 - Math.pow(1-t, 3);
-    const val = curr + (tgt-curr)*eased;
-    el_.textContent = (tgt>=1000 ? Math.round(val).toLocaleString() : suffix==='%' ? val.toFixed(1) : val.toFixed(1)) + suffix;
-    if (t<1) requestAnimationFrame(upd);
-  }
-  requestAnimationFrame(upd);
-}
-
-function renderKB() {
-  if (state.kb.length===0) { el.kbList.innerHTML='<div class="text-xs text-gray-500 italic">Hələlik məlumat yoxdur</div>'; return; }
-  el.kbList.innerHTML = state.kb.slice().reverse().map(k =>
-    `<div class="knowledge-item rounded-lg px-2.5 py-2 bg-gray-800/30 border border-gray-700/20">
-      <div class="flex items-center justify-between">
-        <p class="text-[10px] font-semibold text-white truncate max-w-[130px]">${k.name}</p>
-        <span class="text-[8px] text-emerald-400 font-mono">${k.recallTime}</span>
+function showBASDetail(idx) {
+  const r = state.basResults[idx];
+  if (!r) return;
+  showDetail(`BAS Nəticəsi #${idx+1}`, `
+    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Nəticə</p>
+      <div class="flex items-center gap-3 mt-1">
+        <div class="w-10 h-10 rounded-full ${r.blocked ? 'bg-emerald-500/20' : 'bg-red-500/20'} flex items-center justify-center">
+          <span class="text-lg">${r.blocked ? '✓' : '✗'}</span>
+        </div>
+        <div>
+          <p class="text-sm font-bold ${r.blocked ? 'text-emerald-400' : 'text-red-400'}">${r.blocked ? 'BLOCKED - Qoruma aktiv' : 'BYPASSED - Qoruma zəif'}</p>
+          <p class="text-xs text-gray-400">${r.detail}</p>
+        </div>
       </div>
-      <div class="flex items-center gap-1.5 mt-0.5">
-        <span class="text-[8px] px-1 py-0.5 rounded bg-blue-500/20 text-blue-300">${k.category}</span>
-        <span class="text-[8px] text-gray-500">${k.cve}</span>
-      </div>
-    </div>`).join('');
+    </div>
+    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Texniki məlumat</p>
+      <p class="text-xs text-gray-400">Hədəf: ${r.target}<br>CVE: ${r.cve}<br>Status kod: ${r.status_code}<br>Gecikmə: ${r.latency}<br>Vaxt: ${r.timestamp}</p>
+    </div>
+  `);
 }
 
-// ---- EVENT HANDLERS ----
-el.simulateBtn.addEventListener('click', runSimulation);
-el.pauseStepBtn.addEventListener('click', () => {
-  if (!state.isRunning) return;
-  if (!state.isPaused) { setPaused(true); setUIState(true); }
-  else { setPaused(false); setUIState(true); }
+D('basSimulateBtn').addEventListener('click', () => {
+  if (state.mode === 'backend' && state.wsConnected) {
+    wsSend({type:'bas', target_ip:'10.10.40.12', target_port:80});
+  } else {
+    const targets = [
+      {ip:'10.10.40.12', cve:'CVE-2021-36260', blocked:true, code:403, lat:'0.34ms'},
+      {ip:'10.10.40.14', cve:'CVE-2020-14882', blocked:true, code:406, lat:'0.51ms'},
+      {ip:'10.10.40.18', cve:'CVE-2025-3119', blocked:false, code:200, lat:'0.89ms'},
+      {ip:'10.10.40.22', cve:'CVE-2023-2566', blocked:true, code:403, lat:'0.28ms'}
+    ];
+    targets.forEach(t => addBASResult({
+      target_ip: t.ip, cve: t.cve, blocked: t.blocked,
+      status_code: t.code, latency: t.lat,
+      block_reason: t.blocked ? 'WAF: Rule matched (403)' : 'Hücum keçdi - qayda yoxdur'
+    }));
+    addLog('BAS', `${targets.length} test icra edildi`, 'success');
+  }
 });
-el.stepBtn.addEventListener('click', () => {
-  if (!state.isRunning || !state.isPaused || state.stepQueue.length===0) return;
-  const fn = state.stepQueue.shift();
-  if (fn) fn();
-  if (state.stepQueue.length===0) { setPaused(false); setUIState(true); }
-});
-el.clearLogBtn.addEventListener('click', () => {
-  el.eventLog.innerHTML = '<div class="text-gray-600 italic text-center py-4">Jurnal təmizləndi.</div>';
-  state.log = []; el.logCount.textContent = '0';
-});
-el.printReportBtn.addEventListener('click', () => window.print());
-el.applyFilterBtn.addEventListener('click', () => { renderAssetTable(); renderRuleTable(); });
-el.filterIP.addEventListener('input', renderAssetTable);
-el.filterPort.addEventListener('input', renderAssetTable);
-el.filterAssetType.addEventListener('change', renderAssetTable);
 
-$$('.speed-btn').forEach(btn => {
-  btn.addEventListener('click', function() {
-    if (state.isRunning && !state.isPaused) return;
-    $$('.speed-btn').forEach(b => { b.classList.remove('bg-blue-600','text-white','shadow'); b.classList.add('text-gray-400'); });
-    this.classList.remove('text-gray-400');
-    this.classList.add('bg-blue-600','text-white','shadow');
-    state.speed = this.dataset.speed;
+// ===== LOGS (Jurnallar) =====
+function addLog(type, message, severity='info') {
+  const sevMap = {info:'AŞAĞI', success:'AŞAĞI', system:'AŞAĞI', analysis:'ORTA', action:'ORTA', threat:'YÜKSƏK', error:'KRITIK'};
+  state.logs.unshift({
+    timestamp: new Date().toISOString(),
+    type,
+    message,
+    severity: sevMap[severity] || 'AŞAĞI',
+    time: new Date().toLocaleTimeString()
   });
+  renderLogs();
+}
+
+function renderLogs() {
+  const typeF = D('logTypeFilter').value;
+  const sevF = D('logSeverityFilter').value;
+  const searchF = (D('logSearch').value||'').toLowerCase();
+  const filtered = state.logs.filter(l => {
+    const tOk = !typeF || l.type === typeF || l.type?.toUpperCase().includes(typeF);
+    const sOk = !sevF || l.severity === sevF;
+    const srOk = !searchF || (l.message||'').toLowerCase().includes(searchF) || (l.type||'').toLowerCase().includes(searchF);
+    return tOk && sOk && srOk;
+  });
+  D('logCount').textContent = `${filtered.length} hadisə`;
+  D('logTableBody').innerHTML = filtered.slice(0, 100).map(l => {
+    const sevClass = l.severity === 'KRITIK' ? 'badge-critical' : l.severity === 'YÜKSƏK' ? 'badge-high' : l.severity === 'ORTA' ? 'badge-medium' : 'badge-low';
+    return `<tr class="log-row" onclick="showLogDetail(${state.logs.indexOf(l)})">
+      <td class="text-gray-500 font-mono text-[10px]">${l.time || l.timestamp?.slice(11,19) || '--:--:--'}</td>
+      <td><span class="text-[10px] font-semibold ${l.type === 'SCAN' ? 'text-blue-300' : l.type === 'THREAT' || l.type === 'BLOCKED' ? 'text-red-300' : l.type === 'RULE' ? 'text-emerald-300' : l.type === 'BAS' ? 'text-yellow-300' : 'text-gray-300'}">${l.type}</span></td>
+      <td class="max-w-[300px] truncate">${l.message}</td>
+      <td><span class="badge ${sevClass}">${l.severity}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function showLogDetail(idx) {
+  const l = state.logs[idx];
+  if (!l) return;
+  showDetail(`Hadisə #${idx+1}`, `
+    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Hadisə məlumatı</p>
+      <p class="text-sm font-bold text-white">${l.type}</p>
+      <p class="text-xs text-gray-300 mt-1">${l.message}</p>
+    </div>
+    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Metaməlumat</p>
+      <p class="text-xs text-gray-400">Vaxt: ${l.time || l.timestamp}<br>Tip: ${l.type}<br>Səviyyə: ${l.severity}<br>Faza: ${l.phase || '—'}</p>
+    </div>
+  `);
+}
+
+['logTypeFilter','logSeverityFilter','logSearch'].forEach(id => D(id).addEventListener('change', renderLogs));
+D('logSearch').addEventListener('input', renderLogs);
+
+D('clearLogsBtn').addEventListener('click', () => {
+  state.logs = [];
+  renderLogs();
 });
 
-// ---- MATRIX BACKGROUND ----
+// ===== SCAN =====
+D('scanBtn').addEventListener('click', () => {
+  if (state.scanning) return;
+  state.scanning = true;
+  D('scanProgressBar').style.width = '10%';
+  addLog('SCAN', 'Skan başladı...', 'system');
+
+  if (state.mode === 'backend' && state.wsConnected) {
+    wsSend({type:'scan', subnet:'10.10.40.0/24'});
+    let p = 10;
+    const interval = setInterval(() => { p += Math.random() * 15; if (p >= 90) { p = 90; clearInterval(interval); } D('scanProgressBar').style.width = p + '%'; }, 500);
+  } else {
+    // Simulated scan
+    setTimeout(() => {
+      const assets = [];
+      const vendors = ['Hikvision','Dahua','Siemens','Cisco','Ubiquiti','MikroTik','TP-Link'];
+      for (let i = 1; i <= 8; i++) {
+        const vendor = vendors[Math.floor(Math.random() * vendors.length)];
+        const baseIP = '10.10.40.' + (i + 10);
+        const ports = [];
+        const svcs = ['http','rtsp','ssh','https','snmp','modbus'];
+        const numPorts = 1 + Math.floor(Math.random() * 3);
+        for (let p = 0; p < numPorts; p++) {
+          const svc = svcs[Math.floor(Math.random() * svcs.length)];
+          const portMap = {http:80, https:443, rtsp:554, ssh:22, snmp:161, modbus:502};
+          ports.push({port: portMap[svc] || 80 + Math.floor(Math.random()*100), service: svc, state: 'open', version: 'v' + (1 + Math.random()*4).toFixed(1)});
+        }
+        assets.push({
+          ip: baseIP, hostname: `${vendor.toLowerCase()}-${baseIP.slice(-2)}`, vendor,
+          ports, os: ['Linux','VxWorks','Windows','Embedded'][Math.floor(Math.random()*4)],
+          risk_level: ['low','medium','high','critical'][Math.floor(Math.random()*4)],
+          scan_timestamp: new Date().toISOString(), status: 'active'
+        });
+      }
+      state.assets = assets;
+      renderAssets();
+      D('scanProgressBar').style.width = '100%';
+      setTimeout(() => D('scanProgressBar').style.width = '0%', 1000);
+      state.scanning = false;
+      addLog('SCAN', `Skan tamamlandı: ${assets.length} aktiv aşkar edildi`, 'success');
+    }, 2000);
+
+    // Simulate progress
+    let p = 10;
+    const interval = setInterval(() => {
+      p += Math.random() * 20;
+      if (p >= 95) { p = 95; clearInterval(interval); }
+      D('scanProgressBar').style.width = Math.min(p, 95) + '%';
+    }, 300);
+    setTimeout(() => clearInterval(interval), 3000);
+  }
+});
+
+// ===== MATRIX BACKGROUND =====
 function initMatrix() {
-  const canvas = document.getElementById('matrixCanvas');
+  const canvas = D('matrixCanvas');
   const ctx = canvas.getContext('2d');
   let w, h;
   function resize() { w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; }
   resize(); window.addEventListener('resize', resize);
-  const dots = Array.from({length: Math.floor(w*h/4000)}, () => ({
-    x: Math.random()*w, y: -Math.random()*h, speed: 0.2+Math.random()*0.4,
-    size: 1+Math.random()*1.5, alpha: 0.05+Math.random()*0.1
+  const dots = Array.from({length: Math.floor(w*h/5000)}, () => ({
+    x: Math.random()*w, y: -Math.random()*h, speed: 0.15+Math.random()*0.3, size: 1+Math.random()*1.2, alpha: 0.03+Math.random()*0.08
   }));
   function draw() {
     ctx.clearRect(0,0,w,h);
-    ctx.strokeStyle='rgba(37,99,235,0.04)'; ctx.lineWidth=1;
+    ctx.strokeStyle='rgba(37,99,235,0.03)'; ctx.lineWidth=1;
     for(let x=0;x<=w;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
     for(let y=0;y<=h;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
     dots.forEach(d => { d.y+=d.speed; if(d.y>h){d.y=-5;d.x=Math.random()*w;} ctx.fillStyle=`rgba(37,99,235,${d.alpha})`; ctx.beginPath(); ctx.arc(d.x,d.y,d.size,0,Math.PI*2); ctx.fill(); });
@@ -1272,7 +745,12 @@ function initMatrix() {
   draw();
 }
 initMatrix();
-renderKB();
+
+// Initial welcome
+addLog('SİSTEM', 'Platforma hazırdır. "Skan et" ilə başlayın.', 'system');
+addDefenseLog('Milli Kiber-DNT v3.0 — Modul Kiber Müdafiə Platforması', 'system');
+addDefenseLog('Bütün 5 modul aktivdir. Hadisələri canlı izləyin.', 'system');
+
 </script>
 </body>
 </html>

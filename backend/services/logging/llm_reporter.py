@@ -7,11 +7,13 @@ report when LLM is unavailable.
 
 import json
 import asyncio
+import sys, os
 from typing import Dict, Optional
 from datetime import datetime
 
-from config import OLLAMA_BASE_URL, LLM_MODEL
-from database import KiberDatabase
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+from config.settings import OLLAMA_BASE_URL, LLM_MODEL
+from services.logging.database import KiberDatabase
 
 
 class LLMReporter:

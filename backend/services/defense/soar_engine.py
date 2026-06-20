@@ -6,11 +6,13 @@ deploys them to the local WAF/IPS system.
 
 import os
 import subprocess
+import sys
 from typing import Dict, List, Optional
 from datetime import datetime
 
-from config import SNORT_RULES_DIR, SURICATA_RULES_DIR, MODSECURITY_DIR, DEPLOY_WAF_RULES
-from database import KiberDatabase
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+from config.settings import SNORT_RULES_DIR, SURICATA_RULES_DIR, MODSECURITY_DIR, DEPLOY_WAF_RULES
+from services.logging.database import KiberDatabase
 
 
 class SOAREngine:
