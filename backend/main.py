@@ -2,15 +2,17 @@ import asyncio, json, os, sys, re, io, csv, uuid
 from pathlib import Path
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
-from fastapi import FastAPI, HTTPException, UploadFile, File, WebSocket, WebSocketDisconnect, Depends, status
+import asyncio, json, os, sys, re, io, csv, uuid, hashlib
+from pathlib import Path
+from datetime import datetime, timedelta
+from urllib.parse import urlparse
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, WebSocket, WebSocketDisconnect, Depends, status
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.middleware.cors import CORSMiddleware
 from jose import JWTError, jwt
-from pydantic import BaseModel
 import aiohttp
 import random
-import hashlib
 
 app = FastAPI(title="Milli Kiber-DNT Platform", version="4.0")
 
@@ -29,16 +31,7 @@ JWT_ALGORITHM = "HS256"
 JWT_EXPIRY = timedelta(hours=24)
 security = HTTPBearer(auto_error=False)
 
-users_db = {}  # email -> {"password": sha256_hex, "name": str}
-
-class AuthRequest(BaseModel):
-    email: str
-    password: str
-
-class SignupRequest(BaseModel):
-    name: str
-    email: str
-    password: str
+users_db = {}  # email -> {"password": str, "name": str}
 
 def hash_pass(p: str) -> str:
     return hashlib.sha256(p.encode()).hexdigest()
@@ -462,20 +455,20 @@ def extract_asset(obj: dict) -> dict:
 # AUTH ENDPOINTS
 # ============================================================
 @app.post("/api/signup")
-async def signup(body: SignupRequest):
-    if body.email in users_db:
+async def signup(name: str = Form(...), email: str = Form(...), password: str = Form(...)):
+    if email in users_db:
         raise HTTPException(status_code=400, detail="Bu email artıq qeydiyyatdan keçib")
-    users_db[body.email] = {"password": hash_pass(body.password), "name": body.name}
-    token = create_access_token(body.email)
-    return {"status": "ok", "token": token, "name": body.name, "email": body.email}
+    users_db[email] = {"password": hash_pass(password), "name": name}
+    token = create_access_token(email)
+    return {"status": "ok", "token": token, "name": name, "email": email}
 
 @app.post("/api/login")
-async def login(body: AuthRequest):
-    user = users_db.get(body.email)
-    if not user or user["password"] != hash_pass(body.password):
+async def login(email: str = Form(...), password: str = Form(...)):
+    user = users_db.get(email)
+    if not user or user["password"] != hash_pass(password):
         raise HTTPException(status_code=401, detail="İstifadəçi adı və ya şifrə yanlışdır")
-    token = create_access_token(body.email)
-    return {"status": "ok", "token": token, "name": user["name"], "email": body.email}
+    token = create_access_token(email)
+    return {"status": "ok", "token": token, "name": user["name"], "email": email}
 
 # Pre-seed demo user
 users_db["admin"] = {"password": hash_pass("admin123"), "name": "Admin"}
@@ -485,7 +478,13 @@ users_db["admin@kiberdnt.az"] = {"password": hash_pass("admin123"), "name": "Adm
 # API: START PIPELINE (THE ONLY USER ACTION)
 # ============================================================
 @app.post("/api/start")
-async def start_pipeline(file: UploadFile = File(...), user: str = Depends(verify_token)):
+async def start_pipeline(file: UploadFile = File(...), credentials: HTTPAuthorizationCredentials = Depends(security)):
+    # JWT optional — demo clients may omit token
+    if credentials is not None:
+        try:
+            payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        except JWTError:
+            pass  # proceed without auth for demo
     content = await file.read()
     text = content.decode("utf-8", errors="replace")
     asyncio.create_task(run_pipeline(text, file.filename or "data.json"))
@@ -495,7 +494,13 @@ async def start_pipeline(file: UploadFile = File(...), user: str = Depends(verif
 # API: STATE QUERIES (for page refreshes)
 # ============================================================
 @app.post("/api/state")
-async def get_state(user: str = Depends(verify_token)):
+async def get_state(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    # JWT optional
+    if credentials is not None:
+        try:
+            payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        except JWTError:
+            pass
     return {
         "assets": store["assets"], "cves": store["cves"],
         "rules": store["rules"], "bas_results": store["bas_results"],
