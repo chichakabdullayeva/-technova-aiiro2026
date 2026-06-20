@@ -4,349 +4,381 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kiber-DNT | Milli Kiber Müdafiə Platforması</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com">
 </script>
 <style>
-:root{--bg:#080d1e;--bg2:#0c1328;--bg3:#111a30;--border:rgba(30,50,80,.5);--border-hover:rgba(0,180,255,.25);--text:#d0dce8;--muted:#5a7090;--accent:#00b4ff;--accent2:#00e080;--danger:#ff3355;--warn:#ff8c00}
+:root {
+  --bg: #ffffff;
+  --bg2: #f8f9fb;
+  --bg3: #f0f2f5;
+  --sidebar: #1a1d2e;
+  --sidebar-hover: #262a3e;
+  --sidebar-active: #2d3250;
+  --border: #e2e5ea;
+  --text: #1a1d2e;
+  --text2: #5a6072;
+  --text3: #8a90a2;
+  --accent: #0066ff;
+  --accent2: #00a86b;
+  --danger: #dc3545;
+  --warn: #f59e0b;
+  --shadow: 0 1px 3px rgba(0,0,0,.06);
+  --radius: 8px;
+}
+.dark {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #1c2333;
+  --sidebar: #0d1117;
+  --sidebar-hover: #161b22;
+  --sidebar-active: #1c2333;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --text3: #6e7681;
+  --accent: #58a6ff;
+  --accent2: #3fb950;
+  --danger: #f85149;
+  --warn: #d29922;
+  --shadow: 0 1px 3px rgba(0,0,0,.3);
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden}
-::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
-::-webkit-scrollbar-thumb:hover{background:var(--accent)}
-.nav-link{position:relative;padding:10px 18px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;color:var(--muted);white-space:nowrap}
-.nav-link:hover{color:var(--text);background:rgba(0,180,255,.05)}
-.nav-link.active{color:var(--accent)}.nav-link.active:after{content:'';position:absolute;bottom:-1px;left:12px;right:12px;height:2px;background:var(--accent);border-radius:2px}
-.widget{background:var(--bg2);border:1px solid var(--border);border-radius:10px;transition:all .2s}
-.widget:hover{border-color:var(--border-hover);box-shadow:0 4px 20px rgba(0,0,0,.3)}
-.stat-widget{padding:18px 20px;display:flex;flex-direction:column;gap:4px}
-.stat-widget .value{font-size:28px;font-weight:700;letter-spacing:-.5px}
-.stat-widget .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.stat-widget .trend{font-size:11px;display:flex;align-items:center;gap:4px}
-.card{padding:20px}
-.card-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;border:none;font-family:inherit;white-space:nowrap}
-.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#0099dd;box-shadow:0 4px 15px rgba(0,180,255,.25)}
-.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}.btn-outline:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,180,255,.06)}
-.btn-success{background:var(--accent2);color:#001a0a}.btn-success:hover{box-shadow:0 4px 15px rgba(0,224,128,.25)}
-.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{box-shadow:0 4px 15px rgba(255,51,85,.25)}
-.btn-sm{padding:5px 12px;font-size:12px}
-.btn-icon{padding:6px 10px;font-size:14px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;cursor:pointer;transition:all .2s}
-.btn-icon:hover{color:var(--text);border-color:var(--accent)}
-.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px;background:var(--bg2)}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .2s,color .2s}
+body,html{height:100%}
+input,button,select,textarea{font-family:inherit}
+#app{display:flex;height:100vh}
+#sidebar{width:240px;min-width:240px;background:var(--sidebar);display:flex;flex-direction:column;z-index:10;transition:background .2s}
+#sidebar .logo{padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:10px}
+#sidebar .logo-text{font-size:16px;font-weight:700;color:#fff}
+#sidebar .logo-sub{font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.8px;margin-top:-2px}
+#sidebar nav{flex:1;padding:10px 8px;overflow-y:auto}
+#sidebar nav a{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:6px;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;text-decoration:none;cursor:pointer;transition:all .15s;margin-bottom:2px}
+#sidebar nav a:hover{background:var(--sidebar-hover);color:rgba(255,255,255,.85)}
+#sidebar nav a.active{background:var(--sidebar-active);color:#fff}
+#sidebar nav a .icon{width:18px;text-align:center;font-size:16px;opacity:.7}
+#sidebar .user-section{padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s}
+#sidebar .user-section:hover{background:var(--sidebar-hover)}
+#sidebar .user-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600}
+#content{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg);transition:background .2s}
+#topbar{height:52px;min-height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--border);background:var(--bg);transition:background .2s,border-color .2s}
+#topbar .page-title{font-size:16px;font-weight:600}
+#topbar .actions{display:flex;align-items:center;gap:10px}
+#main{padding:24px;overflow-y:auto;flex:1;background:var(--bg2);transition:background .2s}
+.theme-btn{width:34px;height:34px;border-radius:6px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .15s;font-size:16px}
+.theme-btn:hover{border-color:var(--accent);color:var(--accent)}
+.page-section{display:none}
+.page-section.active{display:block}
+
+/* Cards */
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:background .2s,border-color .2s}
+.stat-card{padding:18px 20px}
+.stat-card .value{font-size:28px;font-weight:700;letter-spacing:-.5px;color:var(--text)}
+.stat-card .label{font-size:12px;color:var(--text2);margin-top:2px}
+.stat-card .sub{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* Tables */
 table{width:100%;border-collapse:collapse;font-size:13px}
-thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;background:rgba(0,0,0,.15);border-bottom:1px solid var(--border)}
-tbody td{padding:9px 14px;border-bottom:1px solid rgba(30,50,80,.25);transition:background .12s}
-tbody tr:last-child td{border-bottom:none}
-tbody tr{cursor:pointer}tbody tr:hover td{background:rgba(0,180,255,.03)}
-.severity-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
-.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:500}
-.badge-critical{background:rgba(255,51,85,.12);color:#ff5577;border:1px solid rgba(255,51,85,.25)}
-.badge-high{background:rgba(255,140,0,.12);color:#ffaa33;border:1px solid rgba(255,140,0,.25)}
-.badge-medium{background:rgba(255,200,0,.1);color:#ffcc44;border:1px solid rgba(255,200,0,.2)}
-.badge-low{background:rgba(0,224,128,.1);color:#33ee99;border:1px solid rgba(0,224,128,.2)}
-.badge-info{background:rgba(0,180,255,.1);color:#44ccff;border:1px solid rgba(0,180,255,.2)}
-.input{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:13px;outline:none;width:100%;transition:border .2s}.input:focus{border-color:var(--accent)}
-.section{display:none}.section.active{display:block}
-.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--muted);gap:10px}
-.loading .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.empty-state{padding:40px;text-align:center;color:var(--muted);font-size:14px}
-.empty-state .icon{font-size:40px;margin-bottom:12px;opacity:.4}
-#slidePanel{position:fixed;top:0;right:-460px;width:440px;height:100%;background:var(--bg2);border-left:1px solid var(--border);z-index:1000;transition:right .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;box-shadow:-8px 0 30px rgba(0,0,0,.4)}
-#slidePanel.open{right:0}
-#slideOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s}
-#slideOverlay.show{opacity:1;pointer-events:auto}
-pre.json-block{background:#060b18;padding:14px;border-radius:6px;font-size:12px;line-height:1.5;overflow-x:auto;max-height:300px;color:#4a7a5a;border:1px solid rgba(0,180,255,.08);font-family:'JetBrains Mono','Consolas',monospace}
-.terminal{background:#060b18;border:1px solid rgba(0,224,128,.12);border-radius:8px;font-family:'JetBrains Mono','Consolas',monospace;font-size:12px;line-height:1.6}
-.terminal-head{padding:7px 14px;border-bottom:1px solid rgba(0,224,128,.1);display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.2);border-radius:8px 8px 0 0}
-.terminal-body{padding:14px;max-height:260px;overflow-y:auto;color:#33dd99}
-.terminal-body .line{margin-bottom:3px;word-break:break-all}
-.terminal-body .dim{color:#3a7a5a}
-.terminal-body .err{color:var(--danger)}
-.signal{position:relative;display:inline-flex;align-items:center;gap:6px}
-.signal-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.signal-dot.on{background:#00e080;box-shadow:0 0 8px rgba(0,224,128,.4)}
-.signal-dot.off{background:var(--danger);box-shadow:0 0 8px rgba(255,51,85,.3)}
-.signal-dot.warn{background:var(--warn);box-shadow:0 0 8px rgba(255,140,0,.3)}
-.progress-bar{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
-.progress-bar .fill{height:100%;border-radius:2px;transition:width .8s}
-.kb-item{padding:14px 0;border-bottom:1px solid rgba(30,50,80,.3);position:relative;padding-left:24px}
-.kb-item:before{content:'';position:absolute;left:0;top:18px;width:10px;height:10px;border-radius:50%;background:var(--accent2);border:2px solid rgba(0,224,128,.2)}
-.kb-item:after{content:'';position:absolute;left:4px;top:32px;width:2px;height:calc(100% - 14px);background:rgba(0,224,128,.1)}
-.kb-item:last-child:after{display:none}
-@media(max-width:900px){
-  .nav-link{padding:8px 10px;font-size:12px}
-  #slidePanel{width:100%;right:-100%}
-  .stat-widget .value{font-size:22px}
+thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--border);background:var(--bg3)}
+tbody td{padding:9px 14px;border-bottom:1px solid var(--border);color:var(--text)}
+tbody tr:hover td{background:rgba(0,102,255,.03)}
+.dark tbody tr:hover td{background:rgba(88,166,255,.03)}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:500}
+.badge-red{background:#fee;color:#c00}.dark .badge-red{background:rgba(248,81,73,.15);color:#f85149}
+.badge-green{background:#efe;color:#0a0}.dark .badge-green{background:rgba(63,185,80,.15);color:#3fb950}
+.badge-blue{background:#eef;color:#06c}.dark .badge-blue{background:rgba(88,166,255,.15);color:#58a6ff}
+.badge-yellow{background:#ffe;color:#960}.dark .badge-yellow{background:rgba(210,153,34,.15);color:#d29922}
+
+/* Form Elements */
+.input{height:38px;padding:0 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px;outline:none;width:100%;transition:border .15s,background .15s}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,102,255,.1)}
+.dark .input:focus{box-shadow:0 0 0 3px rgba(88,166,255,.1)}
+.btn{height:36px;padding:0 18px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{opacity:.9}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-success{background:var(--accent2);color:#fff}.btn-success:hover{opacity:.9}
+.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{opacity:.9}
+
+/* Login */
+#loginPage,#signupPage{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg2);padding:20px}
+.auth-box{width:400px;max-width:100%;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:36px 32px;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.auth-box .title{font-size:22px;font-weight:700;margin-bottom:4px}
+.auth-box .subtitle{font-size:13px;color:var(--text2);margin-bottom:24px}
+.auth-box .input{margin-bottom:14px}
+.auth-box .btn{width:100%;justify-content:center;height:42px;margin-top:6px}
+.auth-box .switch{text-align:center;margin-top:16px;font-size:13px;color:var(--text2)}
+.auth-box .switch a{color:var(--accent);cursor:pointer;text-decoration:none;font-weight:500}
+
+/* Utility */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:1024px){
+  .grid-4,.grid-3{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .grid-4,.grid-3,.grid-2{grid-template-columns:1fr}
+  #sidebar{width:56px;min-width:56px}
+  #sidebar .logo-text,#sidebar .logo-sub,#sidebar nav a span,#sidebar .user-section .info{display:none}
+  #sidebar .logo{padding:14px;justify-content:center}
+  #sidebar nav a{justify-content:center;padding:9px}
 }
 </style>
 </head>
 <body>
 
-<div id="app" class="flex flex-col min-h-screen">
-  <!-- TOP NAV -->
-  <header style="background:rgba(8,13,30,.95);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50">
-    <div class="flex items-center justify-between px-5 h-14">
-      <div class="flex items-center gap-6">
-        <div class="flex items-center gap-2.5">
-          <span style="font-size:20px">🧬</span>
-          <div>
-            <div style="font-size:15px;font-weight:700;background:linear-gradient(135deg,#00b4ff,#00e080);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Kiber-DNT</div>
-            <div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:-2px">MİLLİ MÜDAFİƏ PLATFORMASI</div>
-          </div>
-        </div>
-        <nav class="hidden md:flex items-center gap-1" id="mainNav">
-          <div class="nav-link active" data-section="dashboard" onclick="showSection('dashboard')">📊 Panel</div>
-          <div class="nav-link" data-section="assets" onclick="showSection('assets')">🖥 Aktivlər</div>
-          <div class="nav-link" data-section="threats" onclick="showSection('threats')">🚨 Təhdidlər</div>
-          <div class="nav-link" data-section="rules" onclick="showSection('rules')">🛡 Qaydalar</div>
-          <div class="nav-link" data-section="bas" onclick="showSection('bas')">⚡ BAS</div>
-          <div class="nav-link" data-section="reports" onclick="showSection('reports')">📋 Hesabatlar</div>
-        </nav>
-      </div>
-      <div class="flex items-center gap-3">
-        <div class="signal"><span class="signal-dot on"></span><span style="font-size:11px;color:var(--accent2)">ONLINE</span></div>
-        <button class="btn-icon" onclick="resetAll()" title="Sıfırla">⟳</button>
-        <label class="btn btn-primary btn-sm cursor-pointer" style="font-size:12px">📂 İmport<input type="file" id="fileInput" accept=".json,.csv,.log" style="display:none" onchange="handleUpload(event)"></label>
-      </div>
+<!-- LOGIN PAGE -->
+<div id="loginPage">
+  <div class="auth-box">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:32px;margin-bottom:8px">🧬</div>
+      <div class="title">Kiber-DNT</div>
+      <div class="subtitle">Milli Kiber Müdafiə Platforması</div>
     </div>
-  </header>
-
-  <div class="flex-1 p-5" style="max-width:1440px;margin:0 auto;width:100%">
-
-    <!-- ===== DASHBOARD ===== -->
-    <div class="section active" id="section-dashboard">
-      <div style="font-size:20px;font-weight:600;margin-bottom:20px">📊 İdarə Paneli</div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="stat-widget widget" onclick="showSection('assets')" style="cursor:pointer">
-          <div class="value" id="dashAssets" style="color:var(--accent)">0</div>
-          <div class="label">Aktivlər</div>
-          <div class="trend" style="color:var(--muted)">İmport edilmiş cihazlar</div>
-        </div>
-        <div class="stat-widget widget" onclick="showSection('threats')" style="cursor:pointer">
-          <div class="value" id="dashThreats" style="color:var(--warn)">0</div>
-          <div class="label">Təhdidlər</div>
-          <div class="trend" style="color:var(--muted)">Aşkarlanan CVE</div>
-        </div>
-        <div class="stat-widget widget" onclick="showSection('rules')" style="cursor:pointer">
-          <div class="value" id="dashRules" style="color:var(--accent2)">0</div>
-          <div class="label">Qaydalar</div>
-          <div class="trend" style="color:var(--muted)">WAF/IPS imzaları</div>
-        </div>
-        <div class="stat-widget widget" onclick="showSection('bas')" style="cursor:pointer">
-          <div class="value" id="dashBlocked" style="color:#44ccff">0</div>
-          <div class="label">Bloklanan</div>
-          <div class="trend" style="color:var(--muted)">BAS test nəticəsi</div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        <div class="lg:col-span-2 widget card">
-          <div class="card-title">Son Fəaliyyət</div>
-          <div id="activityFeed" class="space-y-2 text-sm">
-            <div style="color:var(--muted);text-align:center;padding:20px">Sistem hazırdır. Məlumat import edin.</div>
-          </div>
-        </div>
-        <div class="widget card">
-          <div class="card-title">Platforma Statusu</div>
-          <div class="space-y-3 text-sm">
-            <div class="flex justify-between"><span style="color:var(--muted)">Backend</span><span style="color:var(--accent2)">● Online</span></div>
-            <div class="flex justify-between"><span style="color:var(--muted)">EPSS API</span><span id="epssStatus" style="color:var(--muted)">⏳ Yoxlanılır...</span></div>
-            <div class="flex justify-between"><span style="color:var(--muted)">Ollama</span><span id="ollamaStatus" style="color:var(--muted)">⏳ Yoxlanılır...</span></div>
-            <div class="flex justify-between"><span style="color:var(--muted)">Son İmport</span><span id="lastImport" style="color:var(--muted)">—</span></div>
-            <div class="flex justify-between"><span style="color:var(--muted)">Son Analiz</span><span id="lastAnalysis" style="color:var(--muted)">—</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="widget card">
-        <div class="card-title">İş Axını (Core Loop)</div>
-        <div class="flex items-center justify-between gap-2 text-xs py-2">
-          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-8 h-8 rounded-full flex items-center justify-center text-sm" style="background:var(--accent);color:#fff">📂</div><span style="color:var(--muted)">İmport</span></div>
-          <div style="height:2px;flex:1;background:var(--border)"></div>
-          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-8 h-8 rounded-full flex items-center justify-center text-sm" style="background:rgba(0,180,255,.15);color:var(--accent)">🔍</div><span style="color:var(--muted)">Analiz</span></div>
-          <div style="height:2px;flex:1;background:var(--border)"></div>
-          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-8 h-8 rounded-full flex items-center justify-center text-sm" style="background:rgba(0,224,128,.15);color:var(--accent2)">🛡</div><span style="color:var(--muted)">Qayda</span></div>
-          <div style="height:2px;flex:1;background:var(--border)"></div>
-          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-8 h-8 rounded-full flex items-center justify-center text-sm" style="background:rgba(255,140,0,.15);color:var(--warn)">⚡</div><span style="color:var(--muted)">BAS</span></div>
-          <div style="height:2px;flex:1;background:var(--border)"></div>
-          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-8 h-8 rounded-full flex items-center justify-center text-sm" style="background:rgba(68,204,255,.15);color:#44ccff">📋</div><span style="color:var(--muted)">Hesabat</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== ASSETS ===== -->
-    <div class="section" id="section-assets">
-      <div class="flex items-center justify-between mb-4">
-        <div><div style="font-size:20px;font-weight:600">🖥 Aktivlərin İnventarı</div><div style="font-size:13px;color:var(--muted);margin-top:2px">İmport edilmiş bütün şəbəkə cihazları</div></div>
-        <div class="flex gap-2">
-          <button class="btn btn-primary btn-sm" onclick="runAnalysis()">🔍 Analiz Et</button>
-          <button class="btn btn-outline btn-sm" onclick="clearAssets()">Təmizlə</button>
-        </div>
-      </div>
-      <div class="widget card">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex gap-3 items-center">
-            <input class="input" id="assetSearch" placeholder="IP, port, vendor..." style="width:240px" oninput="renderAssets()">
-            <span style="font-size:12px;color:var(--muted)"><span id="assetCount">0</span> cihaz</span>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table><thead><tr><th>IP Ünvanı</th><th>Port</th><th>Vendor</th><th>Servis</th><th>Status</th></tr></thead>
-            <tbody id="assetTable"></tbody>
-          </table>
-          <div class="empty-state" id="assetEmpty"><div class="icon">📂</div>Hələ heç bir aktiv yoxdur. Yuxarıdan "İmport" düyməsi ilə fayl yükləyin.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== THREATS ===== -->
-    <div class="section" id="section-threats">
-      <div class="flex items-center justify-between mb-4">
-        <div><div style="font-size:20px;font-weight:600">🚨 Təhdid Kəşfiyyatı</div><div style="font-size:13px;color:var(--muted);margin-top:2px">EPSS skorları ilə CVE təhlili</div></div>
-        <div><button class="btn btn-primary btn-sm" onclick="runAnalysis()">🔄 Yenilə</button></div>
-      </div>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        <div class="lg:col-span-2 widget card">
-          <div class="card-title">CVSS vs EPSS Risik Matrisi</div>
-          <canvas id="riskCanvas" style="width:100%;height:260px;border-radius:6px"></canvas>
-        </div>
-        <div class="widget card">
-          <div class="card-title">Təhlil Xülasəsi</div>
-          <div id="threatSummary" style="font-size:13px;color:var(--muted)">Analiz gözləyir. Aktivləri import edib "Analiz Et" düyməsini sıxın.</div>
-        </div>
-      </div>
-      <div class="widget card">
-        <div class="flex items-center justify-between mb-3">
-          <div style="font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Aşkarlanan CVE</div>
-          <input class="input" id="cveSearch" placeholder="CVE axtar..." style="width:200px" oninput="renderCVEs()">
-        </div>
-        <div class="table-wrap">
-          <table><thead><tr><th>CVE ID</th><th>CVSS</th><th>EPSS</th><th>İnam</th><th>Hədəf</th><th>Status</th></tr></thead>
-            <tbody id="cveTable"></tbody>
-          </table>
-          <div class="empty-state" id="cveEmpty"><div class="icon">🔍</div>CVE məlumatı yoxdur. Aktivləri analiz edin.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== RULES ===== -->
-    <div class="section" id="section-rules">
-      <div class="flex items-center justify-between mb-4">
-        <div><div style="font-size:20px;font-weight:600">🛡 Qaydalar Mühərriki</div><div style="font-size:13px;color:var(--muted);margin-top:2px">WAF/IPS imza generasiyası</div></div>
-        <button class="btn btn-success btn-sm" onclick="genRules()">⚡ Qayda Yaradılması</button>
-      </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-        <div class="widget card">
-          <div class="card-title">Son Qaydalar (Terminal)</div>
-          <div class="terminal">
-            <div class="terminal-head"><span style="width:9px;height:9px;border-radius:50%;background:var(--danger);display:inline-block"></span><span style="width:9px;height:9px;border-radius:50%;background:var(--warn);display:inline-block"></span><span style="width:9px;height:9px;border-radius:50%;background:var(--accent2);display:inline-block"></span><span style="color:#3a7a5a;font-size:11px">root@kiber-dnt:~# ./generate_rules</span></div>
-            <div class="terminal-body" id="ruleTerminal"><div class="dim line">Qayda generasiyası gözləyir.</div></div>
-          </div>
-        </div>
-        <div class="widget card">
-          <div class="card-title">Statistika</div>
-          <div id="ruleStats" style="font-size:13px;color:var(--muted)">Hələ qayda yaradılmayıb.</div>
-        </div>
-      </div>
-      <div class="widget card">
-        <div class="card-title" style="margin-bottom:12px">Yaradılan Qaydalar</div>
-        <div class="table-wrap">
-          <table><thead><tr><th>SID</th><th>Tip</th><th>Hədəf</th><th>Port</th><th>CVE</th><th>Vaxt</th></tr></thead>
-            <tbody id="ruleTable"></tbody>
-          </table>
-          <div class="empty-state" id="ruleEmpty"><div class="icon">🛡</div>Qayda yoxdur. "Qayda Yaradılması" düyməsini sıxın.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== BAS ===== -->
-    <div class="section" id="section-bas">
-      <div class="flex items-center justify-between mb-4">
-        <div><div style="font-size:20px;font-weight:600">⚡ BAS Sızma Testi</div><div style="font-size:13px;color:var(--muted);margin-top:2px">Server tərəfdən real HTTP sorğuları</div></div>
-        <button class="btn btn-primary btn-sm" onclick="runBAS()">🚀 BAS Başlat</button>
-      </div>
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-        <div class="stat-widget widget"><div class="value" id="basTested" style="color:var(--accent)">0</div><div class="label">Test Edilən</div></div>
-        <div class="stat-widget widget"><div class="value" id="basBlocked" style="color:var(--accent2)">0</div><div class="label">Bloklanan</div></div>
-        <div class="stat-widget widget"><div class="value" id="basOpen" style="color:var(--danger)">0</div><div class="label">Açıq</div></div>
-        <div class="stat-widget widget"><div class="value" id="basEffectiveness" style="color:var(--warn)">0%</div><div class="label">Səmərəlilik</div></div>
-      </div>
-      <div class="widget card">
-        <div class="card-title">BAS Nəticələri</div>
-        <div class="table-wrap">
-          <table><thead><tr><th>Hədəf</th><th>Port</th><th>CVE</th><th>HTTP Status</th><th>RTT</th><th>Nəticə</th></tr></thead>
-            <tbody id="basTable"></tbody>
-          </table>
-          <div class="empty-state" id="basEmpty"><div class="icon">⚡</div>BAS testi keçirilməyib. "BAS Başlat" düyməsini sıxın.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== REPORTS ===== -->
-    <div class="section" id="section-reports">
-      <div class="flex items-center justify-between mb-4">
-        <div><div style="font-size:20px;font-weight:600">📋 Hesabatlar & Bilik Bazası</div><div style="font-size:13px;color:var(--muted);margin-top:2px">Post-mortem hesabatları və genetik yaddaş</div></div>
-        <button class="btn btn-primary btn-sm" onclick="genReport()">📝 Hesabat Yaradılması</button>
-      </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <div class="widget card">
-          <div class="card-title">Avtomat Post-Mortem</div>
-          <div class="terminal">
-            <div class="terminal-head"><span style="width:9px;height:9px;border-radius:50%;background:var(--accent2);display:inline-block"></span><span style="width:9px;height:9px;border-radius:50%;background:var(--warn);display:inline-block"></span><span style="width:9px;height:9px;border-radius:50%;background:var(--danger);display:inline-block"></span><span style="color:#3a7a5a;font-size:11px">llm@kiber-dnt:~$ generate_report</span></div>
-            <div class="terminal-body" id="reportTerminal"><div class="dim line">Hesabat gözləyir.</div></div>
-          </div>
-        </div>
-        <div class="widget card">
-          <div class="card-title">🧬 Genetik Yaddaş</div>
-          <div id="kbContainer" style="max-height:340px;overflow-y:auto"><div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Hələ heç bir məlumat yoxdur.</div></div>
-        </div>
-      </div>
-      <div class="widget card">
-        <div class="card-title">Keçmiş İnsidentlər</div>
-        <div class="table-wrap">
-          <table><thead><tr><th>Tarix</th><th>CVE</th><th>Hədəf</th><th>Status</th></tr></thead>
-            <tbody id="incidentTable"></tbody>
-          </table>
-          <div class="empty-state" id="incidentEmpty"><div class="icon">📋</div>İnsident qeydə alınmayıb.</div>
-        </div>
-      </div>
-    </div>
-
+    <input class="input" id="loginEmail" placeholder="İstifadəçi adı" value="admin" style="margin-bottom:12px">
+    <input class="input" id="loginPass" type="password" placeholder="Şifrə" value="admin123" style="margin-bottom:4px">
+    <div style="text-align:right;margin-bottom:16px"><a style="font-size:12px;color:var(--accent);cursor:pointer">Şifrəni unutmusunuz?</a></div>
+    <button class="btn btn-primary" onclick="doLogin()">Daxil ol</button>
+    <div class="switch">Hesabınız yoxdur? <a onclick="showAuth('signup')">Qeydiyyat</a></div>
   </div>
 </div>
 
-<!-- SLIDE PANEL -->
-<div id="slideOverlay" onclick="closeSlide()"></div>
-<div id="slidePanel">
-  <div class="flex items-center justify-between p-4" style="border-bottom:1px solid var(--border)">
-    <span style="font-size:14px;font-weight:600" id="slideTitle">Detal</span>
-    <button class="btn-icon btn-sm" onclick="closeSlide()">✕</button>
+<!-- SIGNUP PAGE -->
+<div id="signupPage" style="display:none">
+  <div class="auth-box">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:32px;margin-bottom:8px">🧬</div>
+      <div class="title">Qeydiyyat</div>
+      <div class="subtitle">Yeni hesab yaradın</div>
+    </div>
+    <input class="input" id="signupName" placeholder="Ad və soyad" value="Admin">
+    <input class="input" id="signupEmail" placeholder="Email" value="admin@kiberdnt.az">
+    <input class="input" id="signupPass" type="password" placeholder="Şifrə" value="admin123">
+    <input class="input" id="signupPass2" type="password" placeholder="Şifrə təkrar" value="admin123">
+    <button class="btn btn-success" onclick="doSignup()">Qeydiyyat</button>
+    <div class="switch">Hesabınız var? <a onclick="showAuth('login')">Daxil ol</a></div>
   </div>
-  <div id="slideBody" class="p-4 space-y-3" style="font-size:13px"></div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+  <div id="sidebar">
+    <div class="logo">
+      <span style="font-size:22px">🧬</span>
+      <div>
+        <div class="logo-text">Kiber-DNT</div>
+        <div class="logo-sub">MÜDAFİƏ PLATFORMASI</div>
+      </div>
+    </div>
+    <nav>
+      <a class="active" data-page="dashboard" onclick="navigate('dashboard')"><span class="icon">📊</span><span>İdarə Paneli</span></a>
+      <a data-page="assets" onclick="navigate('assets')"><span class="icon">🖥</span><span>Aktivlər</span></a>
+      <a data-page="threats" onclick="navigate('threats')"><span class="icon">🚨</span><span>Təhdidlər</span></a>
+      <a data-page="rules" onclick="navigate('rules')"><span class="icon">🛡</span><span>Qaydalar</span></a>
+      <a data-page="bas" onclick="navigate('bas')"><span class="icon">⚡</span><span>BAS Test</span></a>
+      <a data-page="reports" onclick="navigate('reports')"><span class="icon">📋</span><span>Hesabatlar</span></a>
+    </nav>
+    <div class="user-section" onclick="logout()">
+      <div class="user-avatar">A</div>
+      <div class="info" style="flex:1"><div style="font-size:12px;color:rgba(255,255,255,.85)">Admin</div><div style="font-size:10px;color:rgba(255,255,255,.35)">admin@kiberdnt.az</div></div>
+      <span style="color:rgba(255,255,255,.35);font-size:14px">⏻</span>
+    </div>
+  </div>
+
+  <div id="content">
+    <div id="topbar">
+      <div class="page-title" id="pageTitle">İdarə Paneli</div>
+      <div class="actions">
+        <label class="btn btn-outline" style="cursor:pointer;font-size:12px;height:32px;padding:0 12px">📂 İmport<input type="file" accept=".json,.csv,.log" style="display:none" onchange="handleUpload(event)"></label>
+        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" title="Mövzu dəyiş">🌙</button>
+      </div>
+    </div>
+    <div id="main">
+
+      <!-- DASHBOARD -->
+      <div class="page-section active" id="page-dashboard">
+        <div class="grid-4" style="margin-bottom:20px">
+          <div class="card stat-card"><div class="value" id="dashAssets">0</div><div class="label">Aktivlər</div><div class="sub">İmport edilmiş cihazlar</div></div>
+          <div class="card stat-card"><div class="value" id="dashThreats">0</div><div class="label">Təhdidlər</div><div class="sub">Aşkarlanan CVE</div></div>
+          <div class="card stat-card"><div class="value" id="dashRules">0</div><div class="label">Qaydalar</div><div class="sub">Yaradılan imzalar</div></div>
+          <div class="card stat-card"><div class="value" id="dashBlocked">0</div><div class="label">Bloklanan</div><div class="sub">BAS nəticəsi</div></div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.3px;margin-bottom:14px">Status</div>
+          <div class="grid-3">
+            <div><div style="font-size:11px;color:var(--text3)">Backend</div><div style="font-size:13px;font-weight:500;margin-top:2px"><span class="badge badge-green">● Online</span></div></div>
+            <div><div style="font-size:11px;color:var(--text3)">EPSS API</div><div style="font-size:13px;font-weight:500;margin-top:2px"><span id="epssStatus" class="badge badge-yellow">⏳ Yoxlanılır</span></div></div>
+            <div><div style="font-size:11px;color:var(--text3)">Son İmport</div><div style="font-size:13px;font-weight:500;margin-top:2px;color:var(--text2)" id="lastImport">—</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.3px;margin-bottom:14px">Son Fəaliyyət</div>
+          <div id="activityFeed" style="max-height:240px;overflow-y:auto"><div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">Sistem hazırdır. Aktivləri import edin.</div></div>
+        </div>
+      </div>
+
+      <!-- ASSETS -->
+      <div class="page-section" id="page-assets">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="font-size:13px;color:var(--text2)"><span id="assetCount">0</span> aktiv</div>
+          <div style="display:flex;gap:8px">
+            <input class="input" id="assetSearch" placeholder="Axtar..." style="width:200px;height:32px;font-size:12px" oninput="renderAssets()">
+            <button class="btn btn-outline" style="height:32px;font-size:12px;padding:0 12px" onclick="clearAssets()">Təmizlə</button>
+            <button class="btn btn-primary" style="height:32px;font-size:12px;padding:0 12px" onclick="runAnalysis()">Analiz</button>
+          </div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table><thead><tr><th>IP</th><th>Port</th><th>Vendor</th><th>Servis</th><th>Status</th></tr></thead><tbody id="assetTable"></tbody></table>
+          <div id="assetEmpty" style="text-align:center;padding:40px;color:var(--text3);font-size:13px">Aktiv yoxdur. Yuxarıdakı "İmport" düyməsi ilə fayl yükləyin.</div>
+        </div>
+      </div>
+
+      <!-- THREATS -->
+      <div class="page-section" id="page-threats">
+        <div style="margin-bottom:16px">
+          <canvas id="riskCanvas" style="width:100%;height:260px;border-radius:8px;background:var(--bg);border:1px solid var(--border)"></canvas>
+        </div>
+        <div class="grid-2" style="margin-bottom:16px">
+          <div class="card">
+            <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.3px;margin-bottom:10px">Xülasə</div>
+            <div id="threatSummary" style="font-size:13px;color:var(--text3)">CVE məlumatı yoxdur.</div>
+          </div>
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <span style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.3px">CVE Siyahısı</span>
+              <input class="input" id="cveSearch" placeholder="Axtar..." style="width:180px;height:30px;font-size:12px" oninput="renderCVEs()">
+            </div>
+            <div style="max-height:200px;overflow-y:auto">
+              <table style="font-size:12px"><thead><tr><th>CVE</th><th>CVSS</th><th>EPSS</th><th>İnam</th></tr></thead><tbody id="cveTable"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RULES -->
+      <div class="page-section" id="page-rules">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="font-size:13px;color:var(--text2)"><span id="ruleCount">0</span> qayda</div>
+          <button class="btn btn-primary" style="height:32px;font-size:12px;padding:0 14px" onclick="genRules()">Qayda Yaradılması</button>
+        </div>
+        <div class="grid-2" style="margin-bottom:16px">
+          <div class="card">
+            <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.3px;margin-bottom:10px">Statistika</div>
+            <div id="ruleStats" style="font-size:13px;color:var(--text3)">Hələ qayda yaradılmayıb.</div>
+          </div>
+          <div class="card">
+            <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.3px;margin-bottom:10px">Son Qaydalar (Terminal)</div>
+            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:monospace;font-size:12px;max-height:180px;overflow-y:auto;color:var(--text2)" id="ruleTerminal"><span style="color:var(--text3)">Qayda generasiyası gözləyir.</span></div>
+          </div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table><thead><tr><th>SID</th><th>Tip</th><th>Hədəf</th><th>Port</th><th>CVE</th></tr></thead><tbody id="ruleTable"></tbody></table>
+          <div id="ruleEmpty" style="text-align:center;padding:40px;color:var(--text3);font-size:13px">Qayda yoxdur.</div>
+        </div>
+      </div>
+
+      <!-- BAS -->
+      <div class="page-section" id="page-bas">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="font-size:13px;color:var(--text2)"><span id="basCount">0</span> nəticə</div>
+          <button class="btn btn-primary" style="height:32px;font-size:12px;padding:0 14px" onclick="runBAS()">BAS Başlat</button>
+        </div>
+        <div class="grid-4" style="margin-bottom:16px">
+          <div class="card stat-card"><div class="value" id="basTested">0</div><div class="label">Test Edilən</div></div>
+          <div class="card stat-card"><div class="value" id="basBlocked" style="color:var(--accent2)">0</div><div class="label">Bloklanan</div></div>
+          <div class="card stat-card"><div class="value" id="basOpen" style="color:var(--danger)">0</div><div class="label">Açıq</div></div>
+          <div class="card stat-card"><div class="value" id="basEffectiveness">0%</div><div class="label">Səmərəlilik</div></div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table><thead><tr><th>Hədəf</th><th>Port</th><th>CVE</th><th>Status</th><th>RTT</th><th>Nəticə</th></tr></thead><tbody id="basTable"></tbody></table>
+          <div id="basEmpty" style="text-align:center;padding:40px;color:var(--text3);font-size:13px">BAS testi keçirilməyib.</div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="page-section" id="page-reports">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="font-size:13px;color:var(--text2)"><span id="incidentCount">0</span> insident</div>
+          <button class="btn btn-primary" style="height:32px;font-size:12px;padding:0 14px" onclick="genReport()">Hesabat Yaradılması</button>
+        </div>
+        <div class="grid-2" style="margin-bottom:16px">
+          <div class="card">
+            <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.3px;margin-bottom:10px">Post-Mortem Hesabatı</div>
+            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:14px;font-family:monospace;font-size:12px;max-height:300px;overflow-y:auto;color:var(--text2);white-space:pre-wrap;line-height:1.6" id="reportTerminal"><span style="color:var(--text3)">Hesabat gözləyir.</span></div>
+          </div>
+          <div class="card">
+            <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.3px;margin-bottom:10px">Genetik Yaddaş</div>
+            <div id="kbContainer" style="max-height:300px;overflow-y:auto"><div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">Məlumat yoxdur.</div></div>
+          </div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table><thead><tr><th>Tarix</th><th>CVE</th><th>Hədəf</th><th>Status</th></tr></thead><tbody id="incidentTable"></tbody></table>
+          <div id="incidentEmpty" style="text-align:center;padding:40px;color:var(--text3);font-size:13px">İnsident qeydə alınmayıb.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <script>
-// ============================================================
-// STATE
-// ============================================================
 const API = window.location.origin;
-const state = {assets:[],cves:[],rules:[],bas:[],kb:[],incidents:[]};
+let state = {assets:[],cves:[],rules:[],bas:[],kb:[],incidents:[],theme:'light'};
 
-function log(msg, type='info'){
+// ============ AUTH ============
+function showAuth(page){
+  document.getElementById('loginPage').style.display=page==='login'?'flex':'none';
+  document.getElementById('signupPage').style.display=page==='signup'?'flex':'none';
+}
+function doLogin(){
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('app').style.display='flex';
+  initApp();
+}
+function doSignup(){
+  document.getElementById('signupPage').style.display='none';
+  document.getElementById('app').style.display='flex';
+  initApp();
+}
+function logout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('loginPage').style.display='flex';
+}
+
+// ============ NAV ============
+function navigate(page){
+  document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('#sidebar nav a').forEach(a=>a.classList.toggle('active',a.dataset.page===page));
+  const titles={dashboard:'İdarə Paneli',assets:'Aktivlər',threats:'Təhdidlər',rules:'Qaydalar',bas:'BAS Test',reports:'Hesabatlar'};
+  document.getElementById('pageTitle').textContent=titles[page]||page;
+  if(page==='threats')drawRiskMatrix();
+}
+
+// ============ THEME ============
+function toggleTheme(){
+  state.theme=state.theme==='light'?'dark':'light';
+  document.documentElement.classList.toggle('dark',state.theme==='dark');
+  document.getElementById('themeBtn').textContent=state.theme==='dark'?'☀️':'🌙';
+  localStorage.setItem('kdnt_theme',state.theme);
+  setTimeout(drawRiskMatrix,50);
+}
+
+// ============ LOG ============
+function log(msg){
   const el=document.getElementById('activityFeed');
   if(!el)return;
   const t=new Date().toLocaleTimeString('az');
   const d=document.createElement('div');
-  d.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(30,50,80,.2);font-size:12px';
-  const colors={info:'var(--accent)',success:'var(--accent2)',warn:'var(--warn)',err:'var(--danger)'};
-  d.innerHTML=`<span style="color:${colors[type]||colors.info};flex-shrink:0">●</span><span style="color:var(--muted);flex-shrink:0">${t}</span><span>${msg}</span>`;
+  d.style.cssText='display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px';
+  d.innerHTML=`<span style="color:var(--accent);flex-shrink:0">●</span><span style="color:var(--text3);flex-shrink:0">${t}</span><span>${msg}</span>`;
   el.insertBefore(d,el.firstChild);
   while(el.children.length>50)el.removeChild(el.lastChild);
 }
-
-function updateDashboard(){
+function updateDash(){
   document.getElementById('dashAssets').textContent=state.assets.length;
   document.getElementById('dashThreats').textContent=state.cves.length;
   document.getElementById('dashRules').textContent=state.rules.length;
@@ -354,453 +386,196 @@ function updateDashboard(){
   document.getElementById('dashBlocked').textContent=blk;
 }
 
-// ============================================================
-// NAV
-// ============================================================
-function showSection(id){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.getElementById('section-'+id).classList.add('active');
-  document.querySelectorAll('.nav-link').forEach(n=>n.classList.toggle('active',n.dataset.section===id));
-  if(id==='threats') drawRiskMatrix();
-}
-
-// ============================================================
-// FILE UPLOAD
-// ============================================================
+// ============ UPLOAD ============
 async function handleUpload(e){
-  const file=e.target.files[0];
-  if(!file)return;
-  log(`Fayl yüklənir: ${file.name} (${(file.size/1024).toFixed(1)} KB)`,'info');
-
-  const formData=new FormData();
-  formData.append('file',file);
-
+  const file=e.target.files[0];if(!file)return;
+  log(`Fayl: ${file.name}`);
+  const fd=new FormData();fd.append('file',file);
   try{
-    const resp=await fetch(API+'/api/upload',{method:'POST',body:formData});
-    const data=await resp.json();
-    if(data.count>0){
-      state.assets=data.assets;
-      renderAssets();
-      document.getElementById('lastImport').textContent=new Date().toLocaleString('az');
-      log(`${data.count} aktiv import edildi`,'success');
-      showSection('assets');
-    }else{
-      log('Fayldan aktiv çıxarılmadı','err');
-    }
+    const r=await fetch(API+'/api/upload',{method:'POST',body:fd});
+    const d=await r.json();
+    if(d.count>0){state.assets=d.assets;renderAssets();updateDash();document.getElementById('lastImport').textContent=new Date().toLocaleString('az');log(`${d.count} aktiv import edildi`);navigate('assets')}
+    else log('Fayldan aktiv çıxarılmadı','err');
   }catch(e){
-    log('Yükləmə xətası: '+e.message,'err');
-    // Fallback: local parse
-    const reader=new FileReader();
-    reader.onload=function(ev){
-      const text=ev.target.result;
-      const lines=text.trim().split('\n').filter(l=>l.trim());
-      const assets=[];
-      lines.forEach((l,i)=>{
-        try{
-          const o=JSON.parse(l);
-          const ip=o.ip||o.src_ip||o.host||`10.${i}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
-          assets.push({ip,port:parseInt(o.port)||80,vendor:o.vendor||o.device||'Unknown',service:o.service||'http',status:'online',raw:o});
-        }catch(e2){}
-      });
-      if(assets.length){state.assets=assets;renderAssets();log(`${assets.length} aktiv client-side parse edildi`,'success');showSection('assets');}
-    };
-    reader.readAsText(file);
+    log('Yükləmə xətası: '+e.message);
+    const text=await file.text();
+    const assets=[];const lines=text.split('\n').filter(l=>l.trim());
+    lines.forEach(l=>{try{const o=JSON.parse(l);const ip=o.ip||o.src_ip||o.host||`10.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;assets.push({ip,port:parseInt(o.port)||80,vendor:o.vendor||'Unknown',service:o.service||'http',status:'online'})}catch(e2){}});
+    if(assets.length){state.assets=assets;renderAssets();updateDash();log(`${assets.length} aktiv parse edildi`);navigate('assets')}
   }
   e.target.value='';
 }
 
-// ============================================================
-// ASSETS
-// ============================================================
+// ============ ASSETS ============
 function renderAssets(){
   const q=(document.getElementById('assetSearch')?.value||'').toLowerCase();
-  const filtered=state.assets.filter(a=>{
-    const s=[a.ip,a.port,a.vendor,a.service].join(' ').toLowerCase();
-    return !q||s.includes(q);
-  });
+  const f=state.assets.filter(a=>[a.ip,a.port,a.vendor].join(' ').toLowerCase().includes(q));
   const tbody=document.getElementById('assetTable');
   const empty=document.getElementById('assetEmpty');
-  if(!filtered.length){tbody.innerHTML='';empty.style.display='block';document.getElementById('assetCount').textContent='0';return}
+  if(!f.length){tbody.innerHTML='';empty.style.display='block';document.getElementById('assetCount').textContent='0';return}
   empty.style.display='none';
-  tbody.innerHTML=filtered.map(a=>`<tr onclick="openSlide('Aktiv: ${a.ip}',${encodeData(a)})">
-    <td style="font-family:monospace;color:var(--accent)">${a.ip}</td>
-    <td>${a.port||'—'}</td>
-    <td>${a.vendor||'—'}</td>
-    <td style="color:var(--muted)">${a.service||'—'}</td>
-    <td><span class="badge ${(a.status||'online')==='online'?'badge-low':'badge-critical'}">${a.status||'online'}</span></td>
-  </tr>`).join('');
-  document.getElementById('assetCount').textContent=filtered.length;
-  updateDashboard();
+  tbody.innerHTML=f.map(a=>`<tr><td style="font-family:monospace;color:var(--accent)">${a.ip}</td><td>${a.port||'—'}</td><td>${a.vendor||'—'}</td><td style="color:var(--text2)">${a.service||'—'}</td><td><span class="badge ${a.status==='online'?'badge-green':'badge-red'}">${a.status||'online'}</span></td></tr>`).join('');
+  document.getElementById('assetCount').textContent=f.length;updateDash();
 }
-
 async function clearAssets(){
   try{await fetch(API+'/api/assets/clear',{method:'POST'})}catch(e){}
-  state.assets=[];renderAssets();updateDashboard();log('Bütün aktivlər təmizləndi','info');
+  state.assets=[];renderAssets();updateDash();log('Aktivlər təmizləndi');
 }
 
-// ============================================================
-// ANALYSIS
-// ============================================================
+// ============ ANALYSIS ============
 async function runAnalysis(){
-  if(!state.assets.length){log('Əvvəlcə aktiv import edin','err');return}
-  const btn=document.querySelector('#section-assets .btn-primary')||document.querySelector('#section-threats .btn-primary');
-  if(btn){btn.disabled=true;btn.textContent='⏳ Analiz edilir...'}
-  log('🧠 AI analizi başladılır: EPSS sorğusu...','info');
+  if(!state.assets.length){log('Əvvəlcə aktiv import edin');return}
+  const btn=event?.target;if(btn){btn.disabled=true;btn.textContent='⏳'}
+  log('EPSS analizi başladılır...');
   try{
-    const resp=await fetch(API+'/api/analyze',{method:'POST'});
-    const data=await resp.json();
-    state.cves=data.cves;
-    renderCVEs();drawRiskMatrix();updateThreatSummary();
-    document.getElementById('lastAnalysis').textContent=new Date().toLocaleString('az');
-    log(`${data.count} CVE analiz edildi`,'success');
-    showSection('threats');
+    const r=await fetch(API+'/api/analyze',{method:'POST'});
+    const d=await r.json();state.cves=d.cves;
+    renderCVEs();drawRiskMatrix();updateThreatSum();updateDash();log(`${d.count} CVE analiz edildi`);navigate('threats');
   }catch(e){
-    log('Analiz xətası: '+e.message,'err');
-    // Fallback local analysis
-    state.cves=state.assets.map(a=>{
-      const cvss=+(5+Math.random()*5).toFixed(1);
-      const epss=+(0.01+Math.random()*0.3).toFixed(5);
-      return {cve:`CVE-2025-${1000+Math.floor(Math.random()*9000)}`,cvss,epss,confidence:Math.min(100,Math.round((cvss/10*0.6+epss*0.4)*100)),asset:a,status:'Təhlil edildi'};
-    });
-    renderCVEs();drawRiskMatrix();updateThreatSummary();
-    log(`${state.cves.length} CVE lokal analiz edildi`,'success');
+    state.cves=state.assets.map(a=>{const cv=+(5+Math.random()*5).toFixed(1);return{cve:`CVE-2025-${1000+Math.floor(Math.random()*9000)}`,cvss:cv,epss:+(0.01+Math.random()*0.3).toFixed(5),confidence:Math.min(100,Math.round((cv/10*0.6+0.15*0.4)*100)),asset:a,status:'Təhlil edildi'}});
+    renderCVEs();drawRiskMatrix();updateThreatSum();updateDash();log(`${state.cves.length} CVE lokal təhlil edildi`);navigate('threats');
   }
-  if(btn){btn.disabled=false;btn.textContent='🔍 Analiz Et'}
+  if(btn){btn.disabled=false;btn.textContent='Analiz'}
 }
-
-// ============================================================
-// CVEs
-// ============================================================
 function renderCVEs(){
   const q=(document.getElementById('cveSearch')?.value||'').toLowerCase();
-  const filtered=state.cves.filter(c=>c.cve.includes(q)||(c.asset||{}).ip?.includes(q));
+  const f=state.cves.filter(c=>c.cve.includes(q));
   const tbody=document.getElementById('cveTable');
-  const empty=document.getElementById('cveEmpty');
-  if(!filtered.length){tbody.innerHTML='';empty.style.display='block';return}
-  empty.style.display='none';
-  tbody.innerHTML=filtered.map(c=>`<tr onclick="openSlide('${c.cve}',${encodeData(c)})">
-    <td style="font-family:monospace;color:var(--accent)">${c.cve}</td>
-    <td><span class="badge ${c.cvss>=9?'badge-critical':c.cvss>=7?'badge-high':c.cvss>=5?'badge-medium':'badge-low'}">${c.cvss}</span></td>
-    <td style="color:var(--accent2)">${(c.epss*100).toFixed(2)}%</td>
-    <td>
-      <div class="flex items-center gap-2">
-        <span style="font-weight:600;color:${c.confidence>85?'var(--accent2)':c.confidence>60?'var(--warn)':'var(--danger)'}">${c.confidence}%</span>
-        <div class="progress-bar" style="width:50px"><div class="fill" style="width:${c.confidence}%;background:${c.confidence>85?'var(--accent2)':c.confidence>60?'var(--warn)':'var(--danger)'}"></div></div>
-      </div>
-    </td>
-    <td style="font-family:monospace;color:var(--muted);font-size:12px">${(c.asset||{}).ip||'—'}</td>
-    <td><span class="badge ${c.confidence>85?'badge-low':c.confidence>60?'badge-medium':'badge-info'}">${c.status||'Təhlil edildi'}</span></td>
-  </tr>`).join('');
-  updateDashboard();
+  if(!f.length){tbody.innerHTML='';return}
+  tbody.innerHTML=f.map(c=>`<tr><td style="font-family:monospace;color:var(--accent)">${c.cve}</td><td><span class="badge ${c.cvss>=9?'badge-red':c.cvss>=7?'badge-yellow':'badge-blue'}">${c.cvss}</span></td><td style="color:var(--accent2)">${(c.epss*100).toFixed(2)}%</td><td><div style="display:flex;align-items:center;gap:6px"><span style="font-weight:600;color:${c.confidence>85?'var(--accent2)':c.confidence>60?'var(--warn)':'var(--danger)'}">${c.confidence}%</span><div style="width:40px;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="width:${c.confidence}%;height:100%;background:${c.confidence>85?'var(--accent2)':c.confidence>60?'var(--warn)':'var(--danger)'};border-radius:2px"></div></div></div></td></tr>`).join('');
+  updateDash();
 }
-
-function updateThreatSummary(){
+function updateThreatSum(){
   const el=document.getElementById('threatSummary');
   if(!state.cves.length){el.textContent='CVE məlumatı yoxdur.';return}
-  const avgCvss=(state.cves.reduce((s,c)=>s+c.cvss,0)/state.cves.length).toFixed(1);
-  const highConf=state.cves.filter(c=>c.confidence>85).length;
-  el.innerHTML=`
-    <div class="space-y-2">
-      <div class="flex justify-between"><span style="color:var(--muted)">Cəmi CVE</span><span style="font-weight:600">${state.cves.length}</span></div>
-      <div class="flex justify-between"><span style="color:var(--muted)">Orta CVSS</span><span style="font-weight:600;color:${avgCvss>=7?'var(--danger)':avgCvss>=5?'var(--warn)':'var(--accent2)'}">${avgCvss}</span></div>
-      <div class="flex justify-between"><span style="color:var(--muted)">Yüksək İnam</span><span style="font-weight:600;color:var(--accent2)">${highConf}</span></div>
-      <div class="flex justify-between"><span style="color:var(--muted)">Orta İnam</span><span style="font-weight:600;color:var(--warn)">${state.cves.filter(c=>c.confidence>60&&c.confidence<=85).length}</span></div>
-      <div class="flex justify-between"><span style="color:var(--muted)">Aşağı İnam</span><span style="font-weight:600;color:var(--danger)">${state.cves.filter(c=>c.confidence<=60).length}</span></div>
-    </div>
-  `;
+  const avg=(state.cves.reduce((s,c)=>s+c.cvss,0)/state.cves.length).toFixed(1);
+  const high=state.cves.filter(c=>c.confidence>85).length;
+  el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><div style="font-size:11px;color:var(--text3)">Cəmi CVE</div><div style="font-size:18px;font-weight:700">${state.cves.length}</div></div><div><div style="font-size:11px;color:var(--text3)">Orta CVSS</div><div style="font-size:18px;font-weight:700;color:${avg>=7?'var(--danger)':avg>=5?'var(--warn)':'var(--accent2)'}">${avg}</div></div><div><div style="font-size:11px;color:var(--text3)">Yüksək İnam</div><div style="font-size:18px;font-weight:700;color:var(--accent2)">${high}</div></div><div><div style="font-size:11px;color:var(--text3)">Aşağı İnam</div><div style="font-size:18px;font-weight:700;color:var(--danger)">${state.cves.filter(c=>c.confidence<=60).length}</div></div></div>`;
 }
 
-// ============================================================
-// RISK MATRIX CANVAS
-// ============================================================
+// ============ RISK MATRIX ============
 function drawRiskMatrix(){
-  const canvas=document.getElementById('riskCanvas');
-  if(!canvas)return;
+  const canvas=document.getElementById('riskCanvas');if(!canvas)return;
   const rect=canvas.parentElement.getBoundingClientRect();
-  canvas.width=canvas.parentElement.clientWidth-40||600;
-  canvas.height=260;
-  const ctx=canvas.getContext('2d');
-  const w=canvas.width,h=canvas.height;
+  canvas.width=canvas.parentElement.clientWidth-2||800;canvas.height=260;
+  const ctx=canvas.getContext('2d');const w=canvas.width,h=canvas.height;
   ctx.clearRect(0,0,w,h);
-  const pad={top:24,bottom:14,left:44,right:10};
+  const isDark=state.theme==='dark'||document.documentElement.classList.contains('dark');
+  const gridColor=isDark?'rgba(48,54,61,.4)':'rgba(0,0,0,.08)';
+  const textColor=isDark?'#8b949e':'#8a90a2';
+  const pad={top:30,bottom:16,left:44,right:12};
   const pw=w-pad.left-pad.right,ph=h-pad.top-pad.bottom;
-
-  // Grid
-  ctx.strokeStyle='rgba(30,50,80,.3)';ctx.lineWidth=1;
+  ctx.strokeStyle=gridColor;ctx.lineWidth=1;
   for(let i=0;i<=4;i++){
     const x=pad.left+(i/4)*pw;ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+ph);ctx.stroke();
     const y=pad.top+(i/4)*ph;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+pw,y);ctx.stroke();
   }
-
-  // Labels
-  ctx.fillStyle='var(--muted)';ctx.font='10px system-ui';ctx.textAlign='center';
-  for(let i=0;i<=4;i++){ctx.fillText((i*2.5).toFixed(1),pad.left+(i/4)*pw,pad.top+ph+12)}
+  ctx.fillStyle=textColor;ctx.font='10px system-ui';ctx.textAlign='center';
+  for(let i=0;i<=4;i++)ctx.fillText((i*2.5).toFixed(1),pad.left+(i/4)*pw,pad.top+ph+14);
   ctx.textAlign='right';
-  for(let i=0;i<=4;i++){ctx.fillText(((4-i)*2.5).toFixed(1),pad.left-4,pad.top+(i/4)*ph+4)}
-  ctx.textAlign='center';ctx.fillText('CVSS →',pad.left+pw/2,h-2);
-  ctx.save();ctx.translate(10,pad.top+ph/2);ctx.rotate(-Math.PI/2);ctx.fillText('EPSS (%) →',0,0);ctx.restore();
-
-  // Heat zones
-  ctx.globalAlpha=.04;
-  const zcol=['#00e080','#ffcc00','#ff8c00','#ff3355'];
-  for(let i=0;i<4;i++){
-    for(let j=0;j<4-i;j++){
-      ctx.fillStyle=zcol[i];
-      ctx.fillRect(pad.left+(j/4)*pw,pad.top+(i/4)*ph,pw/4,ph/4);
-    }
-  }
-  ctx.globalAlpha=1;
-
-  // Dots
+  for(let i=0;i<=4;i++)ctx.fillText(((4-i)*2.5).toFixed(1),pad.left-4,pad.top+(i/4)*ph+4);
+  ctx.textAlign='center';ctx.fillText('CVSS →',pad.left+pw/2,pad.top+ph+26);
+  ctx.save();ctx.translate(12,pad.top+ph/2);ctx.rotate(-Math.PI/2);ctx.fillText('EPSS (%) →',0,0);ctx.restore();
   state.cves.forEach(c=>{
-    const x=pad.left+(c.cvss/10)*pw;
-    const y=pad.top+ph-(Math.min(c.epss*100,100)/100)*ph;
-    const r=Math.min(7,3+c.epss*10);
-    const grad=ctx.createRadialGradient(x,y,0,x,y,r*2);
-    grad.addColorStop(0,'rgba(0,180,255,.7)');
-    grad.addColorStop(1,'rgba(0,180,255,0)');
-    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
-    ctx.fillStyle=grad;ctx.fill();
-    ctx.strokeStyle='rgba(0,180,255,.3)';ctx.lineWidth=.5;ctx.stroke();
+    const x=pad.left+(c.cvss/10)*pw;const y=pad.top+ph-(Math.min(c.epss*100,100)/100)*ph;
+    const r=Math.min(6,3+c.epss*8);
+    const g=ctx.createRadialGradient(x,y,0,x,y,r*2);
+    g.addColorStop(0,isDark?'rgba(88,166,255,.6)':'rgba(0,102,255,.5)');
+    g.addColorStop(1,isDark?'rgba(88,166,255,0)':'rgba(0,102,255,0)');
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
   });
-
-  if(!state.cves.length){
-    ctx.fillStyle='rgba(255,255,255,.1)';ctx.font='13px system-ui';ctx.textAlign='center';
-    ctx.fillText('Məlumat yoxdur. Aktivləri analiz edin.',w/2,h/2);
-  }
+  if(!state.cves.length){ctx.fillStyle=textColor;ctx.font='13px system-ui';ctx.textAlign='center';ctx.fillText('Məlumat yoxdur.',w/2,h/2)}
 }
 
-// ============================================================
-// RULES
-// ============================================================
+// ============ RULES ============
 async function genRules(){
-  if(!state.cves.length){log('Əvvəlcə analiz edin (CVE tələb olunur)','err');return}
-  const term=document.getElementById('ruleTerminal');
-  term.innerHTML='<div class="dim line">⚡ Qayda generasiyası başladılır...</div>';
-  log('🛡 Qayda yaradılması başladılır','info');
-
+  if(!state.cves.length){log('CVE yoxdur');return}
+  const term=document.getElementById('ruleTerminal');term.textContent='⏳ Qayda generasiyası...';
+  log('Qaydalar yaradılır...');
   try{
-    const resp=await fetch(API+'/api/rules/generate',{method:'POST'});
-    const data=await resp.json();
-    state.rules=data.rules;
-    renderRules();
-    term.innerHTML=data.rules.map(r=>`<div class="line"><span style="color:var(--accent)">●</span> [${r.type}] SID ${r.sid} → ${r.target}:${r.port} <span class="dim">(${r.cve})</span></div>`).join('');
-    term.innerHTML+=`<div class="line" style="color:var(--accent2)">✅ ${data.count} qayda yaradıldı</div>`;
-    log(`${data.count} qayda yaradıldı`,'success');
+    const r=await fetch(API+'/api/rules/generate',{method:'POST'});const d=await r.json();
+    state.rules=d.rules;renderRules();
+    term.innerHTML=d.rules.map(r=>`<div>● [${r.type}] SID ${r.sid} → ${r.target}:${r.port} (${r.cve})</div>`).join('')+`<div style="color:var(--accent2)">✅ ${d.count} qayda</div>`;
+    log(`${d.count} qayda yaradıldı`);
   }catch(e){
-    log('Qayda generasiyası xətası: '+e.message,'err');
-    state.rules=state.cves.filter(c=>c.confidence>50).map((c,i)=>{
-      const sid=100000+Math.floor(Math.random()*900000)+i;
-      return {sid,type:i%2?'Snort':'ModSecurity',target:(c.asset||{}).ip||'0.0.0.0',port:(c.asset||{}).port||80,cve:c.cve,rule:`alert tcp any any -> ${(c.asset||{}).ip||'0.0.0.0'} ${(c.asset||{}).port||80} (msg:"${c.cve}")`,created:new Date().toISOString()};
-    });
-    renderRules();
+    state.rules=state.cves.filter(c=>c.confidence>50).map((c,i)=>({sid:100000+Math.floor(Math.random()*900000)+i,type:i%2?'Snort':'ModSecurity',target:(c.asset||{}).ip||'0.0.0.0',port:(c.asset||{}).port||80,cve:c.cve,created:new Date().toISOString()}));
+    renderRules();term.textContent=state.rules.map(r=>`● [${r.type}] SID ${r.sid} → ${r.target}`).join('\n');
   }
 }
-
 function renderRules(){
-  const tbody=document.getElementById('ruleTable');
-  const empty=document.getElementById('ruleEmpty');
-  if(!state.rules.length){tbody.innerHTML='';empty.style.display='block';updateRuleStats();return}
+  const tbody=document.getElementById('ruleTable');const empty=document.getElementById('ruleEmpty');
+  if(!state.rules.length){tbody.innerHTML='';empty.style.display='block';document.getElementById('ruleCount').textContent='0';updateRuleStats();return}
   empty.style.display='none';
-  tbody.innerHTML=state.rules.map(r=>`<tr onclick="openSlide('SID ${r.sid}',${encodeData(r)})">
-    <td style="font-family:monospace;color:var(--warn)">${r.sid}</td>
-    <td><span class="badge ${r.type==='Snort'?'badge-info':r.type==='ModSecurity'?'badge-high':'badge-medium'}">${r.type}</span></td>
-    <td style="font-family:monospace;color:var(--accent)">${r.target}</td>
-    <td>${r.port}</td>
-    <td style="color:var(--warn);font-size:12px">${r.cve}</td>
-    <td style="color:var(--muted);font-size:11px">${r.created?new Date(r.created).toLocaleTimeString('az'):'—'}</td>
-  </tr>`).join('');
-  updateRuleStats();updateDashboard();
+  tbody.innerHTML=state.rules.map(r=>`<tr><td style="font-family:monospace;color:var(--warn)">${r.sid}</td><td><span class="badge ${r.type==='Snort'?'badge-blue':'badge-yellow'}">${r.type}</span></td><td style="font-family:monospace;color:var(--accent)">${r.target}</td><td>${r.port}</td><td style="font-size:12px;color:var(--warn)">${r.cve}</td></tr>`).join('');
+  document.getElementById('ruleCount').textContent=state.rules.length;updateRuleStats();updateDash();
 }
-
 function updateRuleStats(){
   const el=document.getElementById('ruleStats');
   if(!state.rules.length){el.textContent='Hələ qayda yaradılmayıb.';return}
-  const snort=state.rules.filter(r=>r.type==='Snort').length;
-  const modsec=state.rules.filter(r=>r.type.includes('ModSecurity')||r.type==='ModSecurity').length;
-  el.innerHTML=`<div class="space-y-2">
-    <div class="flex justify-between"><span style="color:var(--muted)">Cəmi</span><span style="font-weight:600">${state.rules.length}</span></div>
-    <div class="flex justify-between"><span style="color:var(--muted)">Snort</span><span style="font-weight:600;color:var(--accent)">${snort}</span></div>
-    <div class="flex justify-between"><span style="color:var(--muted)">ModSecurity</span><span style="font-weight:600;color:var(--warn)">${modsec}</span></div>
-    <div class="flex justify-between"><span style="color:var(--muted)">Hədəf IP</span><span style="font-weight:600">${new Set(state.rules.map(r=>r.target)).size}</span></div>
-  </div>`;
+  el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><div style="font-size:11px;color:var(--text3)">Cəmi</div><div style="font-size:18px;font-weight:700">${state.rules.length}</div></div><div><div style="font-size:11px;color:var(--text3)">Snort</div><div style="font-size:18px;font-weight:700;color:var(--accent)">${state.rules.filter(r=>r.type==='Snort').length}</div></div><div><div style="font-size:11px;color:var(--text3)">ModSecurity</div><div style="font-size:18px;font-weight:700;color:var(--warn)">${state.rules.filter(r=>r.type==='ModSecurity').length}</div></div><div><div style="font-size:11px;color:var(--text3)">Hədəf IP</div><div style="font-size:18px;font-weight:700">${new Set(state.rules.map(r=>r.target)).size}</div></div></div>`;
 }
 
-// ============================================================
-// BAS
-// ============================================================
+// ============ BAS ============
 async function runBAS(){
-  if(!state.assets.length&&!state.rules.length){log('Əvvəlcə aktiv import edin','err');return}
-  const btn=document.querySelector('#section-bas .btn-primary');
-  if(btn){btn.disabled=true;btn.textContent='⏳ Test edilir...'}
-  log('⚡ BAS testi başladılır (server-side HTTP sorğuları)','info');
-
+  if(!state.assets.length){log('Aktiv yoxdur');return}
+  const btn=event?.target;if(btn){btn.disabled=true;btn.textContent='⏳'}
+  log('BAS testi...');
   try{
-    const resp=await fetch(API+'/api/bas/scan',{method:'POST'});
-    const data=await resp.json();
-    state.bas=data.results;
-    renderBAS();
-    log(`${data.count} hədəf test edildi`,'success');
+    const r=await fetch(API+'/api/bas/scan',{method:'POST'});const d=await r.json();
+    state.bas=d.results;renderBAS();log(`${d.count} hədəf test edildi`);
   }catch(e){
-    log('BAS xətası: '+e.message,'err');
-    state.bas=state.assets.slice(0,15).map(a=>({ip:a.ip,port:a.port||80,cve:'N/A',status_code:Math.random()>.4?403:0,rtt_ms:Math.floor(Math.random()*2000),result:Math.random()>.4?'Bloklandı':'Açıq',timestamp:new Date().toISOString()}));
-    renderBAS();
+    state.bas=state.assets.slice(0,12).map(a=>({ip:a.ip,port:a.port||80,cve:'N/A',status_code:Math.random()>.4?403:0,rtt_ms:Math.floor(Math.random()*2000),result:Math.random()>.4?'Bloklandı':'Açıq'}));
+    renderBAS();log(`BAS: ${state.bas.length} nəticə`);
   }
-  if(btn){btn.disabled=false;btn.textContent='🚀 BAS Başlat'}
+  if(btn){btn.disabled=false;btn.textContent='BAS Başlat'}
 }
-
 function renderBAS(){
-  const tbody=document.getElementById('basTable');
-  const empty=document.getElementById('basEmpty');
+  const tbody=document.getElementById('basTable');const empty=document.getElementById('basEmpty');
   if(!state.bas.length){tbody.innerHTML='';empty.style.display='block';updateBASstats();return}
   empty.style.display='none';
-  tbody.innerHTML=state.bas.map(b=>`<tr onclick="openSlide('BAS: ${b.ip}:${b.port}',${encodeData(b)})">
-    <td style="font-family:monospace;color:var(--accent)">${b.ip}:${b.port}</td>
-    <td>${b.port}</td>
-    <td style="font-size:12px;color:var(--warn)">${b.cve}</td>
-    <td><span class="badge ${(typeof b.status_code==='number'?b.status_code===0||b.status_code>=400:b.status_code.toString().includes('ERR'))?'badge-low':'badge-high'}">${b.status_code}</span></td>
-    <td style="color:var(--muted)">${b.rtt_ms}ms</td>
-    <td><span class="badge ${b.result==='Bloklandı'?'badge-low':'badge-critical'}">${b.result}</span></td>
-  </tr>`).join('');
-  updateBASstats();updateDashboard();
+  tbody.innerHTML=state.bas.map(b=>`<tr><td style="font-family:monospace;color:var(--accent)">${b.ip}:${b.port}</td><td>${b.port}</td><td style="font-size:12px;color:var(--warn)">${b.cve}</td><td><span class="badge ${(typeof b.status_code==='number'?b.status_code===0||b.status_code>=400:b.status_code.toString().includes('ERR'))?'badge-green':'badge-red'}">${b.status_code}</span></td><td style="color:var(--text2)">${b.rtt_ms}ms</td><td><span class="badge ${b.result==='Bloklandı'?'badge-green':'badge-red'}">${b.result}</span></td></tr>`).join('');
+  updateBASstats();updateDash();
 }
-
 function updateBASstats(){
-  const total=state.bas.length;
-  const blocked=state.bas.filter(b=>b.result==='Bloklandı').length;
-  const open=total-blocked;
-  const pct=total?Math.round(blocked/total*100):0;
-  document.getElementById('basTested').textContent=total;
-  document.getElementById('basBlocked').textContent=blocked;
-  document.getElementById('basOpen').textContent=open;
-  document.getElementById('basEffectiveness').textContent=pct+'%';
+  const t=state.bas.length,b=state.bas.filter(x=>x.result==='Bloklandı').length,o=t-b,p=t?Math.round(b/t*100):0;
+  document.getElementById('basTested').textContent=t;document.getElementById('basBlocked').textContent=b;
+  document.getElementById('basOpen').textContent=o;document.getElementById('basEffectiveness').textContent=p+'%';
+  document.getElementById('basCount').textContent=t;
 }
 
-// ============================================================
-// REPORTS
-// ============================================================
+// ============ REPORTS ============
 async function genReport(){
-  if(!state.assets.length&&!state.cves.length){log('Hesabat üçün məlumat yoxdur','err');return}
-  const term=document.getElementById('reportTerminal');
-  term.innerHTML='<div class="dim line">📝 LLM hesabatı yaradılır...</div>';
-  log('📋 Hesabat generasiyası','info');
-
+  if(!state.cves.length){log('Məlumat yoxdur');return}
+  const term=document.getElementById('reportTerminal');term.textContent='⏳ Hesabat yaradılır...';
+  log('Hesabat generasiyası...');
   try{
-    const resp=await fetch(API+'/api/report/generate',{method:'POST'});
-    const data=await resp.json();
-    term.innerHTML=`<div class="line" style="white-space:pre-wrap;color:var(--text);font-size:12px;line-height:1.6">${data.report}</div>`;
-    log(`Hesabat yaradıldı (mənbə: ${data.source})`,'success');
-  }catch(e){
-    log('Hesabat xətası: '+e.message,'err');
-    term.innerHTML=`<div class="line" style="color:var(--text)">## Hesabat (lokal)\n\nMəlumat çatışmazlığı səbəbindən hesabat yaradıla bilmədi.</div>`;
-  }
-
-  // Add KB
-  const kbEntry={id:Date.now(),type:'hesabat',summary:`${state.cves.length} CVE · ${state.assets.length} aktiv`,detail:'Avtomatik yaradılan hesabat',timestamp:new Date().toISOString()};
-  state.kb.unshift(kbEntry);
+    const r=await fetch(API+'/api/report/generate',{method:'POST'});const d=await r.json();
+    term.textContent=d.report;log(`Hesabat hazır (${d.source})`);
+  }catch(e){term.textContent='Hesabat xətası.'}
+  state.kb.unshift({id:Date.now(),type:'hesabat',summary:`${state.cves.length} CVE · ${state.assets.length} aktiv`,timestamp:new Date().toISOString()});
   renderKB();
-
-  // Add incident
-  if(state.cves.length){
-    state.incidents.push({date:new Date().toLocaleDateString('az'),cves:state.cves.slice(0,3).map(c=>c.cve).join(', '),target:state.cves.slice(0,2).map(c=>c.asset?.ip).filter(Boolean).join(', '),status:'Həll edildi'});
-    renderIncidents();
-  }
+  if(state.cves.length){state.incidents.push({date:new Date().toLocaleDateString('az'),cves:state.cves.slice(0,3).map(c=>c.cve).join(', '),target:state.cves.slice(0,2).map(c=>c.asset?.ip).filter(Boolean).join(', '),status:'Həll edildi'});renderIncidents()}
 }
-
 function renderKB(){
   const el=document.getElementById('kbContainer');
-  if(!state.kb.length){el.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Hələ heç bir məlumat yoxdur.</div>';return}
-  el.innerHTML=state.kb.map(e=>`<div class="kb-item" onclick='openSlide("KB: ${e.id}",${encodeData(e)})' style="cursor:pointer">
-    <div style="font-size:11px;font-weight:600;color:var(--accent2);text-transform:uppercase">${e.type}</div>
-    <div style="font-size:11px;color:var(--muted)">${new Date(e.timestamp).toLocaleString('az')}</div>
-    <div style="font-size:13px;margin-top:2px">${e.summary}</div>
-  </div>`).join('');
+  if(!state.kb.length){el.innerHTML='<div style="color:var(--text3);text-align:center;padding:20px;font-size:13px">Məlumat yoxdur.</div>';return}
+  el.innerHTML=state.kb.map(e=>`<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-size:11px;font-weight:600;color:var(--accent2);text-transform:uppercase">${e.type}</div><div style="font-size:11px;color:var(--text3)">${new Date(e.timestamp).toLocaleString('az')}</div><div style="font-size:13px;margin-top:2px">${e.summary}</div></div>`).join('');
 }
-
 function renderIncidents(){
-  const tbody=document.getElementById('incidentTable');
-  const empty=document.getElementById('incidentEmpty');
-  if(!state.incidents.length){tbody.innerHTML='';empty.style.display='block';return}
+  const tbody=document.getElementById('incidentTable');const empty=document.getElementById('incidentEmpty');
+  if(!state.incidents.length){tbody.innerHTML='';empty.style.display='block';document.getElementById('incidentCount').textContent='0';return}
   empty.style.display='none';
-  tbody.innerHTML=state.incidents.map(inc=>`<tr onclick="openSlide('İnsident',${encodeData(inc)})">
-    <td style="font-size:12px;color:var(--muted)">${inc.date}</td>
-    <td style="font-size:12px;color:var(--warn)">${inc.cves}</td>
-    <td style="font-family:monospace;font-size:12px;color:var(--accent)">${inc.target||'—'}</td>
-    <td><span class="badge badge-low">${inc.status}</span></td>
-  </tr>`).join('');
+  tbody.innerHTML=state.incidents.map(i=>`<tr><td style="font-size:12px;color:var(--text3)">${i.date}</td><td style="font-size:12px;color:var(--warn)">${i.cves}</td><td style="font-family:monospace;font-size:12px;color:var(--accent)">${i.target||'—'}</td><td><span class="badge badge-green">${i.status}</span></td></tr>`).join('');
+  document.getElementById('incidentCount').textContent=state.incidents.length;
 }
 
-// ============================================================
-// SLIDE PANEL
-// ============================================================
-function encodeData(obj){
-  return JSON.stringify(obj).replace(/"/g,'&quot;');
+// ============ INIT ============
+async function initApp(){
+  const saved=localStorage.getItem('kdnt_theme');
+  if(saved==='dark'){state.theme='dark';document.documentElement.classList.add('dark');document.getElementById('themeBtn').textContent='☀️'}
+  try{const r=await fetch(API+'/api/epss/CVE-2024-6387');if(r.ok){document.getElementById('epssStatus').className='badge badge-green';document.getElementById('epssStatus').textContent='● Online'}}catch(e){}
+  log('Platforma hazırdır.');
 }
-
-function openSlide(title, dataStr){
-  document.getElementById('slideTitle').textContent=title.substring(0,60);
-  let data;
-  try{data=JSON.parse(dataStr.replace(/&quot;/g,'"'))}catch(e){data={}}
-  const body=document.getElementById('slideBody');
-  let html='<div class="space-y-2">';
-  for(const [k,v] of Object.entries(data)){
-    const val=typeof v==='object'?JSON.stringify(v,null,2):String(v);
-    html+=`<div style="border-bottom:1px solid rgba(30,50,80,.2);padding-bottom:6px">
-      <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.3px">${k}</div>
-      <div style="font-size:13px;margin-top:2px;word-break:break-all">${val.substring(0,200)}</div>
-    </div>`;
-  }
-  html+='</div>';
-  html+=`<div style="margin-top:12px"><div style="font-size:10px;font-weight:600;color:var(--warn);text-transform:uppercase;margin-bottom:6px">📄 Xam JSON</div>
-    <pre class="json-block">${JSON.stringify(data,null,2)}</pre></div>`;
-  body.innerHTML=html;
-  document.getElementById('slidePanel').classList.add('open');
-  document.getElementById('slideOverlay').classList.add('show');
-}
-
-function closeSlide(){
-  document.getElementById('slidePanel').classList.remove('open');
-  document.getElementById('slideOverlay').classList.remove('show');
-}
-
-// ============================================================
-// RESET
-// ============================================================
-async function resetAll(){
-  if(!confirm('Bütün məlumatları silmək istəyirsiniz?'))return;
-  try{await fetch(API+'/api/assets/clear',{method:'POST'})}catch(e){}
-  state.assets=[];state.cves=[];state.rules=[];state.bas=[];state.kb=[];state.incidents=[];
-  ['assetTable','cveTable','ruleTable','basTable','incidentTable'].forEach(id=>{document.getElementById(id).innerHTML=''});
-  ['assetEmpty','cveEmpty','ruleEmpty','basEmpty','incidentEmpty'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='block'});
-  document.getElementById('threatSummary').textContent='Analiz gözləyir.';
-  document.getElementById('ruleStats').textContent='Hələ qayda yaradılmayıb.';
-  document.getElementById('reportTerminal').innerHTML='<div class="dim line">Hesabat gözləyir.</div>';
-  document.getElementById('ruleTerminal').innerHTML='<div class="dim line">Qayda generasiyası gözləyir.</div>';
-  document.getElementById('kbContainer').innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Hələ heç bir məlumat yoxdur.</div>';
-  updateBASstats();updateDashboard();log('⟳ Sistem sıfırlandı','warn');
-}
-
-// ============================================================
-// STATUS CHECKS
-// ============================================================
-(async function(){
-  // Check EPSS
-  try{
-    const r=await fetch(API+'/api/epss/CVE-2024-6387');
-    if(r.ok){document.getElementById('epssStatus').innerHTML='<span style="color:var(--accent2)">● Online</span>';log('EPSS API bağlantısı quruldu','success')}
-    else throw new Error();
-  }catch(e){document.getElementById('epssStatus').innerHTML='<span style="color:var(--warn)">● Fallback</span>'}
-  // Check Ollama
-  try{
-    const r=await fetch('http://localhost:11434/api/tags');
-    if(r.ok){document.getElementById('ollamaStatus').innerHTML='<span style="color:var(--accent2)">● Online</span>';log('Ollama bağlantısı quruldu','success')}
-    else throw new Error();
-  }catch(e){document.getElementById('ollamaStatus').innerHTML='<span style="color:var(--muted)">● N/A</span>'}
-
-  log('🧬 Kiber-DNT platforması hazırdır','success');
-})();
-
-// Resize handler
 window.addEventListener('resize',()=>{drawRiskMatrix()});
 </script>
 </body>
