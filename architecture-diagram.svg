@@ -1,0 +1,221 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" font-family="'Inter', 'Segoe UI', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a1428"/>
+      <stop offset="100%" stop-color="#0d1f3f"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="redGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <linearGradient id="amberGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#3b82f6"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#10b981"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#ef4444"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="900" fill="url(#bgGrad)"/>
+
+  <!-- Grid pattern -->
+  <g opacity="0.04">
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M30 0L0 0 0 30" fill="none" stroke="#3b82f6" stroke-width="0.5"/>
+    </pattern>
+    <rect width="1200" height="900" fill="url(#grid)"/>
+  </g>
+
+  <!-- Title -->
+  <text x="600" y="42" text-anchor="middle" fill="#e2e8f0" font-size="22" font-weight="800" letter-spacing="1">Milli Kiber-DNT Arxitekturası</text>
+  <text x="600" y="62" text-anchor="middle" fill="#64748b" font-size="12" font-weight="400">Qapalı Dövrəli Kiber Müdafiə Platforması — Closed-Loop Cyber Defense Architecture</text>
+
+  <!-- Divider -->
+  <line x1="100" y1="72" x2="1100" y2="72" stroke="#1e3a5f" stroke-width="1"/>
+
+  <!-- ===== INPUT LAYER (Top) ===== -->
+  <rect x="50" y="85" width="1100" height="100" rx="12" fill="rgba(30,58,95,0.3)" stroke="#1e3a5f" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="80" y="110" fill="#3b82f6" font-size="11" font-weight="700" letter-spacing="2">GİRİŞ LAYERİ — INPUT LAYER</text>
+
+  <!-- Input boxes -->
+  <rect x="80" y="122" width="220" height="48" rx="8" fill="rgba(37,99,235,0.15)" stroke="#2563eb" stroke-width="1.2"/>
+  <text x="190" y="142" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="600">Trend Micro ZDI</text>
+  <text x="190" y="158" text-anchor="middle" fill="#64748b" font-size="9">Zero-Day İntelligence Feed</text>
+
+  <rect x="340" y="122" width="220" height="48" rx="8" fill="rgba(37,99,235,0.15)" stroke="#2563eb" stroke-width="1.2"/>
+  <text x="450" y="142" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="600">Aktiv Kəşfi</text>
+  <text x="450" y="158" text-anchor="middle" fill="#64748b" font-size="9">Continuous Asset Discovery</text>
+
+  <rect x="600" y="122" width="220" height="48" rx="8" fill="rgba(37,99,235,0.15)" stroke="#2563eb" stroke-width="1.2"/>
+  <text x="710" y="142" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="600">Mikro-Skan</text>
+  <text x="710" y="158" text-anchor="middle" fill="#64748b" font-size="9">Micro-Scanning Engine</text>
+
+  <rect x="860" y="122" width="270" height="48" rx="8" fill="rgba(37,99,235,0.15)" stroke="#2563eb" stroke-width="1.2"/>
+  <text x="995" y="142" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="600">Təhdid Kəşfiyyatı</text>
+  <text x="995" y="158" text-anchor="middle" fill="#64748b" font-size="9">Threat Intelligence Correlation</text>
+
+  <!-- Arrow down -->
+  <line x1="600" y1="185" x2="600" y2="215" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrowBlue)" opacity="0.6"/>
+
+  <!-- ===== CORE LOOP (Center) ===== -->
+  <!-- Background circle arrangement -->
+  <g filter="url(#shadow)">
+    <!-- Phase 1 -->
+    <rect x="50" y="225" width="200" height="110" rx="14" fill="rgba(30,58,95,0.4)" stroke="#3b82f6" stroke-width="1.5"/>
+    <rect x="50" y="225" width="200" height="30" rx="14" fill="rgba(37,99,235,0.2)"/>
+    <text x="150" y="238" text-anchor="middle" fill="#60a5fa" font-size="9" font-weight="700">MƏRHƏLƏ 01</text>
+    <text x="150" y="270" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700">Kəşfiyyat &amp; Kəşf</text>
+    <text x="150" y="288" text-anchor="middle" fill="#94a3b8" font-size="9">Discovery &amp; Ingestion</text>
+    <text x="150" y="308" text-anchor="middle" fill="#34d399" font-size="9">✓ Aktiv kəşfi</text>
+    <text x="150" y="324" text-anchor="middle" fill="#34d399" font-size="9">✓ ZDI inteqrasiyası</text>
+
+    <!-- Arrow 1→2 -->
+    <line x1="250" y1="280" x2="310" y2="280" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <!-- Phase 2 -->
+    <rect x="320" y="225" width="200" height="110" rx="14" fill="rgba(30,58,95,0.4)" stroke="#f59e0b" stroke-width="1.5"/>
+    <rect x="320" y="225" width="200" height="30" rx="14" fill="rgba(245,158,11,0.15)"/>
+    <text x="420" y="238" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="700">MƏRHƏLƏ 02</text>
+    <text x="420" y="270" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700">AI Qərar Verici</text>
+    <text x="420" y="288" text-anchor="middle" fill="#94a3b8" font-size="9">AI Decision Engine</text>
+    <text x="420" y="308" text-anchor="middle" fill="#fbbf24" font-size="9">✓ CVSS + EPSS skoru</text>
+    <text x="420" y="324" text-anchor="middle" fill="#fbbf24" font-size="9">✓ Risk qiymətləndirmə</text>
+
+    <!-- Arrow 2→3 -->
+    <line x1="520" y1="280" x2="580" y2="280" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <!-- Phase 3 -->
+    <rect x="590" y="225" width="200" height="110" rx="14" fill="rgba(30,58,95,0.4)" stroke="#ef4444" stroke-width="1.5"/>
+    <rect x="590" y="225" width="200" height="30" rx="14" fill="rgba(239,68,68,0.15)"/>
+    <text x="690" y="238" text-anchor="middle" fill="#f87171" font-size="9" font-weight="700">MƏRHƏLƏ 03</text>
+    <text x="690" y="270" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700">SOAR &amp; Remediasiya</text>
+    <text x="690" y="288" text-anchor="middle" fill="#94a3b8" font-size="9">Automatic Remediation</text>
+    <text x="690" y="308" text-anchor="middle" fill="#f87171" font-size="9">✓ Avtopilot izolyasiya</text>
+    <text x="690" y="324" text-anchor="middle" fill="#f87171" font-size="9">✓ Virtual yamaq</text>
+
+    <!-- Arrow 3→4 -->
+    <line x1="790" y1="280" x2="850" y2="280" stroke="#ef4444" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <!-- Phase 4 -->
+    <rect x="860" y="225" width="200" height="110" rx="14" fill="rgba(30,58,95,0.4)" stroke="#8b5cf6" stroke-width="1.5"/>
+    <rect x="860" y="225" width="200" height="30" rx="14" fill="rgba(139,92,246,0.15)"/>
+    <text x="960" y="238" text-anchor="middle" fill="#a78bfa" font-size="9" font-weight="700">MƏRHƏLƏ 04</text>
+    <text x="960" y="270" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700">BAS Doğrulama</text>
+    <text x="960" y="288" text-anchor="middle" fill="#94a3b8" font-size="9">Attack Simulation</text>
+    <text x="960" y="308" text-anchor="middle" fill="#a78bfa" font-size="9">✓ Hücum simulyasiyası</text>
+    <text x="960" y="324" text-anchor="middle" fill="#a78bfa" font-size="9">✓ Müdafiə doğrulama</text>
+  </g>
+
+  <!-- Arrow 4→5 (down) -->
+  <line x1="960" y1="335" x2="960" y2="375" stroke="#8b5cf6" stroke-width="2" marker-end="url(#arrowBlue)" opacity="0.6"/>
+
+  <!-- Phase 5 (below the row) -->
+  <g filter="url(#shadow)">
+    <rect x="50" y="385" width="1010" height="70" rx="14" fill="rgba(30,58,95,0.4)" stroke="#10b981" stroke-width="1.5"/>
+    <rect x="50" y="385" width="1010" height="30" rx="14" fill="rgba(16,185,129,0.12)"/>
+    <text x="555" y="400" text-anchor="middle" fill="#34d399" font-size="9" font-weight="700">MƏRHƏLƏ 05 — İnsident Öyrənmə &amp; Genetik Yaddaş (Post-Mortem + Knowledge Base)</text>
+    <text x="120" y="433" fill="#94a3b8" font-size="9">✓ LLM hesabat</text>
+    <text x="320" y="433" fill="#94a3b8" font-size="9">✓ Post-mortem analizi</text>
+    <text x="540" y="433" fill="#94a3b8" font-size="9">✓ Genetik Yaddaş KB</text>
+    <text x="760" y="433" fill="#94a3b8" font-size="9">✓ Ani çağırış (0.1s)</text>
+  </g>
+
+  <!-- Feedback arrow from 5 back to 1 -->
+  <path d="M110 385 L110 335 L50 335 L50 280" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrowGreen)" opacity="0.7"/>
+  <text x="38" y="340" fill="#10b981" font-size="9" font-weight="600" transform="rotate(-90, 38, 340)">DAİMİ ÖYRƏNMƏ DÖVRÜ</text>
+
+  <!-- ===== OUTPUT LAYER (Bottom) ===== -->
+  <rect x="50" y="480" width="1100" height="120" rx="12" fill="rgba(30,58,95,0.3)" stroke="#1e3a5f" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="80" y="505" fill="#10b981" font-size="11" font-weight="700" letter-spacing="2">ÇIXIŞ LAYERİ — OUTPUT / ACTIONS</text>
+
+  <!-- Output boxes -->
+  <rect x="80" y="518" width="170" height="65" rx="8" fill="rgba(16,185,129,0.1)" stroke="#10b981" stroke-width="1.2"/>
+  <text x="165" y="543" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">Şəbəkə İzolyasiyası</text>
+  <text x="165" y="558" text-anchor="middle" fill="#64748b" font-size="9">VLAN karantini</text>
+  <text x="165" y="573" text-anchor="middle" fill="#64748b" font-size="9">Autopilot təcrid</text>
+
+  <rect x="280" y="518" width="170" height="65" rx="8" fill="rgba(59,130,246,0.1)" stroke="#3b82f6" stroke-width="1.2"/>
+  <text x="365" y="543" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="600">Virtual Yamaq</text>
+  <text x="365" y="558" text-anchor="middle" fill="#64748b" font-size="9">WAF qayda yaratma</text>
+  <text x="365" y="573" text-anchor="middle" fill="#64748b" font-size="9">IPS imza aktiv</text>
+
+  <rect x="480" y="518" width="170" height="65" rx="8" fill="rgba(139,92,246,0.1)" stroke="#8b5cf6" stroke-width="1.2"/>
+  <text x="565" y="543" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">BAS Sertifikatı</text>
+  <text x="565" y="558" text-anchor="middle" fill="#64748b" font-size="9">Müdafiə doğrulandı</text>
+  <text x="565" y="573" text-anchor="middle" fill="#64748b" font-size="9">Təhlükəsizlik təsdiqi</text>
+
+  <rect x="680" y="518" width="170" height="65" rx="8" fill="rgba(245,158,11,0.1)" stroke="#f59e0b" stroke-width="1.2"/>
+  <text x="765" y="543" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">LLM Hesabatı</text>
+  <text x="765" y="558" text-anchor="middle" fill="#64748b" font-size="9">Post-mortem</text>
+  <text x="765" y="573" text-anchor="middle" fill="#64748b" font-size="9">Tövsiyə generasiyası</text>
+
+  <rect x="880" y="518" width="250" height="65" rx="8" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-width="1.2"/>
+  <text x="1005" y="543" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">Genetik Yaddaş KB</text>
+  <text x="1005" y="558" text-anchor="middle" fill="#64748b" font-size="9">Ani çağırış: 0.1s</text>
+  <text x="1005" y="573" text-anchor="middle" fill="#64748b" font-size="9">Davamlı öyrənmə</text>
+
+  <!-- Dotted line from bottom to top (feedback) -->
+  <path d="M1005 583 L1005 625 L80 625 L80 485" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.5" marker-end="url(#arrowGreen)"/>
+
+  <!-- ===== SCENARIOS (Bottom) ===== -->
+  <rect x="50" y="640" width="1100" height="100" rx="12" fill="rgba(30,58,95,0.25)" stroke="#1e3a5f" stroke-width="1" filter="url(#shadow)"/>
+  <text x="80" y="665" fill="#64748b" font-size="11" font-weight="700" letter-spacing="2">SSENARİLƏR — DEMONSTRATED ATTACK SCENARIOS</text>
+
+  <rect x="80" y="680" width="340" height="46" rx="8" fill="rgba(239,68,68,0.08)" stroke="rgba(239,68,68,0.3)" stroke-width="1"/>
+  <text x="250" y="700" text-anchor="middle" fill="#f87171" font-size="10" font-weight="600">Hikvision Kamera Zero-Day RCE</text>
+  <text x="250" y="716" text-anchor="middle" fill="#64748b" font-size="9">CVSS 9.8 · EPSS 97% · 1,247 kamera</text>
+
+  <rect x="440" y="680" width="320" height="46" rx="8" fill="rgba(245,158,11,0.08)" stroke="rgba(245,158,11,0.3)" stroke-width="1"/>
+  <text x="600" y="700" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">Abşeron Su PLC Zəifliyi</text>
+  <text x="600" y="716" text-anchor="middle" fill="#64748b" font-size="9">CVSS 8.6 · EPSS 45% · Su təchizatı</text>
+
+  <rect x="780" y="680" width="350" height="46" rx="8" fill="rgba(139,92,246,0.08)" stroke="rgba(139,92,246,0.3)" stroke-width="1"/>
+  <text x="955" y="700" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">Milli Data Mərkəzi K8s Misconfig</text>
+  <text x="955" y="716" text-anchor="middle" fill="#64748b" font-size="9">CVSS 7.2 · EPSS 62% · Dövlət məlumatları</text>
+
+  <!-- ===== FOOTER ===== -->
+  <text x="600" y="790" text-anchor="middle" fill="#475569" font-size="10">Milli Kiber-DNT v1.0 Demo · Technova &amp; AIIRO 2026 · Azərbaycan Respublikası</text>
+
+  <!-- Legend -->
+  <rect x="320" y="810" width="560" height="70" rx="8" fill="rgba(15,23,42,0.5)" stroke="#1e3a5f" stroke-width="1"/>
+  <text x="600" y="830" text-anchor="middle" fill="#64748b" font-size="10" font-weight="600">LEGEND</text>
+  <rect x="350" y="840" width="12" height="12" rx="2" fill="#3b82f6"/>
+  <text x="368" y="850" fill="#94a3b8" font-size="9">Kəşfiyyat</text>
+  <rect x="450" y="840" width="12" height="12" rx="2" fill="#f59e0b"/>
+  <text x="468" y="850" fill="#94a3b8" font-size="9">AI Qərar</text>
+  <rect x="540" y="840" width="12" height="12" rx="2" fill="#ef4444"/>
+  <text x="558" y="850" fill="#94a3b8" font-size="9">SOAR</text>
+  <rect x="620" y="840" width="12" height="12" rx="2" fill="#8b5cf6"/>
+  <text x="638" y="850" fill="#94a3b8" font-size="9">BAS</text>
+  <rect x="700" y="840" width="12" height="12" rx="2" fill="#10b981"/>
+  <text x="718" y="850" fill="#94a3b8" font-size="9">Öyrənmə</text>
+  <line x1="790" y1="846" x2="830" y2="846" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="838" y="850" fill="#94a3b8" font-size="9">Feedback</text>
+</svg>
