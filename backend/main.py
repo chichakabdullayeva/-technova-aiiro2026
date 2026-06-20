@@ -2,15 +2,15 @@ import asyncio, json, os, sys, re, io, csv, uuid
 from pathlib import Path
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form, WebSocket, WebSocketDisconnect, Depends, status
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, HTTPException, UploadFile, File, WebSocket, WebSocketDisconnect, Depends, status
+from fastapi.responses import FileResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.middleware.cors import CORSMiddleware
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+from pydantic import BaseModel
 import aiohttp
 import random
+import hashlib
 
 app = FastAPI(title="Milli Kiber-DNT Platform", version="4.0")
 
@@ -27,10 +27,21 @@ FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
 JWT_SECRET = os.getenv("JWT_SECRET", "kiber-dnt-secret-key-change-in-production")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY = timedelta(hours=24)
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer(auto_error=False)
 
-users_db = {}  # email -> {"password": bcrypt_hash, "name": str}
+users_db = {}  # email -> {"password": sha256_hex, "name": str}
+
+class AuthRequest(BaseModel):
+    email: str
+    password: str
+
+class SignupRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+
+def hash_pass(p: str) -> str:
+    return hashlib.sha256(p.encode()).hexdigest()
 
 def create_access_token(email: str) -> str:
     payload = {"sub": email, "exp": datetime.utcnow() + JWT_EXPIRY}
@@ -451,24 +462,24 @@ def extract_asset(obj: dict) -> dict:
 # AUTH ENDPOINTS
 # ============================================================
 @app.post("/api/signup")
-async def signup(name: str = Form(...), email: str = Form(...), password: str = Form(...)):
-    if email in users_db:
+async def signup(body: SignupRequest):
+    if body.email in users_db:
         raise HTTPException(status_code=400, detail="Bu email artıq qeydiyyatdan keçib")
-    users_db[email] = {"password": pwd_context.hash(password), "name": name}
-    token = create_access_token(email)
-    return {"status": "ok", "token": token, "name": name, "email": email}
+    users_db[body.email] = {"password": hash_pass(body.password), "name": body.name}
+    token = create_access_token(body.email)
+    return {"status": "ok", "token": token, "name": body.name, "email": body.email}
 
 @app.post("/api/login")
-async def login(email: str = Form(...), password: str = Form(...)):
-    user = users_db.get(email)
-    if not user or not pwd_context.verify(password, user["password"]):
+async def login(body: AuthRequest):
+    user = users_db.get(body.email)
+    if not user or user["password"] != hash_pass(body.password):
         raise HTTPException(status_code=401, detail="İstifadəçi adı və ya şifrə yanlışdır")
-    token = create_access_token(email)
-    return {"status": "ok", "token": token, "name": user["name"], "email": email}
+    token = create_access_token(body.email)
+    return {"status": "ok", "token": token, "name": user["name"], "email": body.email}
 
 # Pre-seed demo user
-users_db["admin"] = {"password": pwd_context.hash("admin123"), "name": "Admin"}
-users_db["admin@kiberdnt.az"] = {"password": pwd_context.hash("admin123"), "name": "Admin"}
+users_db["admin"] = {"password": hash_pass("admin123"), "name": "Admin"}
+users_db["admin@kiberdnt.az"] = {"password": hash_pass("admin123"), "name": "Admin"}
 
 # ============================================================
 # API: START PIPELINE (THE ONLY USER ACTION)

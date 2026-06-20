@@ -305,9 +305,8 @@ function showAuth(p){
 async function doLogin(){
   const email=document.getElementById('loginEmail').value;
   const pass=document.getElementById('loginPass').value;
-  const fd=new FormData();fd.append('email',email);fd.append('password',pass);
   try{
-    const r=await fetch(API+'/api/login',{method:'POST',body:fd});
+    const r=await fetch(API+'/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pass})});
     if(!r.ok){const e=await r.json().catch(()=>({detail:'Bilinməyən xəta'}));alert('Giriş xətası: '+(e.detail||'Bilinməyən xəta'));return}
     const d=await r.json();
     localStorage.setItem('kdnt_token',d.token);localStorage.setItem('kdnt_user',d.name);
@@ -320,9 +319,8 @@ async function doSignup(){
   const pass=document.getElementById('signupPass').value;
   const pass2=document.getElementById('signupPass2').value;
   if(pass!==pass2){alert('Şifrələr uyğun gəlmir');return}
-  const fd=new FormData();fd.append('name',name);fd.append('email',email);fd.append('password',pass);
   try{
-    const r=await fetch(API+'/api/signup',{method:'POST',body:fd});
+    const r=await fetch(API+'/api/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,password:pass})});
     if(!r.ok){const e=await r.json().catch(()=>({detail:'Bilinməyən xəta'}));alert('Qeydiyyat xətası: '+(e.detail||'Bilinməyən xəta'));return}
     const d=await r.json();
     localStorage.setItem('kdnt_token',d.token);localStorage.setItem('kdnt_user',d.name);

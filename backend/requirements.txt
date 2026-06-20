@@ -8,7 +8,6 @@ pydantic==2.9.0
 aiofiles==24.1.0
 aiohttp==3.10.0
 python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
 # Optional (for LLM reports):
 # ollama==0.4.0
 # langchain==0.3.0
