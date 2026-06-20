@@ -1,0 +1,80 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Backend",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/backend && python main.py",
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^(.*Uvicorn running on.*)$",
+          "endsPattern": "^(.*Shutting down.*)$"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Install Dependencies",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/backend && pip install -r requirements.txt",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Create Virtual Environment",
+      "type": "shell",
+      "command": "cd ${workspaceFolder} && python3 -m venv venv && source venv/bin/activate && pip install -r backend/requirements.txt",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Initialize Database",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/backend && python -c \"from database import KiberDatabase; KiberDatabase(); print('Database initialized')\"",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Run Nmap Test Scan",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/backend && python -c \"from scanner import NetworkScanner; s=NetworkScanner(); print(s.scan_subnet('127.0.0.1'))\"",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Test EPSS API",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/backend && python -c \"from epss_client import EPSSClient; c=EPSSClient(); print(c.get_score('CVE-2021-36260'))\"",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "View Database Stats",
+      "type": "shell",
+      "command": "cd ${workspaceFolder}/backend && python -c \"from database import KiberDatabase; db=KiberDatabase(); import json; print(json.dumps(db.get_stats(), indent=2)); db.close()\"",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}

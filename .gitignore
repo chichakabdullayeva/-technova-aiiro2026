@@ -19,7 +19,6 @@ backend/data/
 *.db
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo

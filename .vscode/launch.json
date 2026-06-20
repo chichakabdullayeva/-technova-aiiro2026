@@ -1,0 +1,82 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Backend: FastAPI Uvicorn",
+      "type": "python",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "main:app",
+        "--host", "0.0.0.0",
+        "--port", "8000",
+        "--reload"
+      ],
+      "cwd": "${workspaceFolder}/backend",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Backend: Python main.py",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/main.py",
+      "cwd": "${workspaceFolder}/backend",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Frontend: Chrome Debug",
+      "type": "chrome",
+      "request": "launch",
+      "file": "${workspaceFolder}/frontend/index.html",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "Start Backend"
+    },
+    {
+      "name": "Scanner: Test Nmap Scan",
+      "type": "python",
+      "request": "launch",
+      "code": "from backend.scanner import NetworkScanner; s=NetworkScanner(); print(s.scan_subnet('127.0.0.1'))",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "EPSS: Test API Call",
+      "type": "python",
+      "request": "launch",
+      "code": "from backend.epss_client import EPSSClient; c=EPSSClient(); print(c.get_score('CVE-2021-36260'))",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "BAS: Test Verification",
+      "type": "python",
+      "request": "launch",
+      "code": "from backend.bas_engine import BASEngine; b=BASEngine(); print(b.verify_patch_http('127.0.0.1', 80))",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Database: View Logs",
+      "type": "python",
+      "request": "launch",
+      "code": "from backend.database import KiberDatabase; db=KiberDatabase(); print('Stats:', db.get_stats()); print('Recent:', db.get_recent_incidents()); db.close()",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack: Backend + Frontend",
+      "configurations": ["Backend: FastAPI Uvicorn", "Frontend: Chrome Debug"],
+      "stopAll": true
+    }
+  ]
+}

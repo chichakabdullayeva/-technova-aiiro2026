@@ -30,5 +30,11 @@ DB_PATH = os.getenv("KIBER_DNT_DB_PATH", "data/kiber_dnt.db")
 # WebSocket
 WS_HEARTBEAT = int(os.getenv("KIBER_DNT_WS_HEARTBEAT", "30"))
 
+# Authentication
+AUTH_USERNAME = os.getenv("KIBER_DNT_USERNAME", "admin")
+AUTH_PASSWORD = os.getenv("KIBER_DNT_PASSWORD", "kiberdnt2026")
+AUTH_SECRET_TOKEN = os.getenv("KIBER_DNT_SECRET_TOKEN", "kiber-dnt-demo-token-2026")
+AUTH_ENABLED = os.getenv("KIBER_DNT_AUTH_ENABLED", "true").lower() == "true"
+
 # Logging
 LOG_LEVEL = os.getenv("KIBER_DNT_LOG_LEVEL", "INFO")

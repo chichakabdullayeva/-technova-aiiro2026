@@ -65,6 +65,30 @@
 
 <canvas id="matrixCanvas"></canvas>
 
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-[#050d1f]/95 backdrop-blur-xl" style="display:none;">
+  <div class="glass-card rounded-2xl p-8 w-full max-w-md mx-4">
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-blue-500/20 mx-auto mb-3">M</div>
+      <h2 class="text-xl font-bold text-white glow-text">Milli Kiber-DNT</h2>
+      <p class="text-sm text-blue-300/70 mt-1">Qapalı Dövrəli Kiber Müdafiə Platforması</p>
+    </div>
+    <form id="loginForm" onsubmit="return handleLogin(event)">
+      <div class="mb-4">
+        <label class="block text-xs text-gray-400 mb-1">İstifadəçi adı</label>
+        <input id="loginUser" type="text" value="admin" class="filter-input w-full text-sm py-2.5 px-3" placeholder="İstifadəçi adı">
+      </div>
+      <div class="mb-6">
+        <label class="block text-xs text-gray-400 mb-1">Şifrə</label>
+        <input id="loginPass" type="password" class="filter-input w-full text-sm py-2.5 px-3" placeholder="Şifrə">
+      </div>
+      <div id="loginError" class="text-red-400 text-xs mb-3 hidden"></div>
+      <button type="submit" class="btn-primary w-full py-2.5 rounded-lg text-sm font-semibold text-white tracking-wide">Daxil ol</button>
+      <p class="text-xs text-gray-500 text-center mt-4">Demo məqsədli · Məlumatlar yalnız lokal saxlanılır</p>
+    </form>
+  </div>
+</div>
+
 <div class="relative z-10 flex flex-col min-h-screen">
 
   <!-- HEADER -->
@@ -101,6 +125,10 @@
           <div class="text-center min-w-[90px] hidden sm:block">
             <p class="text-[10px] text-blue-300/60 uppercase tracking-wider font-medium">AI Dəqiqlik</p>
             <p class="text-xl font-bold metric-value" id="metricAI">97.2%</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] text-gray-400" id="headerUser">admin</span>
+            <button id="logoutBtn" class="text-[10px] px-2 py-1 rounded-md border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-all">Çıxış</button>
           </div>
         </div>
       </div>
@@ -380,6 +408,37 @@ const el = {};
   id => el[id] = document.getElementById(id)
 );
 
+// ---- LOGIN ----
+const AUTH_TOKEN = 'kiber-dnt-demo-token-2026';
+const AUTH_USER = 'admin';
+const AUTH_PASS = 'kiberdnt2026';
+
+function handleLogin(e) {
+  e.preventDefault();
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const error = document.getElementById('loginError');
+  if (user === AUTH_USER && pass === AUTH_PASS) {
+    localStorage.setItem('kiber_dnt_auth', '1');
+    document.getElementById('loginOverlay').style.display = 'none';
+    error.classList.add('hidden');
+    showToast('Xoş gəldiniz', `${user} — Milli Kiber-DNT platformasına daxil oldunuz`, 'success');
+    return false;
+  }
+  error.classList.remove('hidden');
+  error.textContent = 'Yanlış istifadəçi adı və ya şifrə!';
+  return false;
+}
+
+// Check auth on page load
+(function() {
+  if (localStorage.getItem('kiber_dnt_auth') === '1') {
+    document.getElementById('loginOverlay').style.display = 'none';
+  } else {
+    document.getElementById('loginOverlay').style.display = 'flex';
+  }
+})();
+
 // ---- TOAST ----
 function showToast(title, message, type='info') {
   const c = { info:{bg:'bg-blue-600/80',border:'border-blue-400/40',icon:'🛈'},
@@ -452,6 +511,7 @@ function connectWebSocket() {
       state.wsConnected = true;
       el.wsStatus.className = 'ws-indicator bg-emerald-500';
       el.wsMode.textContent = 'Backend Rejim (Canlı)';
+      wsSend({ type: 'auth', token: AUTH_TOKEN });
       showToast('Backend bağlantısı quruldu', 'Real Nmap, EPSS API, SOAR, BAS aktivdir', 'success');
     };
     state.ws.onclose = () => {
@@ -602,6 +662,15 @@ function setMode(mode) {
 
 el.modeLocal.addEventListener('click', () => setMode('local'));
 el.modeBackend.addEventListener('click', () => setMode('backend'));
+
+// Logout
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  localStorage.removeItem('kiber_dnt_auth');
+  document.getElementById('loginOverlay').style.display = 'flex';
+  if (state.ws) { state.ws.close(); state.ws = null; }
+  state.wsConnected = false;
+  showToast('Çıxış edildi', 'Təkrar daxil olmaq üçün istifadəçi adı və şifrə tələb olunur', 'warning');
+});
 
 // ---- SCENARIOS (same as v1 for local mode) ----
 const SCENARIOS = {

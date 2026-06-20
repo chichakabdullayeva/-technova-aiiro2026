@@ -10,11 +10,13 @@ import uuid
 from datetime import datetime
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Query
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Query, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+import secrets
 
-from config import TARGET_SUBNET, LOG_LEVEL
+from config import TARGET_SUBNET, LOG_LEVEL, AUTH_USERNAME, AUTH_PASSWORD, AUTH_SECRET_TOKEN, AUTH_ENABLED
 from database import KiberDatabase
 from scanner import NetworkScanner
 from epss_client import EPSSClient
@@ -36,6 +38,32 @@ soar = SOAREngine(db=db)
 bas = BASEngine(db=db)
 llm = LLMReporter(db=db)
 
+# ---- Authentication ----
+security = HTTPBasic()
+
+def verify_auth(credentials: HTTPBasicCredentials = Depends(security)):
+    if not AUTH_ENABLED:
+        return {"username": "demo", "role": "viewer"}
+    correct_username = secrets.compare_digest(credentials.username, AUTH_USERNAME)
+    correct_password = secrets.compare_digest(credentials.password, AUTH_PASSWORD)
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=401,
+            detail="Yanlış istifadəçi adı və ya şifrə",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return {"username": credentials.username, "role": "admin"}
+
+def verify_token(authorization: str = Header(default=None)):
+    if not AUTH_ENABLED:
+        return True
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header missing")
+    # Support both "Bearer <token>" and plain token
+    token = authorization.replace("Bearer ", "") if authorization.startswith("Bearer ") else authorization
+    if not secrets.compare_digest(token, AUTH_SECRET_TOKEN):
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return True
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -64,6 +92,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ===== Auth Endpoints =====
+
+@app.post("/api/auth/login")
+async def login(credentials: HTTPBasicCredentials = Depends(security)):
+    if AUTH_ENABLED:
+        verify_auth(credentials)
+    return {
+        "status": "success",
+        "username": credentials.username if AUTH_ENABLED else "demo",
+        "token": AUTH_SECRET_TOKEN,
+        "message": f"Xoş gəldiniz, {credentials.username if AUTH_ENABLED else 'demo'}!"
+    }
+
+@app.get("/api/auth/check")
+async def check_auth(user: dict = Depends(verify_auth)):
+    return {"status": "authenticated", "user": user}
 
 
 # ===== REST Endpoints =====
@@ -317,6 +363,19 @@ async def websocket_endpoint(websocket: WebSocket):
                         "type": "pong",
                         "timestamp": datetime.utcnow().isoformat()
                     })
+
+                elif msg_type == "auth":
+                    token = msg.get("token", "")
+                    if verify_token(authorization=token):
+                        await ws_manager.send_to(websocket, {
+                            "type": "auth_ok",
+                            "message": "Authenticated"
+                        })
+                    else:
+                        await ws_manager.send_to(websocket, {
+                            "type": "auth_error",
+                            "message": "Invalid authentication token"
+                        })
 
                 elif msg_type == "scan":
                     assets = await scanner.scan_async(
