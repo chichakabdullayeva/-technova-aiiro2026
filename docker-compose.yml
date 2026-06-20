@@ -3,7 +3,11 @@ services:
     build: .
     container_name: kiber-dnt-web
     ports:
-      - "8000:8000"
+      - "${PORT:-8000}:8000"
+    env_file:
+      - .env
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-kiber-dnt-secret-key-change-in-production}
     restart: unless-stopped
 
   ollama:
