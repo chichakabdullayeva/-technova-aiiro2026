@@ -23,12 +23,10 @@ FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
 
 # In-memory storage
 store = {
-    "assets": [],
-    "cves": [],
-    "rules": [],
-    "bas_results": [],
-    "incidents": [],
-    "kb_entries": []
+    "assets": [], "cves": [], "rules": [], "bas_results": [],
+    "incidents": [], "kb_entries": [],
+    "zdi_feeds": [], "microscans": [], "crossrefs": [],
+    "isolations": [], "shiftleft_scans": []
 }
 
 # ============================================================
@@ -402,6 +400,191 @@ async def get_kb():
 @app.post("/api/incidents")
 async def get_incidents():
     return {"incidents": store["incidents"]}
+
+# ============================================================
+# API: ZDI FEED (simulated Trend Micro Zero-Day feed)
+# ============================================================
+ZDI_THREATS = [
+    {"title": "Smart City Camera RCE", "desc": "Buffer overflow in RTSP stream handler allows remote code execution on IP cameras.", "vendor": "Hikvision", "product": "IP Camera DS-2CD2xx"},
+    {"title": "Water SCADA Authentication Bypass", "desc": "Authentication bypass in Modbus TCP gateway used in water treatment plants.", "vendor": "Schneider Electric", "product": "Modicon M221"},
+    {"title": "ICS/PLC Remote Shutdown", "desc": "Crafted DNP3 packet causes programmable logic controller to enter halt state.", "vendor": "Siemens", "product": "S7-1500"},
+    {"title": "Smart Grid Meter Tampering", "desc": "Unencrypted MQTT subscription allows malicious power consumption reporting.", "vendor": "Landis+Gyr", "product": "E360 Smart Meter"},
+    {"title": "Traffic Light Controller Injection", "desc": "OS command injection in traffic controller web interface.", "vendor": "SWARCO", "product": "CPU-LS4000"},
+    {"title": "Hospital IoT Infusion Pump Hijack", "desc": "Default credentials and unpatched BLE stack allow remote dose manipulation.", "vendor": "Baxter", "product": "Sigma Spectrum"},
+    {"title": "Airport Baggage SCADA DoS", "desc": "Malformed PROFINET frame causes baggage handling PLC watchdog reset.", "vendor": "Siemens", "product": "Simatic S7-1200"},
+    {"title": "Oil Pipeline RTU Data Theft", "desc": "Cleartext serial-to-Ethernet bridge exposes pipeline pressure telemetry.", "vendor": "Moxa", "product": "NPort 5150"},
+    {"title": "Smart Building BACnet RCE", "desc": "Unrestricted BACnet WriteProperty allows arbitrary HVAC control.", "vendor": "Johnson Controls", "product": "Metasys NAE55"},
+    {"title": "5G Small Cell Privilege Escalation", "desc": "Hardcoded root credentials in 5G femtocell management interface.", "vendor": "Nokia", "product": "FastMile 5G"}
+]
+
+@app.post("/api/zdi/feed")
+async def generate_zdi_feed():
+    count = min(len(ZDI_THREATS), random.randint(3, 6))
+    selected = random.sample(ZDI_THREATS, count)
+    feeds = []
+    for i, t in enumerate(selected):
+        zdi_id = f"ZDI-{datetime.now().year}-{random.randint(1000, 9999)}"
+        cvss = round(7.0 + random.random() * 3.0, 1)
+        feeds.append({
+            "zdi_id": zdi_id,
+            "title": t["title"],
+            "description": t["desc"],
+            "vendor": t["vendor"],
+            "product": t["product"],
+            "cvss": cvss,
+            "published": datetime.now().isoformat(),
+            "status": "Yeni" if random.random() > 0.3 else "Analizdə"
+        })
+    store["zdi_feeds"] = feeds + store["zdi_feeds"]
+    store["zdi_feeds"] = store["zdi_feeds"][:50]
+    return {"count": len(feeds), "feeds": feeds}
+
+@app.post("/api/zdi/feed/list")
+async def list_zdi_feeds():
+    return {"feeds": store["zdi_feeds"], "count": len(store["zdi_feeds"])}
+
+# ============================================================
+# API: MICRO-SCANNING
+# ============================================================
+@app.post("/api/microscan")
+async def run_microscan():
+    assets = store["assets"]
+    zdi = store["zdi_feeds"]
+    if not assets:
+        raise HTTPException(400, "No assets to scan")
+    if not zdi:
+        raise HTTPException(400, "No ZDI threats. Generate feed first.")
+
+    scans = []
+    for asset in assets:
+        for threat in zdi[:5]:
+            match_score = random.randint(30, 95)
+            if match_score > 50:
+                scans.append({
+                    "asset_ip": asset["ip"],
+                    "asset_vendor": asset.get("vendor", "Unknown"),
+                    "asset_service": asset.get("service", "unknown"),
+                    "zdi_id": threat["zdi_id"],
+                    "threat_title": threat["title"],
+                    "match_score": match_score,
+                    "vulnerable": match_score > 70,
+                    "scanned_at": datetime.now().isoformat()
+                })
+    store["microscans"] = scans
+    return {"count": len(scans), "scans": scans}
+
+@app.post("/api/microscan/results")
+async def get_microscan_results():
+    return {"scans": store["microscans"], "count": len(store["microscans"])}
+
+# ============================================================
+# API: CROSS-REFERENCING
+# ============================================================
+@app.post("/api/crossref")
+async def cross_reference():
+    cves = store["cves"]
+    zdi = store["zdi_feeds"]
+    if not cves:
+        raise HTTPException(400, "No CVEs to cross-reference")
+    refs = []
+    for cve in cves:
+        for threat in zdi:
+            score = random.randint(40, 100)
+            refs.append({
+                "cve": cve["cve"],
+                "cvss": cve["cvss"],
+                "epss": cve["epss"],
+                "zdi_id": threat["zdi_id"],
+                "zdi_title": threat["title"],
+                "correlation": score,
+                "auto_soar": score > 90,
+                "asset_ip": cve.get("asset", {}).get("ip", "N/A"),
+                "analyzed_at": datetime.now().isoformat()
+            })
+    refs.sort(key=lambda r: r["correlation"], reverse=True)
+    store["crossrefs"] = refs[:30]
+    soar_count = sum(1 for r in refs if r["auto_soar"])
+    return {"count": len(store["crossrefs"]), "soar_triggered": soar_count, "crossrefs": store["crossrefs"]}
+
+@app.post("/api/crossref/results")
+async def get_crossref_results():
+    return {"crossrefs": store["crossrefs"], "count": len(store["crossrefs"])}
+
+# ============================================================
+# API: AUTONOMOUS ISOLATION
+# ============================================================
+@app.post("/api/isolate")
+async def isolate_asset(data: dict = None):
+    crossrefs = store["crossrefs"]
+    if not crossrefs:
+        if not store["assets"]:
+            raise HTTPException(400, "No data to isolate")
+        ip = (data or {}).get("ip", store["assets"][0]["ip"])
+        isolations = [{
+            "ip": ip,
+            "reason": "Manual isolation request",
+            "method": "Micro-segmentation ACL",
+            "status": "Təcrid edildi",
+            "isolated_at": datetime.now().isoformat()
+        }]
+    else:
+        ips_to_isolate = set()
+        for ref in crossrefs:
+            if ref.get("auto_soar") or ref.get("correlation", 0) > 85:
+                ips_to_isolate.add(ref["asset_ip"])
+        if not ips_to_isolate and store["assets"]:
+            ips_to_isolate.add(store["assets"][0]["ip"])
+        isolations = []
+        for ip in ips_to_isolate:
+            isolations.append({
+                "ip": ip,
+                "reason": f"AI auto-isolation: {ref.get('cve', 'N/A')}",
+                "method": "Micro-segmentation / Zero Trust ACL",
+                "status": "Təcrid edildi",
+                "isolated_at": datetime.now().isoformat()
+            })
+    store["isolations"] = isolations
+    return {"count": len(isolations), "isolations": isolations}
+
+@app.post("/api/isolate/results")
+async def get_isolations():
+    return {"isolations": store["isolations"], "count": len(store["isolations"])}
+
+# ============================================================
+# API: SHIFT-LEFT DevSecOps
+# ============================================================
+SHIFTLEFT_FINDINGS = [
+    {"severity": "HIGH", "rule": "ALB exposed to internet", "line": 24, "file": "main.tf"},
+    {"severity": "CRITICAL", "rule": "S3 bucket ACL public read", "line": 67, "file": "s3.tf"},
+    {"severity": "MEDIUM", "rule": "Docker container runs as root", "line": 5, "file": "Dockerfile"},
+    {"severity": "HIGH", "rule": "K8s pod privilege escalation", "line": 42, "file": "deployment.yaml"},
+    {"severity": "LOW", "rule": "Unpinned package version in apt", "line": 12, "file": "Dockerfile"},
+    {"severity": "CRITICAL", "rule": "Ansible vault password in plaintext", "line": 8, "file": "playbook.yml"},
+    {"severity": "HIGH", "rule": "SSH port 22 open to 0.0.0.0/0", "line": 31, "file": "security_group.tf"},
+    {"severity": "MEDIUM", "rule": "Missing resource tags on EC2", "line": 15, "file": "ec2.tf"}
+]
+
+@app.post("/api/shiftleft/scan")
+async def shiftleft_scan():
+    count = random.randint(3, 6)
+    findings = random.sample(SHIFTLEFT_FINDINGS, min(count, len(SHIFTLEFT_FINDINGS)))
+    enriched = []
+    for f in findings:
+        enriched.append({
+            "id": f"SL-{random.randint(1000, 9999)}",
+            "severity": f["severity"],
+            "rule": f["rule"],
+            "file": f["file"],
+            "line": f["line"],
+            "status": "Bloklandı" if f["severity"] in ("CRITICAL", "HIGH") else "Xəbərdarlıq",
+            "scanned_at": datetime.now().isoformat()
+        })
+    store["shiftleft_scans"] = enriched
+    return {"count": len(enriched), "findings": enriched, "blocked": sum(1 for e in enriched if e["status"] == "Bloklandı")}
+
+@app.post("/api/shiftleft/results")
+async def get_shiftleft_results():
+    return {"findings": store["shiftleft_scans"], "count": len(store["shiftleft_scans"])}
 
 # ============================================================
 # STATIC FILES
