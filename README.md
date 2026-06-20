@@ -1,178 +1,135 @@
-# 🇦🇿 Milli Kiber-DNT — Qapalı Dövrəli Kiber Müdafiə Platforması
+# 🇦🇿 Milli Kiber-DNT — Qapalı Dövrəli Kiber Müdafiə Platforması v3.1
 
 > **National Cyber-DNT: Closed-Loop Cyber Defense Platform for Azerbaijan's Critical Infrastructure**
 
-[![Demo](https://img.shields.io/badge/Live%20Demo-HTML-blue?style=flat-square)](frontend/index.html)
+[![Frontend](https://img.shields.io/badge/Frontend-HTML5-blue?style=flat-square)](frontend/index.html)
 [![Backend](https://img.shields.io/badge/Backend-FastAPI-10b981?style=flat-square)](backend/main.py)
+[![EPSS](https://img.shields.io/badge/EPSS-FIRST.org-ff6b35?style=flat-square)](https://www.first.org/epss)
 [![Technova](https://img.shields.io/badge/Technova-2026-8b5cf6?style=flat-square)](https://technova.az)
 
 ---
 
-## 📋 Overview
+## 📋 Genel Baxış
 
-**Milli Kiber-DNT** is a production-grade proof-of-concept demonstration of an autonomous closed-loop cyber defense platform, purpose-built for Azerbaijan's national critical infrastructure. It implements the complete **detect → analyze → remediate → verify → learn** lifecycle with real backend integrations.
+**Milli Kiber-DNT** — Azərbaycanın kritik infrastrukturunun müdafiəsi üçün qapalı dövrəli, süni intellektlə idarə olunan kiber müdafiə platformasının peşəkar PoC nümayişidir. Platforma **5 fazalı dövrə** üzərində qurulub: **Kəşfiyyat → AI Analizi → SOAR → BAS → Öyrənmə**.
 
-### Two Operation Modes
+### Fərqləndirici Xüsusiyyətlər
 
-| Mode | Description |
-|------|-------------|
-| **Yerli (Local)** | Standalone HTML — no server needed, fully simulated |
-| **Backend** | WebSocket-connected to real Python/FastAPI backend with live Nmap, EPSS API, SOAR, and BAS |
+- **🔴 Sıfır hardcoded məlumat** — bütün cədvəllər yalnız istifadəçi tərəfindən yüklənən fayllardan doldurulur
+- **🌐 Real API inteqrasiyası** — [FIRST.org EPSS](https://www.first.org/epss) canlı API sorğusu
+- **🛡️ Real qayda generasiyası** — Snort, Suricata, ModSecurity üçün istehsal səviyyəli imzalar
+- **🧬 Genetik Yaddaş** — hər insidentdən öyrənən bilik bazası
+- **📡 ZDI canlı axını** — Trend Micro Zero-Day təhdidlərinin real vaxt simulyasiyası
+- **🤖 LLM hesabat** — Ollama ilə avtomat post-mortem (və ya template fallback)
 
 ---
 
-## 🚀 Getting Started
-
-### Option 1: Standalone Demo (No Server)
-```bash
-open frontend/index.html
-# OR double-click frontend/index.html in your file manager
-```
-
-### Option 2: Full Backend Mode
+## 🚀 İşə Salma
 
 ```bash
-# 1. Install dependencies
-pip install -r backend/requirements.txt
+# Backend (tövsiyə olunan)
+cd backend && pip install -r requirements.txt && python main.py
+# → http://localhost:8000
 
-# 2. Install system tools (optional — enables real scanning)
-# sudo apt install nmap      # For real network scanning
-# sudo apt install snort     # For real WAF/IPS rule deployment
-
-# 3. Start the backend
-cd backend
-python main.py
-# Server starts at http://localhost:8000
-
-# 4. Open the frontend
+# Və ya birbaşa frontend (server tələb olunmur)
 open frontend/index.html
-# Click "Backend" mode button to connect
 ```
 
 ---
 
-## 🏗️ Architecture
+## 🧬 Sistem Dövrəsi (Core Loop)
 
-![Architecture Diagram](architecture-diagram.svg)
+```
+[📡 ZDI / Kəşfiyyat] → [🎯 Mikroskan] → [🧠 AI Qərar] → [🛡 SOAR] → [⚡ BAS] → [📚 Öyrənmə]
+       │                      │                │              │           │            │
+       ▼                      ▼                ▼              ▼           ▼            ▼
+   Təhdid axını          Aktiv kəşfi      CVSS+EPSS        Virtual     Sızma      LLM Report
+   (ZDI sim.)            (Fayl/API)      Çarpaz ref.      Yamaqlama  Testi      + Genetik KB
+```
 
-### Backend Components (`backend/`)
+### Faza 1 — Kəşfiyyat
+- **Drag & Drop** fayl yükləmə (.json, .csv, .log) → client-side parser
+- **Canlı ZDI axını** — Trend Micro sıfırıncı gün təhdidləri (5 saniyə intervallı)
+- **🎯 Mikroskan** — AI tərəfindən idarə olunan nöqtə atışı skan
+- **Şəbəkə topologiyası** — Canvas-based vizualizasiya
 
-| Module | File | Real Integration |
-|--------|------|-----------------|
-| **Scanner** | `scanner.py` | Nmap-based real network scanning (`python-nmap`). Scans actual subnets for live assets, ports, and banners. |
-| **EPSS Client** | `epss_client.py` | Queries [FIRST.org](https://www.first.org/epss) official EPSS API for real exploit probability scores per CVE. |
-| **SOAR Engine** | `soar_engine.py` | Generates production-grade **Snort/Suricata/ModSecurity** IDS rules and optionally deploys them to local WAF/IPS. |
-| **BAS Engine** | `bas_engine.py` | Sends real HTTP exploit payloads to target IPs to verify virtual patches are actively blocking. |
-| **LLM Reporter** | `llm_reporter.py` | Connects to local Ollama (llama3/mixtral) for AI-generated streaming post-mortem reports. Falls back to template. |
-| **Database** | `database.py` | SQLite with indexed log storage — filterable by event type, severity, phase, source, and free-text search. |
-| **WebSocket** | `websocket_manager.py` | Manages real-time bidirectional communication with frontend clients. |
-| **API** | `main.py` | FastAPI application with REST endpoints + WebSocket. |
+### Faza 2 — AI Analizi
+- **EPSS API** — Real FIRST.org exploit probability scoring
+- **Risk Matrisi** — CVSS vs EPSS scatter plot (Canvas)
+- **İnam Səviyyəsi** — 0-100% confidence ring (SVG)
+- **AI Qərar Paneli** — avtomat SOAR keçid indikatoru
 
-### Frontend (`frontend/`)
+### Faza 3 — SOAR & Müdafiə
+- **Avtonom İzolyasiya** — riskli aktivlərin mikroseqmentasiyası
+- **WAF/IPS Qaydaları** — Snort, Suricata, ModSecurity (real sintaksis)
+- **Şəbəkə Zonaları** — karantin vizualizasiyası
 
-The frontend is a single HTML file that:
+### Faza 4 — BAS
+- **HTTP həqiqi sorğu** — `no-cors` mode ilə real 403/RST detection
+- **Müdafiə Statistikası** — səmərəlilik faizi, bloklanan hitlər
+- **Zaman xətti** — hər test üçün vizual indikator
 
-- Operates in **Local mode** (fully simulated, no server needed)
-- Switches to **Backend mode** via WebSocket at `ws://localhost:8000/ws`
-- Displays **filterable tables** for discovered assets (by IP, port, vendor)
-- Shows **real-time event logs** filterable by type, phase, severity, and text
-- Renders live EPSS scores from FIRST.org API
-- Displays generated WAF/IPS rules with deploy status
-- Presents streaming LLM post-mortem reports
-
----
-
-## 🎯 Key Features
-
-### Closed-Loop Core (5 Phases)
-
-| # | Phase | Backend Integration |
-|---|-------|-------------------|
-| 01 | **Kəşfiyyat & Kəşf** | Real Nmap scan → live asset table with IP/port/banner filtering |
-| 02 | **AI Qərar Verici** | Live [FIRST.org EPSS API](https://www.first.org/epss) → real threat probability |
-| 03 | **SOAR & Remediasiya** | Real Snort/Suricata signature generation & deployment |
-| 04 | **BAS Doğrulama** | Real HTTP exploit payload → 403/406 verification |
-| 05 | **İnsident Öyrənmə** | Ollama LLM streaming report or template fallback |
-
-### Attack Scenarios
-
-- **Hikvision Smart City Camera Zero-Day RCE** — CVSS 9.8, 1,247 cameras, RTSP buffer overflow
-- **Absheron Water Treatment Station PLC** — CVSS 8.6, Siemens S7-1200 heap overflow
-- **National Data Center Kubernetes RBAC** — CVSS 7.2, privilege escalation
-- **Random Threat Pool** — Baku Metro SCADA, SOCAR oil platform, Central Bank SWIFT
-
-### Interactive Controls
-
-- One-click simulation with real-time animated 5-stage core loop
-- Speed control (Yavaş / Normal / Sürətli)
-- Pause / Step-through for presentations
-- Color-coded live event log with filters
-- Filterable asset data table (click IP or port to filter)
-- Toast notifications for key events
-- Print-ready post-mortem reports
+### Faza 5 — Öyrənmə
+- **LLM Post-Mortem** — Ollama ilə streaming hesabat (və template)
+- **Genetik Yaddaş** — zaman xətti üzrə bilik bazası
+- **Keçmiş İnsidentlər** — həll müddətləri ilə cədvəl
 
 ---
 
-## 🔌 API Endpoints
+## 🔌 API Endpointləri
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/status` | Backend health + DB stats |
-| POST | `/api/scan` | Run Nmap scan on subnet |
-| POST | `/api/epss` | Get EPSS score for CVE |
-| POST | `/api/assess` | Full CVSS+EPSS threat assessment |
-| POST | `/api/soar/generate-rules` | Generate WAF/IPS rules |
-| POST | `/api/soar/deploy-rule` | Deploy rule to local WAF/IPS |
-| POST | `/api/bas/verify` | Run BAS verification |
-| POST | `/api/report/generate` | Generate LLM post-mortem |
-| POST | `/api/simulate` | Full 5-phase simulation |
-| WS | `/ws` | WebSocket for real-time communication |
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/health` | Backend status |
+| `GET /api/epss/{cve}` | FIRST.org EPSS skoru (real API) |
+| `GET /api/rules/generate` | Snort/ModSecurity qayda generasiyası |
+| `GET /api/llm/report` | LLM hesabatı (Ollama) |
 
 ---
 
-## 📄 Project Files
+## 📂 Fayl Strukturu
 
-| File | Description |
-|------|-------------|
-| `frontend/index.html` | Main frontend (WebSocket + standalone modes) |
-| `backend/main.py` | FastAPI entry point |
-| `backend/scanner.py` | Real Nmap network scanner |
-| `backend/epss_client.py` | FIRST.org EPSS API client |
-| `backend/soar_engine.py` | Snort/Suricata rule generator |
-| `backend/bas_engine.py` | BAS verification engine |
-| `backend/llm_reporter.py` | Ollama LLM reporter |
-| `backend/database.py` | SQLite database layer |
-| `backend/websocket_manager.py` | WebSocket connection manager |
-| `backend/config.py` | Configuration |
-| `backend/requirements.txt` | Python dependencies |
-| `architecture-diagram.svg` | Architecture diagram |
-| `problem-description.md` | Problem statement |
-| `ethical-declaration.md` | Ethical framework |
+```
+├── frontend/
+│   └── index.html         ← Tək fayl SPA (bütün UI/UX)
+├── backend/
+│   ├── main.py            ← FastAPI (EPSS proxy, Rule gen, Statik)
+│   └── requirements.txt
+└── README.md
+```
 
 ---
 
-## 🛡️ Technical Stack
+## 🛠️ Texniki Stack
 
-- **Frontend:** HTML5 + Tailwind CSS + Vanilla JS
-- **Backend:** Python 3.10+ / FastAPI / Uvicorn / WebSocket
-- **Scanning:** python-nmap (Nmap wrapper)
-- **Threat Intel:** FIRST.org EPSS API (live)
-- **WAF/IPS:** Snort / Suricata / ModSecurity rule generation
-- **LLM:** Ollama (llama3.1, mixtral) with template fallback
-- **Database:** SQLite with indexed filtering
-- **Real-time:** WebSocket bidirectional communication
+- **Frontend:** HTML5 + Tailwind CSS + Vanilla JS (0 dependency)
+- **Backend:** Python 3.10+ / FastAPI / Uvicorn / aiohttp
+- **Threat Intel:** FIRST.org EPSS API (canlı)
+- **WAF/IPS:** Snort, Suricata, ModSecurity rule generation
+- **LLM:** Ollama (llama3.2) with template fallback
+- **Vizualizasiya:** Canvas 2D (risk matrix, network topology)
 
 ---
 
-## 🇦🇿 Azerbaijani Language
+## ⚙️ Minimum Requirements
 
-All interface text, labels, logs, API responses, and reports are in Azerbaijani. Designed for presentation to Azerbaijani government and enterprise stakeholders.
+- Python 3.10+ (backend mode)
+- aiohttp, fastapi, uvicorn (pip)
+- İstəyə bağlı: Ollama (LLM reports)
+
+Heç bir **xarici chart library**, **npm paketi**, **database** və ya **API açarı** tələb olunmur.
 
 ---
 
-## 🤝 License & Ethics
+## 🇦🇿 Dil
 
-This project is an **educational proof-of-concept** for cybersecurity defense. See [ethical-declaration.md](ethical-declaration.md) for the full ethical framework.
+Bütün interfeys, loqlar, API cavabları və hesabatlar **Azərbaycan dilində**dir.
+
+---
+
+## 🤝 Lisenziya
+
+**Educational PoC** — yalnız tədris və nümayiş məqsədləri üçün.
 
 ---
 
