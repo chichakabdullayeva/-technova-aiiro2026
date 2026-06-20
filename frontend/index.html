@@ -308,7 +308,7 @@ async function doLogin(){
   const fd=new FormData();fd.append('email',email);fd.append('password',pass);
   try{
     const r=await fetch(API+'/api/login',{method:'POST',body:fd});
-    if(!r.ok){alert('Giriş xətası: İstifadəçi adı və ya şifrə yanlışdır');return}
+    if(!r.ok){const e=await r.json().catch(()=>({detail:'Bilinməyən xəta'}));alert('Giriş xətası: '+(e.detail||'Bilinməyən xəta'));return}
     const d=await r.json();
     localStorage.setItem('kdnt_token',d.token);localStorage.setItem('kdnt_user',d.name);
     document.getElementById('loginPage').style.display='none';document.getElementById('app').style.display='flex';initApp();
@@ -323,7 +323,7 @@ async function doSignup(){
   const fd=new FormData();fd.append('name',name);fd.append('email',email);fd.append('password',pass);
   try{
     const r=await fetch(API+'/api/signup',{method:'POST',body:fd});
-    if(!r.ok){const e=await r.json();alert('Qeydiyyat xətası: '+(e.detail||'Bilinməyən xəta'));return}
+    if(!r.ok){const e=await r.json().catch(()=>({detail:'Bilinməyən xəta'}));alert('Qeydiyyat xətası: '+(e.detail||'Bilinməyən xəta'));return}
     const d=await r.json();
     localStorage.setItem('kdnt_token',d.token);localStorage.setItem('kdnt_user',d.name);
     document.getElementById('signupPage').style.display='none';document.getElementById('app').style.display='flex';initApp();
