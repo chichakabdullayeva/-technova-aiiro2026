@@ -1,114 +1,107 @@
-"""Milli Kiber-DNT v3 — FastAPI Application"""
-import sys, os
-sys.path.insert(0, os.path.dirname(__file__))
-import asyncio, json, uuid
+"""Milli Kiber-DNT — Closed-Loop Backend API (minimal, real)"""
+import sys, os, json, asyncio, uuid
 from datetime import datetime
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+sys.path.insert(0, os.path.dirname(__file__))
+
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
+import aiohttp
+import re
 
-from config.settings import LOG_LEVEL
-from services.logging.database import KiberDatabase
-from websocket.live import ConnectionManager
-from services.discovery.scanner import NetworkScanner
-from services.threat.epss_client import EPSSClient
-from services.defense.soar_engine import SOAREngine
-from services.verification.bas_engine import BASEngine
-from services.logging.llm_reporter import LLMReporter
-from api.discovery import router as discovery_router
-from api.threat import router as threat_router
-from api.defense import router as defense_router
-from api.verification import router as verification_router
-from api.logs import router as logs_router
+# ===== EPSS Proxy =====
+EPSS_URL = "https://api.first.org/data/v1/epss"
 
-db = KiberDatabase()
-ws_manager = ConnectionManager()
-scanner = NetworkScanner(db=db)
-epss = EPSSClient(db=db)
-soar = SOAREngine(db=db)
-bas = BASEngine(db=db)
-llm = LLMReporter(db=db)
+async def fetch_epss(cve: str) -> dict:
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(EPSS_URL, params={"cve": cve}, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    if data.get("data") and len(data["data"]):
+                        e = data["data"][0]
+                        return {
+                            "cve": cve,
+                            "epss": float(e["epss"]),
+                            "percentile": float(e["percentile"]),
+                            "date": e["date"],
+                            "source": "first.org (live)"
+                        }
+                return {"cve": cve, "error": f"EPSS API: HTTP {resp.status}"}
+    except Exception as ex:
+        return {"cve": cve, "error": str(ex)}
 
+# ===== Rule Generation =====
+def gen_snort_rule(cve: str, service: str, port: int, epss: float, sid: int) -> str:
+    prio = 1 if epss > 0.6 else 2 if epss > 0.3 else 3
+    if port == 554 or service == "rtsp":
+        return f'alert tcp any any -> $HOME_NET {port} (msg:"Kiber-DNT: {cve} RCE Attempt"; content:"GET"; http_method; content:"/SDK/webLanguage"; http_uri; sid:{sid}; rev:1; classtype:attempted-admin; priority:{prio};)'
+    elif port == 502 or service == "modbus":
+        return f'alert tcp any any -> $HOME_NET {port} (msg:"Kiber-DNT: {cve} PLC Attack"; content:"|00 00 00 00 00 00|"; depth:6; sid:{sid}; rev:1; classtype:attempted-admin; priority:{prio};)'
+    elif port == 443 or service == "https":
+        return f'alert tls any any -> $HOME_NET {port} (msg:"Kiber-DNT: {cve} TLS Exploit"; flow:established,to_server; content:"{cve}"; sid:{sid}; rev:1; classtype:attempted-admin; priority:{prio};)'
+    else:
+        return f'alert http any any -> $HOME_NET {port} (msg:"Kiber-DNT: {cve} Web Attack"; flow:established,to_server; content:"{cve}"; sid:{sid}; rev:1; classtype:attempted-admin; priority:{prio};)'
+
+def gen_suricata_rule(cve: str, service: str, port: int, epss: float, sid: int) -> str:
+    return gen_snort_rule(cve, service, port, epss, sid).replace("alert tcp", "alert http")
+
+def gen_modsec_rule(cve: str, service: str, port: int, epss: float, sid: int) -> str:
+    return f'SecRule REQUEST_URI "@contains /{cve.split("-")[0]}" "id:{sid},phase:1,deny,status:403,msg:\'Kiber-DNT: {cve} Blocked\',severity:\'{"CRITICAL" if epss>0.6 else "WARNING"}\'"'
+
+# ===== App =====
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print(f"[Kiber-DNT] v3 başladı | Nmap: {'✓' if scanner.available else '✗'} | LLM: {'✓' if llm.available else '✗'}")
-    print(f"[Kiber-DNT] DB: {db.db_path} | WebSocket: /ws")
+    print(f"[Kiber-DNT] Backend hazır | :8000")
     yield
-    db.close()
 
-app = FastAPI(title="Milli Kiber-DNT v3", version="3.0.0", lifespan=lifespan)
+app = FastAPI(title="Milli Kiber-DNT API", version="3.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
-app.include_router(discovery_router)
-app.include_router(threat_router)
-app.include_router(defense_router)
-app.include_router(verification_router)
-app.include_router(logs_router)
+# EPSS proxy
+@app.get("/api/epss/{cve}")
+async def epss_proxy(cve: str):
+    cve = cve.upper().strip()
+    if not re.match(r'^CVE-\d{4}-\d+$', cve):
+        return {"error": "Yanlış CVE formatı"}
+    return await fetch_epss(cve)
 
-@app.get("/api/status")
-async def get_status():
-    return {"service": "Milli Kiber-DNT v3", "version": "3.0.0", "status": "running", "nmap": scanner.available, "llm": llm.available, "ws": ws_manager.active_connections}
+# Rule generation
+@app.post("/api/rules/generate")
+async def generate_rules(data: dict):
+    threats = data.get("threats", [])
+    rules = []
+    for i, t in enumerate(threats):
+        sid = 20260000 + i + 1
+        epss = t.get("epss", 0.5)
+        rules.append({
+            "sid": sid,
+            "type": "snort",
+            "target": f"{t.get('ip','?')}:{t.get('port',80)}",
+            "cve": t.get("cve", "CVE-UNKNOWN"),
+            "rule": gen_snort_rule(t.get("cve","CVE-UNKNOWN"), t.get("service","http"), int(t.get("port",80)), epss, sid)
+        })
+        rules.append({
+            "sid": sid + 10000,
+            "type": "modsecurity",
+            "target": f"{t.get('ip','?')}:{t.get('port',80)}",
+            "cve": t.get("cve", "CVE-UNKNOWN"),
+            "rule": gen_modsec_rule(t.get("cve","CVE-UNKNOWN"), t.get("service","http"), int(t.get("port",80)), epss, sid + 10000)
+        })
+    return {"rules": rules, "count": len(rules)}
 
+# Health
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "timestamp": datetime.utcnow().isoformat()}
+    return {"status": "ok", "service": "Milli Kiber-DNT", "version": "3.0", "timestamp": datetime.utcnow().isoformat()}
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    global scanner, epss, soar, bas, llm
-    client_id = await ws_manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_text()
-            msg = json.loads(data)
-            msg_type = msg.get("type", "")
-
-            if msg_type == "ping":
-                await ws_manager.send_to(websocket, {"type": "pong", "timestamp": datetime.utcnow().isoformat()})
-
-            elif msg_type == "auth":
-                await ws_manager.send_to(websocket, {"type": "auth_ok", "message": "Authenticated"})
-
-            elif msg_type == "scan":
-                assets = await scanner.scan_async(subnet=msg.get("subnet", "10.10.40.0/24"))
-                await ws_manager.send_to(websocket, {"type": "scan_result", "assets": assets, "count": len(assets)})
-
-            elif msg_type == "epss":
-                cve = msg.get("cve", "")
-                result = epss.get_score(cve)
-                await ws_manager.send_to(websocket, {"type": "epss_result", "data": result})
-
-            elif msg_type == "rules":
-                threat = msg.get("threat", {"cve": "CVE-2021-36260", "cvss": 9.8, "port": 554, "service": "rtsp"})
-                rules = soar.generate_rules_for_threat(threat)
-                await ws_manager.send_to(websocket, {"type": "rules_result", "rules": rules})
-
-            elif msg_type == "bas":
-                ip = msg.get("target_ip", "10.10.40.12")
-                port = msg.get("target_port", 80)
-                result = bas.verify_patch_http(ip, port)
-                await ws_manager.send_to(websocket, {"type": "bas_result", "data": result})
-
-            elif msg_type == "query_logs":
-                logs = db.query_logs(event_type=msg.get("event_type"), phase=msg.get("phase"), severity=msg.get("severity"), search=msg.get("search"), limit=msg.get("limit", 100))
-                await ws_manager.send_to(websocket, {"type": "log_results", "logs": logs, "count": len(logs)})
-
-            elif msg_type == "query_assets":
-                assets = db.query_assets(ips=msg.get("ip"), ports=msg.get("port"), vendor=msg.get("vendor"))
-                await ws_manager.send_to(websocket, {"type": "asset_results", "assets": assets, "count": len(assets)})
-
-            elif msg_type == "get_stats":
-                await ws_manager.send_to(websocket, {"type": "stats", "data": db.get_stats()})
-
-    except WebSocketDisconnect:
-        await ws_manager.disconnect(websocket)
-
+# Serve frontend
 frontend_dir = Path(__file__).parent.parent / "frontend"
 if frontend_dir.exists():
     app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level=LOG_LEVEL.lower())
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

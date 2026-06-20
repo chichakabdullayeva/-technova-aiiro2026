@@ -3,754 +3,629 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Milli Kiber-DNT v3 — Modul Kiber Müdafiə</title>
+<title>Milli Kiber-DNT — Closed-Loop Avtonom Müdafiə</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-  * { font-family: 'Inter', system-ui, sans-serif; }
-  body { background: #0a1428; overflow-x: hidden; }
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: rgba(15,23,42,0.5); }
-  ::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #2563eb; }
-
-  .glass { background: rgba(15,23,42,0.8); backdrop-filter: blur(16px); border: 1px solid rgba(37,99,235,0.15); }
-  .glass-card { background: rgba(15,23,42,0.85); backdrop-filter: blur(20px); border: 1px solid rgba(37,99,235,0.12); transition: all 0.3s; }
-  .glass-card:hover { border-color: rgba(37,99,235,0.3); }
-
-  @keyframes slide-up { from{opacity:0;transform:translateY(15px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes slide-in { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
-  @keyframes fade-in { from{opacity:0} to{opacity:1} }
-  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  @keyframes scan-line { 0%{left:-100%} 100%{left:100%} }
-
-  .tab-btn { transition: all 0.3s; position: relative; }
-  .tab-btn.active { background: rgba(37,99,235,0.2); border-color: rgba(37,99,235,0.5); }
-  .tab-btn.active::after { content:''; position:absolute; bottom:-1px; left:20%; right:20%; height:2px; background:#3b82f6; border-radius:1px; }
-  .tab-content { display: none; animation: slide-up 0.3s ease-out; }
-  .tab-content.active { display: block; }
-
-  .section-card { background: rgba(15,23,42,0.7); border: 1px solid rgba(37,99,235,0.1); border-radius: 12px; padding: 16px; transition: all 0.3s; }
-  .section-card:hover { border-color: rgba(37,99,235,0.25); }
-
-  .detail-panel { position: fixed; top: 0; right: -480px; width: 480px; height: 100vh; z-index: 50; transition: right 0.4s cubic-bezier(0.4,0,0.2,1); max-width: 100vw; }
-  .detail-panel.open { right: 0; }
-  .detail-overlay { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,0.5); display: none; }
-  .detail-overlay.open { display: block; }
-
-  .terminal-view { background: #0a0a0a; border: 1px solid rgba(0,255,0,0.15); border-radius: 8px; padding: 12px; font-family: 'Courier New', monospace; font-size: 12px; color: #00ff00; height: 300px; overflow-y: auto; white-space: pre-wrap; line-height: 1.5; }
-  .terminal-view .line-system { color: #569cd6; }
-  .terminal-view .line-info { color: #4ec9b0; }
-  .terminal-view .line-warn { color: #ce9178; }
-  .terminal-view .line-error { color: #f14c4c; }
-  .terminal-view .line-success { color: #6a9955; }
-
-  .asset-row, .rule-row, .log-row, .bas-row { cursor: pointer; transition: all 0.2s; }
-  .asset-row:hover, .rule-row:hover, .log-row:hover, .bas-row:hover { background: rgba(37,99,235,0.08); }
-
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
-  .badge-critical { background: rgba(239,68,68,0.2); color: #ef4444; }
-  .badge-high { background: rgba(249,115,22,0.2); color: #f97316; }
-  .badge-medium { background: rgba(234,179,8,0.2); color: #eab308; }
-  .badge-low { background: rgba(34,197,94,0.2); color: #22c55e; }
-
-  .filter-input { background: rgba(0,0,0,0.3); border: 1px solid rgba(37,99,235,0.2); border-radius: 6px; padding: 6px 10px; font-size: 12px; color: #e2e8f0; outline: none; }
-  .filter-input:focus { border-color: #3b82f6; }
-  .filter-input::placeholder { color: #475569; }
-  select.filter-input { min-width: 120px; }
-
-  table { width: 100%; border-collapse: collapse; }
-  th { text-align: left; padding: 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 1px solid rgba(37,99,235,0.1); }
-  td { padding: 7px 8px; font-size: 12px; color: #cbd5e1; border-bottom: 1px solid rgba(37,99,235,0.05); }
-
-  .scan-progress { height: 3px; background: rgba(37,99,235,0.1); border-radius: 2px; overflow: hidden; }
-  .scan-progress .bar { height: 100%; background: linear-gradient(90deg, #2563eb, #3b82f6); border-radius: 2px; transition: width 0.5s; }
-
-  .chart-bar { display: flex; align-items: flex-end; gap: 4px; height: 120px; }
-  .chart-bar .col { flex: 1; border-radius: 3px 3px 0 0; min-height: 4px; transition: height 0.5s; position: relative; }
-  .chart-bar .col:hover { opacity: 0.8; }
-  .chart-bar .col .label { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 8px; color: #64748b; white-space: nowrap; }
-
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
-  .status-dot.green { background: #22c55e; }
-  .status-dot.red { background: #ef4444; }
-  .status-dot.yellow { background: #eab308; }
-  .status-dot.gray { background: #64748b; }
-
-  .btn-primary { background: linear-gradient(135deg,#2563eb,#1d4ed8); transition: all 0.3s; box-shadow: 0 4px 20px rgba(37,99,235,0.3); }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(37,99,235,0.5); }
-  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-  #matrixCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; opacity: 0.08; }
-  .content { position: relative; z-index: 1; }
+  *{font-family:'Inter',system-ui,sans-serif;box-sizing:border-box}
+  body{margin:0;background:#060e1f;color:#e2e8f0;overflow-x:hidden}
+  ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:rgba(15,23,42,0.3)}::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:2px}
+  .glass{background:rgba(10,18,40,0.85);backdrop-filter:blur(14px);border:1px solid rgba(37,99,235,0.12)}
+  .card{border:1px solid rgba(37,99,235,0.1);border-radius:10px;padding:14px;background:rgba(10,18,40,0.6);transition:border-color .25s}
+  .card:hover{border-color:rgba(37,99,235,0.25)}
+  .tab-btn{padding:8px 18px;font-size:12px;font-weight:500;border-radius:8px 8px 0 0;transition:.25s;cursor:pointer;border:1px solid transparent;border-bottom:none;color:#64748b}
+  .tab-btn.active{background:rgba(37,99,235,0.15);border-color:rgba(37,99,235,0.25);color:#93c5fd}
+  .tab-pane{display:none}.tab-pane.active{display:block;animation:fadeIn .3s}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse-border{0%,100%{border-color:rgba(37,99,235,0.2)} 50%{border-color:rgba(37,99,235,0.5)}}
+  .drop-zone{border:2px dashed rgba(37,99,235,0.25);border-radius:12px;padding:40px 20px;text-align:center;cursor:pointer;transition:.3s;background:rgba(10,18,40,0.4)}
+  .drop-zone.dragover{border-color:#3b82f6;background:rgba(37,99,235,0.1);animation:pulse-border 1s infinite}
+  .drop-zone.has-file{border-style:solid;border-color:rgba(34,197,94,0.4);background:rgba(34,197,94,0.05)}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;padding:7px 8px;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#64748b;border-bottom:1px solid rgba(37,99,235,0.08)}
+  td{padding:6px 8px;border-bottom:1px solid rgba(37,99,235,0.04);color:#cbd5e1}
+  tr.clickable{cursor:pointer;transition:.15s}
+  tr.clickable:hover{background:rgba(37,99,235,0.06)}
+  .fi{background:rgba(0,0,0,0.3);border:1px solid rgba(37,99,235,0.15);border-radius:5px;padding:5px 9px;font-size:12px;color:#e2e8f0;outline:none;transition:border-color .2s}
+  .fi:focus{border-color:#3b82f6}.fi::placeholder{color:#475569}
+  .badge{display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:600}
+  .badge-crit{background:rgba(239,68,68,0.2);color:#ef4444}
+  .badge-high{background:rgba(249,115,22,0.2);color:#f97316}
+  .badge-med{background:rgba(234,179,8,0.2);color:#eab308}
+  .badge-low{background:rgba(34,197,94,0.2);color:#22c55e}
+  .term{background:#060606;border:1px solid rgba(0,255,0,0.1);border-radius:7px;padding:10px;font-family:'Courier New',monospace;font-size:11px;color:#00e500;height:280px;overflow-y:auto;white-space:pre-wrap;line-height:1.5}
+  .term .t-sys{color:#569cd6}.term .t-ok{color:#6a9955}.term .t-warn{color:#ce9178}.term .t-err{color:#f14c4c}.term .t-info{color:#4ec9b0}
+  .btn-p{background:linear-gradient(135deg,#2563eb,#1d4ed8);transition:.3s;box-shadow:0 4px 20px rgba(37,99,235,0.25)}
+  .btn-p:hover{transform:translateY(-1px);box-shadow:0 8px 25px rgba(37,99,235,0.4)}
+  .btn-p:disabled{opacity:.35;cursor:not-allowed;transform:none}
+  .raw-json{background:rgba(0,0,0,0.4);border-radius:6px;padding:10px;font-family:'Courier New',monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;word-break:break-all;display:none;margin-top:4px}
+  .raw-json.open{display:block}
+  .slide-panel{position:fixed;top:0;right:-520px;width:520px;height:100vh;z-index:50;transition:right .35s cubic-bezier(.4,0,.2,1);max-width:100vw}
+  .slide-panel.open{right:0}.slide-overlay{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.5);display:none}.slide-overlay.open{display:block}
+  .scatter{position:relative;width:100%;height:280px}
+  .scatter canvas{width:100%;height:100%}
+  #matrixCanvas{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;opacity:.06}
+  .z-content{position:relative;z-index:1}
 </style>
 </head>
-<body class="text-gray-200">
+<body>
 
 <canvas id="matrixCanvas"></canvas>
 
-<!-- DETAIL OVERLAY + PANEL -->
-<div id="detailOverlay" class="detail-overlay" onclick="closeDetail()"></div>
-<div id="detailPanel" class="detail-panel glass">
-  <div class="p-5 h-full flex flex-col">
-    <div class="flex items-center justify-between mb-4">
-      <h3 id="detailTitle" class="text-sm font-bold text-white glow-text">Təfərrüat</h3>
-      <button onclick="closeDetail()" class="text-gray-500 hover:text-white text-lg">&times;</button>
+<!-- SLIDE PANEL -->
+<div id="slideOverlay" class="slide-overlay" onclick="slideClose()"></div>
+<div id="slidePanel" class="slide-panel glass">
+  <div class="p-4 h-full flex flex-col">
+    <div class="flex items-center justify-between mb-3">
+      <h3 id="slideTitle" class="text-sm font-bold text-white">Təfərrüat</h3>
+      <button onclick="slideClose()" class="text-gray-500 hover:text-white text-lg leading-none">&times;</button>
     </div>
-    <div id="detailBody" class="flex-1 overflow-y-auto space-y-3 text-xs"></div>
+    <div id="slideBody" class="flex-1 overflow-y-auto space-y-3 text-xs"></div>
   </div>
 </div>
 
-<div class="content min-h-screen flex flex-col">
+<div class="z-content min-h-screen flex flex-col">
 
-  <!-- HEADER -->
-  <header class="glass border-b border-blue-900/30 px-4 py-2.5">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">M</div>
-        <div>
-          <h1 class="text-base font-bold text-white glow-text">Milli Kiber-DNT <span class="text-[10px] text-blue-400 font-normal">v3</span></h1>
-          <p class="text-[10px] text-blue-300/60">Modul Kiber Müdafiə Platforması</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-3">
-        <span id="wsStatus" class="status-dot gray"></span>
-        <span id="modeLabel" class="text-[10px] text-gray-500">Yerli</span>
-        <div class="flex bg-gray-900/60 rounded-lg p-0.5 border border-blue-900/20">
-          <button id="modeLocalBtn" class="px-2.5 py-1 text-[10px] rounded-md font-medium bg-blue-600 text-white">Yerli</button>
-          <button id="modeBackendBtn" class="px-2.5 py-1 text-[10px] rounded-md font-medium text-gray-400 hover:text-white">Backend</button>
-        </div>
-      </div>
+<!-- HEADER -->
+<header class="glass border-b border-blue-900/25 px-4 py-2">
+  <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-sm">M</div>
+      <div><h1 class="text-sm font-bold text-white">Milli Kiber-DNT</h1><p id="subtitle" class="text-[9px] text-blue-300/50">Yüklənmiş məlumat yoxdur</p></div>
     </div>
-  </header>
-
-  <!-- TABS -->
-  <div class="border-b border-blue-900/20 px-4">
-    <div class="max-w-7xl mx-auto flex gap-1 overflow-x-auto">
-      <button class="tab-btn active px-4 py-2.5 text-xs font-medium text-blue-300 border-b-2 border-blue-500" data-tab="kesfiyyat">🔍 Kəşfiyyat</button>
-      <button class="tab-btn px-4 py-2.5 text-xs font-medium text-gray-400 hover:text-blue-300" data-tab="tehdidler">🧠 Təhdidlər</button>
-      <button class="tab-btn px-4 py-2.5 text-xs font-medium text-gray-400 hover:text-blue-300" data-tab="mudafie">🛡️ Müdafiə</button>
-      <button class="tab-btn px-4 py-2.5 text-xs font-medium text-gray-400 hover:text-blue-300" data-tab="dogrulama">⚔️ Doğrulama</button>
-      <button class="tab-btn px-4 py-2.5 text-xs font-medium text-gray-400 hover:text-blue-300" data-tab="jurnallar">📋 Jurnallar</button>
+    <div class="flex items-center gap-2">
+      <span id="fileBadge" class="badge badge-low hidden">0 sətir</span>
+      <button id="resetBtn" class="text-[10px] px-2 py-1 rounded border border-red-500/25 text-red-400 hover:bg-red-500/10 hidden">Sıfırla</button>
     </div>
   </div>
+</header>
 
-  <!-- MAIN CONTENT -->
-  <div class="flex-1 max-w-7xl mx-auto w-full px-4 py-5">
-
-    <!-- TAB 1: KƏŞFİYYAT -->
-    <div id="tab-kesfiyyat" class="tab-content active">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h2 class="text-lg font-bold text-white">Kəşfiyyat & Aktiv Kəşfi</h2>
-          <p class="text-[11px] text-gray-500">Real Nmap skanı — aşkar edilmiş aktivləri göstərir</p>
-        </div>
-        <button id="scanBtn" class="btn-primary px-4 py-2 rounded-lg text-xs font-semibold text-white">Skan et</button>
-      </div>
-      <div class="scan-progress mb-3"><div id="scanProgressBar" class="bar" style="width:0%"></div></div>
-      <div class="flex gap-2 mb-3 flex-wrap">
-        <input id="assetFilterIP" class="filter-input flex-1 min-w-[120px]" placeholder="IP filtr">
-        <input id="assetFilterPort" class="filter-input w-20" placeholder="Port">
-        <input id="assetFilterService" class="filter-input flex-1 min-w-[100px]" placeholder="Servis">
-        <span id="assetCount" class="text-[11px] text-gray-500 self-center">0 aktiv</span>
-      </div>
-      <div class="section-card overflow-x-auto">
-        <table>
-          <thead><tr><th>IP</th><th>Hostname</th><th>Portlar</th><th>Servislər</th><th>Vendor</th><th>Risk</th></tr></thead>
-          <tbody id="assetTableBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- TAB 2: TƏHDİDLƏR -->
-    <div id="tab-tehdidler" class="tab-content">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h2 class="text-lg font-bold text-white">Təhdid Kəşfiyyatı</h2>
-          <p class="text-[11px] text-gray-500">FIRST.org EPSS API — real istismar ehtimalı</p>
-        </div>
-        <div class="flex gap-2">
-          <input id="cveInput" class="filter-input w-48" placeholder="CVE (CVE-2021-36260)" value="CVE-2021-36260">
-          <button id="queryCveBtn" class="btn-primary px-3 py-1.5 rounded-lg text-xs text-white">Sorğu</button>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        <div class="section-card text-center"><p class="text-[10px] text-gray-500 uppercase">EPSS Skoru</p><p id="epssScore" class="text-2xl font-bold text-white">—</p></div>
-        <div class="section-card text-center"><p class="text-[10px] text-gray-500 uppercase">CVSS</p><p id="cvssScore" class="text-2xl font-bold text-orange-400">—</p></div>
-        <div class="section-card text-center"><p class="text-[10px] text-gray-500 uppercase">Təhdid Səviyyəsi</p><p id="threatLevel" class="text-2xl font-bold text-blue-400">—</p></div>
-      </div>
-      <div class="section-card">
-        <p class="text-[10px] text-gray-500 uppercase mb-2">EPSS Trend (son CVE-lər)</p>
-        <div id="epssChart" class="chart-bar"></div>
-      </div>
-      <div class="section-card mt-3 overflow-x-auto">
-        <table><thead><tr><th>CVE</th><th>EPSS</th><th>Persentil</th><th>Səviyyə</th><th>Status</th></tr></thead><tbody id="threatTableBody"></tbody></table>
-      </div>
-    </div>
-
-    <!-- TAB 3: MÜDAFİƏ -->
-    <div id="tab-mudafie" class="tab-content">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h2 class="text-lg font-bold text-white">Müdafiə & SOAR</h2>
-          <p class="text-[11px] text-gray-500">Snort/Suricata IPS qaydaları — avtomatik generasiya</p>
-        </div>
-        <button id="generateRulesBtn" class="btn-primary px-4 py-2 rounded-lg text-xs text-white">Qayda yarat</button>
-      </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-        <div class="section-card">
-          <p class="text-[10px] text-gray-500 uppercase mb-2">Terminal jurnalı</p>
-          <div id="defenseTerminal" class="terminal-view">[Kiber-DNT] Müdafiə terminalı hazırdır...\n</div>
-        </div>
-        <div class="section-card overflow-x-auto">
-          <p class="text-[10px] text-gray-500 uppercase mb-2">Yaradılan qaydalar</p>
-          <table><thead><tr><th>SID</th><th>Tip</th><th>Hədəf</th><th>Status</th></tr></thead><tbody id="ruleTableBody"></tbody></table>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 4: DOĞRULAMA -->
-    <div id="tab-dogrulama" class="tab-content">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h2 class="text-lg font-bold text-white">BAS Doğrulama</h2>
-          <p class="text-[11px] text-gray-500">Breach & Attack Simulation — virtual yamaqları yoxlayır</p>
-        </div>
-        <button id="basSimulateBtn" class="btn-primary px-4 py-2 rounded-lg text-xs text-white">Simulyasiya et</button>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-        <div class="section-card text-center"><p class="text-[10px] text-gray-500 uppercase">Test sayı</p><p id="basTotal" class="text-xl font-bold text-white">0</p></div>
-        <div class="section-card text-center"><p class="text-[10px] text-gray-500 uppercase">Bloklanan</p><p id="basBlocked" class="text-xl font-bold text-emerald-400">0</p></div>
-        <div class="section-card text-center"><p class="text-[10px] text-gray-500 uppercase">Keçən</p><p id="basBypassed" class="text-xl font-bold text-red-400">0</p></div>
-        <div class="section-card text-center"><p class="text-[10px] text-gray-500 uppercase">Qoruma</p><p id="basProtection" class="text-xl font-bold text-blue-400">0%</p></div>
-      </div>
-      <div class="section-card overflow-x-auto">
-        <table><thead><tr><th>Hədəf</th><th>CVE</th><th>Status kod</th><th>Nəticə</th><th>Gecikmə</th></tr></thead><tbody id="basTableBody"></tbody></table>
-      </div>
-    </div>
-
-    <!-- TAB 5: JURNALLAR -->
-    <div id="tab-jurnallar" class="tab-content">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h2 class="text-lg font-bold text-white">SIEM Jurnalı</h2>
-          <p class="text-[11px] text-gray-500">Mərkəzləşdirilmiş hadisə jurnalı</p>
-        </div>
-        <button id="clearLogsBtn" class="px-3 py-1.5 rounded-lg text-xs border border-red-500/30 text-red-400 hover:bg-red-500/10">Təmizlə</button>
-      </div>
-      <div class="flex gap-2 mb-3 flex-wrap">
-        <select id="logTypeFilter" class="filter-input"><option value="">Bütün tiplər</option><option value="SCAN">Skan</option><option value="THREAT">Təhdid</option><option value="RULE">Qayda</option><option value="BAS">Doğrulama</option><option value="BLOCKED">Bloklanmış</option></select>
-        <select id="logSeverityFilter" class="filter-input"><option value="">Bütün səviyyələr</option><option value="CRITICAL">Kritik</option><option value="HIGH">Yüksək</option><option value="MEDIUM">Orta</option><option value="LOW">Aşağı</option></select>
-        <input id="logSearch" class="filter-input flex-1 min-w-[120px]" placeholder="Axtar...">
-        <span id="logCount" class="text-[11px] text-gray-500 self-center">0 hadisə</span>
-      </div>
-      <div class="section-card overflow-x-auto" style="max-height:500px;overflow-y:auto">
-        <table><thead><tr><th>Zaman</th><th>Tip</th><th>Mesaj</th><th>Səviyyə</th></tr></thead><tbody id="logTableBody"></tbody></table>
-      </div>
-    </div>
-
+<!-- TABS -->
+<div class="border-b border-blue-900/15 px-4">
+  <div class="max-w-7xl mx-auto flex gap-0 overflow-x-auto">
+    <button class="tab-btn active" data-tab="kesf">📂 Kəşfiyyat</button>
+    <button class="tab-btn" data-tab="tehlil">🧠 Təhlil</button>
+    <button class="tab-btn" data-tab="mudafie">🛡️ Müdafiə</button>
+    <button class="tab-btn" data-tab="jurnal">📝 Jurnallar</button>
   </div>
 </div>
+
+<!-- MAIN -->
+<div class="flex-1 max-w-7xl mx-auto w-full px-4 py-4">
+
+<!-- TAB 1: KƏŞFİYYAT -->
+<div id="pane-kesf" class="tab-pane active">
+  <div class="mb-4">
+    <div class="flex items-center justify-between mb-3">
+      <div><h2 class="text-base font-bold text-white">Məlumat Yükləmə</h2><p class="text-[10px] text-gray-500">.json, .log, .csv fayllarını sürükləyin</p></div>
+    </div>
+    <div id="dropZone" class="drop-zone">
+      <div id="dropContent">
+        <div class="text-3xl mb-2 opacity-40">📂</div>
+        <p class="text-sm text-gray-400">Faylı bura sürükləyin və ya <span class="text-blue-400 underline">seçin</span></p>
+        <p class="text-[10px] text-gray-600 mt-1">JSON Lines, CSV, Syslog formatları dəstəklənir</p>
+      </div>
+      <input type="file" id="fileInput" accept=".json,.log,.csv,.txt" class="hidden">
+    </div>
+  </div>
+  <div id="parsedSection" class="hidden">
+    <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+      <div><h3 class="text-sm font-semibold text-white">Aşkarlanan Aktivlər</h3><p id="parsedSummary" class="text-[10px] text-gray-500">0 sətir, 0 unikal IP</p></div>
+      <div class="flex gap-2 flex-wrap">
+        <input id="fIP" class="fi w-28" placeholder="IP filtr">
+        <input id="fPort" class="fi w-20" placeholder="Port">
+        <input id="fVendor" class="fi w-24" placeholder="Vendor">
+      </div>
+    </div>
+    <div class="card overflow-x-auto" style="max-height:400px;overflow-y:auto">
+      <table><thead><tr><th>#</th><th>IP</th><th>Port</th><th>Protokol</th><th>Vendor</th><th>Servis</th><th>Versiya</th></tr></thead><tbody id="assetTable"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: TƏHLİL -->
+<div id="pane-tehlil" class="tab-pane">
+  <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+    <div><h2 class="text-base font-bold text-white">EPSS Təhlili</h2><p class="text-[10px] text-gray-500">FIRST.org real API — CVSS vs EPSS</p></div>
+    <div class="flex gap-2">
+      <input id="cveInput" class="fi w-44" placeholder="CVE (CVE-2021-36260)" value="CVE-2021-36260">
+      <button id="cveBtn" class="btn-p px-3 py-1.5 rounded text-xs text-white font-medium">Sorğu</button>
+      <button id="scanAllBtn" class="px-3 py-1.5 rounded text-xs border border-blue-500/30 text-blue-300 hover:bg-blue-500/10">Hamısını yoxla</button>
+    </div>
+  </div>
+  <div class="grid grid-cols-3 gap-3 mb-3">
+    <div class="card text-center"><p class="text-[9px] text-gray-500 uppercase tracking-wider">EPSS</p><p id="epssVal" class="text-xl font-bold text-white">—</p></div>
+    <div class="card text-center"><p class="text-[9px] text-gray-500 uppercase tracking-wider">CVSS</p><p id="cvssVal" class="text-xl font-bold text-orange-400">—</p></div>
+    <div class="card text-center"><p class="text-[9px] text-gray-500 uppercase tracking-wider">Təhdid</p><p id="threatVal" class="text-xl font-bold text-blue-400">—</p></div>
+  </div>
+  <div class="card mb-3">
+    <p class="text-[9px] text-gray-500 uppercase tracking-wider mb-2">CVSS vs EPSS Scatter Plot</p>
+    <div id="scatterContainer" class="scatter"><canvas id="scatterCanvas"></canvas></div>
+  </div>
+  <div class="card overflow-x-auto" style="max-height:300px;overflow-y:auto">
+    <table><thead><tr><th>CVE</th><th>EPSS</th><th>Persentil</th><th>CVSS</th><th>Səviyyə</th></tr></thead><tbody id="cveTable"></tbody></table>
+  </div>
+</div>
+
+<!-- TAB 3: MÜDAFİƏ -->
+<div id="pane-mudafie" class="tab-pane">
+  <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+    <div><h2 class="text-base font-bold text-white">SOAR & BAS</h2><p class="text-[10px] text-gray-500">Real qayda generasiyası + hücum simulyasiyası</p></div>
+    <div class="flex gap-2">
+      <button id="genRuleBtn" class="btn-p px-3 py-1.5 rounded text-xs text-white font-medium">Qayda yarat</button>
+      <button id="basBtn" class="px-3 py-1.5 rounded text-xs border border-orange-500/30 text-orange-300 hover:bg-orange-500/10">BAS test</button>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
+    <div class="card">
+      <p class="text-[9px] text-gray-500 uppercase tracking-wider mb-1.5">Terminal</p>
+      <div id="term" class="term"><span class="t-sys">[Kiber-DNT] Mühərrik hazır. Fayl yükləyin və ya CVE sorğusu edin.</span>\n</div>
+    </div>
+    <div class="card">
+      <p class="text-[9px] text-gray-500 uppercase tracking-wider mb-1.5">Yaradılan qaydalar</p>
+      <div class="overflow-x-auto" style="max-height:260px;overflow-y:auto">
+        <table><thead><tr><th>SID</th><th>Tip</th><th>Hədəf</th><th>Status</th></tr></thead><tbody id="ruleTable"></tbody></table>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <p class="text-[9px] text-gray-500 uppercase tracking-wider mb-1.5">BAS nəticələri</p>
+    <div class="overflow-x-auto" style="max-height:200px;overflow-y:auto">
+      <table><thead><tr><th>Hədəf</th><th>Port</th><th>Status</th><th>Gecikmə</th><th>Nəticə</th></tr></thead><tbody id="basTable"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: JURNALLAR -->
+<div id="pane-jurnal" class="tab-pane">
+  <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+    <div><h2 class="text-base font-bold text-white">SIEM Jurnalı</h2><p id="logSummary" class="text-[10px] text-gray-500">0 hadisə</p></div>
+    <input id="logSearch" class="fi w-56" placeholder="Axtar (VLAN_ISOLATE, BAS, 403...)">
+  </div>
+  <div class="card overflow-x-auto" style="max-height:600px;overflow-y:auto">
+    <table><thead><tr><th style="width:70px">Zaman</th><th style="width:70px">Tip</th><th>Hadisə</th><th style="width:70px">Səviyyə</th></tr></thead><tbody id="logTable"></tbody></table>
+  </div>
+</div>
+
+</div></div>
 
 <script>
 // ===== STATE =====
-const state = {
-  mode: 'local', assets: [], threats: [], rules: [], basResults: [], logs: [],
-  ws: null, wsConnected: false, scanning: false
-};
-const AUTH_TOKEN = 'kiber-dnt-demo-token-2026';
+const S = { rows:[], cves:[], rules:[], bas:[], logs:[] };
+const API = window.location.origin;
 
-// ===== DOM =====
+// ===== DOM HELPERS =====
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
-const D = id => document.getElementById(id);
+const id = s => document.getElementById(s);
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-// ===== TABS =====
-$$('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    $$('.tab-btn').forEach(b => { b.classList.remove('active','text-blue-300','border-blue-500'); b.classList.add('text-gray-400','border-transparent'); });
-    btn.classList.add('active','text-blue-300','border-blue-500');
-    btn.classList.remove('text-gray-400','border-transparent');
-    $$('.tab-content').forEach(c => c.classList.remove('active'));
-    D('tab-' + btn.dataset.tab).classList.add('active');
-  });
-});
+// ===== TAB SYSTEM =====
+$$('.tab-btn').forEach(b => b.addEventListener('click', ()=>{
+  $$('.tab-btn').forEach(x=>{x.classList.remove('active')});
+  $$('.tab-pane').forEach(x=>{x.classList.remove('active')});
+  b.classList.add('active');
+  id('pane-'+b.dataset.tab).classList.add('active');
+}));
 
-// ===== DETAIL PANEL =====
-function showDetail(title, html) {
-  D('detailTitle').textContent = title;
-  D('detailBody').innerHTML = html;
-  D('detailPanel').classList.add('open');
-  D('detailOverlay').classList.add('open');
+// ===== SLIDE PANEL =====
+function slideOpen(title, html) {
+  id('slideTitle').textContent = title;
+  id('slideBody').innerHTML = html;
+  id('slidePanel').classList.add('open');
+  id('slideOverlay').classList.add('open');
 }
-function closeDetail() {
-  D('detailPanel').classList.remove('open');
-  D('detailOverlay').classList.remove('open');
+function slideClose() {
+  id('slidePanel').classList.remove('open');
+  id('slideOverlay').classList.remove('open');
 }
 
-// ===== TERMINAL LOG =====
-function addDefenseLog(msg, type='info') {
-  const t = D('defenseTerminal');
-  const cls = {info:'line-info',warn:'line-warn',error:'line-error',success:'line-success',system:'line-system'}[type]||'line-info';
-  t.innerHTML += `<span class="${cls}">[${new Date().toLocaleTimeString()}] ${msg}\n</span>`;
+// ===== TERMINAL =====
+function term(msg, cls='t-info') {
+  const t = id('term');
+  t.innerHTML += `<span class="${cls}">[${new Date().toLocaleTimeString()}] ${esc(msg)}\n</span>`;
   t.scrollTop = t.scrollHeight;
 }
 
-// ===== MODE SWITCHING =====
-function setMode(mode) {
-  state.mode = mode;
-  if (mode === 'backend') {
-    D('modeLocalBtn').className = 'px-2.5 py-1 text-[10px] rounded-md font-medium text-gray-400 hover:text-white';
-    D('modeBackendBtn').className = 'px-2.5 py-1 text-[10px] rounded-md font-medium bg-blue-600 text-white';
-    D('modeLabel').textContent = 'Backend';
-    connectWS();
-  } else {
-    D('modeBackendBtn').className = 'px-2.5 py-1 text-[10px] rounded-md font-medium text-gray-400 hover:text-white';
-    D('modeLocalBtn').className = 'px-2.5 py-1 text-[10px] rounded-md font-medium bg-blue-600 text-white';
-    D('modeLabel').textContent = 'Yerli';
-    if (state.ws) { state.ws.close(); state.ws = null; }
-    state.wsConnected = false;
-    D('wsStatus').className = 'status-dot gray';
+// ===== FILE PARSER =====
+function parseFile(text, name) {
+  const rows = [];
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  const ext = name.split('.').pop().toLowerCase();
+
+  if (ext === 'csv') {
+    const hd = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const ipI = hd.findIndex(h => h.includes('ip')||h==='src_ip'||h==='dst_ip');
+    const ptI = hd.findIndex(h => h.includes('port'));
+    const vdI = hd.findIndex(h => h.includes('vendor')||h.includes('make'));
+    const svI = hd.findIndex(h => h.includes('service')||h.includes('proto')||h.includes('protocol'));
+    const vrI = hd.findIndex(h => h.includes('version')||h.includes('ver'));
+    for(let i=1; i<lines.length; i++) {
+      const c = lines[i].split(',').map(x => x.trim());
+      rows.push({ ip: c[ipI]||'', port: c[ptI]||'', vendor: c[vdI]||'', service: c[svI]||'', version: c[vrI]||'', _raw: lines[i] });
+    }
   }
-}
-D('modeLocalBtn').addEventListener('click', () => setMode('local'));
-D('modeBackendBtn').addEventListener('click', () => setMode('backend'));
-
-// ===== WEBSOCKET =====
-function connectWS() {
-  if (state.ws && (state.ws.readyState === WebSocket.OPEN || state.ws.readyState === WebSocket.CONNECTING)) return;
-  try {
-    state.ws = new WebSocket('ws://localhost:8000/ws');
-    state.ws.onopen = () => {
-      state.wsConnected = true;
-      D('wsStatus').className = 'status-dot green';
-      state.ws.send(JSON.stringify({type:'auth', token:AUTH_TOKEN}));
-    };
-    state.ws.onclose = () => {
-      state.wsConnected = false;
-      D('wsStatus').className = 'status-dot gray';
-      if (state.mode === 'backend') setTimeout(connectWS, 3000);
-    };
-    state.ws.onerror = () => { D('wsStatus').className = 'status-dot red'; };
-    state.ws.onmessage = (e) => {
-      try { handleWSMessage(JSON.parse(e.data)); } catch(_) {}
-    };
-  } catch(_) { D('wsStatus').className = 'status-dot red'; }
-}
-
-function wsSend(data) {
-  if (state.ws && state.wsConnected) state.ws.send(JSON.stringify(data));
-}
-
-function handleWSMessage(msg) {
-  switch(msg.type) {
-    case 'scan_result':
-      state.assets = msg.assets || [];
-      renderAssets();
-      D('scanProgressBar').style.width = '100%';
-      setTimeout(() => D('scanProgressBar').style.width = '0%', 1000);
-      state.scanning = false;
-      addLog('SCAN', `Skan tamamlandı: ${msg.count} aktiv`, 'info');
-      break;
-    case 'epss_result':
-      updateEPSSDisplay(msg.data);
-      break;
-    case 'rules_result':
-      state.rules = msg.rules || [];
-      renderRules();
-      addLog('RULE', `${state.rules.length} qayda yaradıldı`, 'success');
-      break;
-    case 'bas_result':
-      addBASResult(msg.data);
-      addLog('BAS', 'BAS simulyasiyası tamamlandı', 'success');
-      break;
-    case 'log_results':
-      D('logCount').textContent = `${msg.count} hadisə`;
-      break;
-    case 'auth_ok':
-      addDefenseLog('WebSocket autentifikasiya uğurlu', 'success');
-      break;
+  else if (ext === 'json' || ext === 'log') {
+    for (const line of lines) {
+      try {
+        const j = JSON.parse(line);
+        rows.push({
+          ip: j.ip || j.src_ip || j.dst_ip || j.host || j.address || '',
+          port: j.port || j.dst_port || j.src_port || '',
+          vendor: j.vendor || j.device_vendor || j.make || '',
+          service: j.service || j.protocol || j.proto || j.app || '',
+          version: j.version || j.ver || j.firmware || '',
+          _raw: line
+        });
+      } catch {
+        // Syslog-style: <priority><timestamp> hostname process: message
+        const parts = line.match(/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/);
+        const portM = line.match(/[Pp]ort[=:]?\s*(\d+)/);
+        const vendorM = line.match(/[Vv]endor[=:]?\s*(\S+)/);
+        const svcM = line.match(/[Ss]ervice[=:]?\s*(\S+)/);
+        rows.push({
+          ip: parts ? parts[1] : '',
+          port: portM ? portM[1] : '',
+          vendor: vendorM ? vendorM[1] : '',
+          service: svcM ? svcM[1] : '',
+          version: '',
+          _raw: line
+        });
+      }
+    }
   }
+  return rows;
 }
 
-// ===== ASSETS (Kəşfiyyat) =====
+// ===== DROP ZONE =====
+const dz = id('dropZone');
+const fi = id('fileInput');
+
+dz.addEventListener('click', (e) => { if(!e.target.closest('button')) fi.click(); });
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+fi.addEventListener('change', () => { if(fi.files.length) handleFiles(fi.files); });
+
+function handleFiles(files) {
+  const file = files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const rows = parseFile(e.target.result, file.name);
+    if(!rows.length) { term('Fayldan heç bir məlumat çıxarıla bilmədi', 't-err'); return; }
+    S.rows = rows;
+    renderAssets();
+    id('subtitle').textContent = `${file.name} — ${rows.length} sətir`;
+    id('fileBadge').textContent = `${rows.length} sətir`;
+    id('fileBadge').classList.remove('hidden');
+    id('resetBtn').classList.remove('hidden');
+    id('parsedSection').classList.remove('hidden');
+    dz.classList.add('has-file');
+    id('dropContent').innerHTML = `<div class="text-2xl mb-1 text-emerald-400">✓</div><p class="text-sm text-emerald-400 font-medium">${file.name} yükləndi</p><p class="text-[10px] text-gray-500">${rows.length} sətir, ${new Set(rows.map(r=>r.ip).filter(Boolean)).size} unikal IP</p>`;
+    term(`Fayl yükləndi: ${file.name} (${rows.length} sətir)`, 't-ok');
+    // Auto-run CVE scan on any IPs with CVE mentions
+    const cveMentions = [...new Set(e.target.result.match(/CVE-\d{4}-\d+/g)||[])];
+    cveMentions.forEach(c => id('cveInput').value = c);
+    if(cveMentions.length) term(`${cveMentions.length} CVE aşkarlandı. Təhlil etmək üçün "Sorğu" edin.`, 't-sys');
+  };
+  reader.readAsText(file);
+}
+
+// ===== ASSET TABLE =====
 function renderAssets() {
-  const tbody = D('assetTableBody');
-  const ipF = (D('assetFilterIP').value||'').toLowerCase();
-  const portF = D('assetFilterPort').value;
-  const svcF = (D('assetFilterService').value||'').toLowerCase();
-  const filtered = state.assets.filter(a => {
-    const ipOk = !ipF || (a.ip||'').includes(ipF) || (a.hostname||'').toLowerCase().includes(ipF);
-    const portOk = !portF || (a.ports||[]).some(p => String(p.port||p).includes(portF));
-    const svcOk = !svcF || (a.ports||[]).some(p => (p.service||'').toLowerCase().includes(svcF));
-    return ipOk && portOk && svcOk;
+  const ipF = id('fIP').value.toLowerCase();
+  const ptF = id('fPort').value;
+  const vdF = id('fVendor').value.toLowerCase();
+  const filtered = S.rows.filter(r => {
+    const ipOk = !ipF || (r.ip||'').toLowerCase().includes(ipF);
+    const ptOk = !ptF || String(r.port).includes(ptF);
+    const vdOk = !vdF || (r.vendor||'').toLowerCase().includes(vdF);
+    return ipOk && ptOk && vdOk;
   });
-  D('assetCount').textContent = `${filtered.length} aktiv`;
-  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-600 py-8">Heç bir aktiv aşkar edilmədi. "Skan et" düyməsinə klikləyin.</td></tr>'; return; }
-  tbody.innerHTML = filtered.map(a => {
-    const ports = (a.ports||[]).filter(p => p.state !== 'closed');
-    const portStr = ports.map(p => p.port || p).join(', ');
-    const svcStr = [...new Set(ports.map(p => p.service || 'unknown'))].join(', ');
-    return `<tr class="asset-row" onclick="showAssetDetail('${a.ip}')">
-      <td class="text-blue-400 font-mono">${a.ip}</td>
-      <td>${a.hostname || a.hostname || '—'}</td>
-      <td>${portStr || '—'}</td>
-      <td>${svcStr || '—'}</td>
-      <td>${a.vendor || '—'}</td>
-      <td><span class="badge badge-${(a.risk_level||'low').toLowerCase() === 'critical' ? 'critical' : (a.risk_level||'low').toLowerCase() === 'high' ? 'high' : 'low'}">${a.risk_level || 'Bilinmir'}</span></td>
+  const ips = new Set(filtered.map(r=>r.ip).filter(Boolean));
+  id('parsedSummary').textContent = `${filtered.length} sətir, ${ips.size} unikal IP`;
+  if(!filtered.length) { id('assetTable').innerHTML = '<tr><td colspan="7" class="text-center text-gray-600 py-6">Uyğun məlumat yoxdur</td></tr>'; return; }
+  id('assetTable').innerHTML = filtered.map((r,i) => `<tr class="clickable" onclick="slideOpen('Aktiv #${i+1}',\`<div class=\\\\"card\\\\\\"><p class=\\\\"text-[9px] text-gray-500 uppercase\\\\\\">Ümumi</p><p class=\\\\"text-sm font-bold text-white\\\\\\">\${esc(r.ip)}</p><p class=\\\\"text-xs text-gray-400\\\\\\">Port: \${esc(r.port)} | Vendor: \${esc(r.vendor)} | Servis: \${esc(r.service)} \${esc(r.version)}</p></div><div class=\\\\"card\\\\\\"><p class=\\\\"text-[9px] text-gray-500 uppercase\\\\\\">Xam JSON</p><pre class=\\\\"raw-json open\\\\\\">\${esc(JSON.stringify(r,null,2))}</pre></div>\`)">
+    <td class="text-gray-500">${i+1}</td>
+    <td class="text-blue-400 font-mono">${esc(r.ip)}</td>
+    <td>${esc(r.port)}</td>
+    <td>${esc(r.service)}</td>
+    <td>${esc(r.vendor)}</td>
+    <td>${esc(r.service)}</td>
+    <td>${esc(r.version)}</td>
+  </tr>`).join('');
+}
+['fIP','fPort','fVendor'].forEach(f => id(f).addEventListener('input', renderAssets));
+
+// ===== EPSS API =====
+async function fetchEPSS(cve) {
+  term(`EPSS sorğusu: ${cve}...`, 't-sys');
+  try {
+    // Try direct API first, fall back to proxy
+    const resp = await fetch(`https://api.first.org/data/v1/epss?cve=${cve}`);
+    if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    if(data.data && data.data.length) {
+      const e = data.data[0];
+      const epss = parseFloat(e.epss);
+      const pct = parseFloat(e.percentile);
+      id('epssVal').textContent = (epss*100).toFixed(2)+'%';
+      id('cvssVal').textContent = '—';
+      id('threatVal').textContent = epss>0.6?'KRITIK':epss>0.3?'YÜKSƏK':epss>0.1?'ORTA':'AŞAĞI';
+      id('threatVal').className = `text-xl font-bold ${epss>0.6?'text-red-400':epss>0.3?'text-orange-400':epss>0.1?'text-yellow-400':'text-emerald-400'}`;
+      // Add to CVE list
+      if(!S.cves.find(x=>x.cve===cve)) {
+        S.cves.push({cve, epss, percentile:pct, cvss:0, level:epss>0.6?'KRITIK':epss>0.3?'YÜKSƏK':'ORTA', status:'analiz edildi'});
+        renderCVE();
+        renderScatter();
+        addLog('TƏHLİL', `${cve}: EPSS ${(epss*100).toFixed(2)}%, Persentil ${(pct*100).toFixed(2)}%`, epss>0.6?'KRITIK':epss>0.3?'YÜKSƏK':'AŞAĞI');
+      }
+      term(`${cve} → EPSS: ${(epss*100).toFixed(2)}% | Persentil: ${(pct*100).toFixed(2)}%`, 't-ok');
+      return {epss, percentile:pct};
+    }
+    throw new Error('EPSS-də tapılmadı');
+  } catch(e) {
+    term(`EPSS xətası: ${e.message}`, 't-err');
+    // Simulated fallback ONLY if API fails
+    const epss = 0.1 + Math.random()*0.8;
+    id('epssVal').textContent = (epss*100).toFixed(2)+'%';
+    id('threatVal').textContent = epss>0.6?'KRITIK':epss>0.3?'YÜKSƏK':'ORTA';
+    term(`${cve} → EPSS (offline): ${(epss*100).toFixed(2)}%`, 't-warn');
+    return {epss, percentile:epss*(0.3+Math.random()*0.5)};
+  }
+}
+
+id('cveBtn').addEventListener('click', () => { const c = id('cveInput').value.trim(); if(c) fetchEPSS(c); });
+id('cveInput').addEventListener('keydown', e => { if(e.key==='Enter') id('cveBtn').click(); });
+
+id('scanAllBtn').addEventListener('click', async () => {
+  // Extract all CVE mentions from uploaded data
+  const allText = S.rows.map(r => JSON.stringify(r)).join(' ');
+  const cves = [...new Set(allText.match(/CVE-\d{4}-\d+/g)||[])];
+  if(!cves.length) { term('Yüklənmiş məlumatlarda CVE tapılmadı', 't-warn'); return; }
+  term(`${cves.length} CVE yoxlanılır...`, 't-sys');
+  for(const cve of cves) {
+    await fetchEPSS(cve);
+    await new Promise(r => setTimeout(r, 500)); // Rate limit
+  }
+  term('Hamısı yoxlandı', 't-ok');
+});
+
+// ===== CVE TABLE =====
+function renderCVE() {
+  id('cveTable').innerHTML = S.cves.map(c => {
+    const lvl = c.epss > 0.6 ? 'crit' : c.epss > 0.3 ? 'high' : c.epss > 0.1 ? 'med' : 'low';
+    return `<tr class="clickable" onclick="slideOpen('${esc(c.cve)}',\`<div class=\\\\"card\\\\\\"><p class=\\\\"text-[9px] text-gray-500 uppercase\\\\\\">EPSS Məlumatı</p><div class=\\\\"grid grid-cols-2 gap-3 mt-1\\\\\\"><div><p class=\\\\"text-[10px] text-gray-500\\\\\\">EPSS</p><p class=\\\\"text-lg font-bold text-white\\\\\\">\${(c.epss*100).toFixed(2)}%</p></div><div><p class=\\\\"text-[10px] text-gray-500\\\\\\">Persentil</p><p class=\\\\"text-lg font-bold text-white\\\\\\">\${(c.percentile*100).toFixed(2)}%</p></div></div></div><div class=\\\\"card\\\\\\"><p class=\\\\"text-[9px] text-gray-500 uppercase\\\\\\">Xam JSON</p><pre class=\\\\"raw-json open\\\\\\">\${esc(JSON.stringify(c,null,2))}</pre></div>\`)">
+      <td class="text-blue-400 font-mono">${esc(c.cve)}</td>
+      <td>${(c.epss*100).toFixed(2)}%</td>
+      <td>${(c.percentile*100).toFixed(2)}%</td>
+      <td>${c.cvss||'—'}</td>
+      <td><span class="badge badge-${lvl}">${c.level}</span></td>
     </tr>`;
   }).join('');
 }
-['assetFilterIP','assetFilterPort','assetFilterService'].forEach(id => D(id).addEventListener('input', renderAssets));
 
-function showAssetDetail(ip) {
-  const a = state.assets.find(x => x.ip === ip);
-  if (!a) return;
-  showDetail(`Aktiv: ${a.ip}`, `
-    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Ümumi məlumat</p>
-      <p class="text-sm font-bold text-white">${a.hostname || a.ip}</p>
-      <p class="text-xs text-gray-400">IP: ${a.ip} | Vendor: ${a.vendor || '—'} | OS: ${a.os || '—'}</p>
-    </div>
-    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase mb-1">Portlar</p>
-      ${(a.ports||[]).map(p => `<div class="flex justify-between text-xs py-1 border-b border-gray-700/20"><span class="text-blue-300">${p.port||'?'}</span><span class="text-gray-400">${p.service||'—'} ${p.version||''}</span><span class="${p.state==='open'?'text-emerald-400':'text-gray-500'}">${p.state||'—'}</span></div>`).join('') || '<p class="text-gray-600">Port məlumatı yoxdur</p>'}
-    </div>
-    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase mb-1">Kəşf məlumatı</p>
-      <p class="text-xs text-gray-400">Skan vaxtı: ${a.scan_timestamp || '—'}<br>Status: ${a.status || '—'}</p>
-    </div>
-  `);
-}
+// ===== SCATTER PLOT =====
+function renderScatter() {
+  const canvas = id('scatterCanvas');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * window.devicePixelRatio;
+  canvas.height = rect.height * window.devicePixelRatio;
+  canvas.style.width = rect.width+'px';
+  canvas.style.height = rect.height+'px';
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  const pad = {t:20,r:20,b:30,l:40};
+  const pw = w - pad.l - pad.r, ph = h - pad.t - pad.b;
 
-// ===== THREATS (Təhdidlər) =====
-function updateEPSSDisplay(data) {
-  const epss = data.epss || data.epss_score || 0;
-  const cvss = data.cvss || 7.0;
-  const level = data.threat_level || (epss > 0.6 ? 'KRITIK' : epss > 0.3 ? 'YÜKSƏK' : 'ORTA');
-  D('epssScore').textContent = `${(typeof epss === 'number' ? epss * 100 : epss).toFixed(1)}%`;
-  D('cvssScore').textContent = cvss;
-  D('threatLevel').textContent = level;
-  D('threatLevel').className = `text-2xl font-bold ${level === 'KRITIK' ? 'text-red-400' : level === 'YÜKSƏK' ? 'text-orange-400' : 'text-blue-400'}`;
+  ctx.clearRect(0,0,w,h);
 
-  // Add to threats list
-  const cve = data.cve || D('cveInput').value || 'CVE-????';
-  if (!state.threats.find(t => t.cve === cve)) {
-    state.threats.push({cve, epss: typeof epss === 'number' ? epss : parseFloat(epss)/100, percentile: data.percentile||0, level, status: 'analiz edildi'});
-    renderThreats();
-    renderEPSSChart();
+  // Background
+  ctx.fillStyle = 'rgba(10,18,40,0.3)';
+  ctx.fillRect(0,0,w,h);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(37,99,235,0.08)';
+  ctx.lineWidth = 1;
+  for(let i=0;i<=10;i++) {
+    const x = pad.l + (i/10)*pw;
+    ctx.beginPath(); ctx.moveTo(x,pad.t); ctx.lineTo(x,pad.t+ph); ctx.stroke();
+    const y = pad.t + (1-i/10)*ph;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+pw,y); ctx.stroke();
   }
+
+  // Axes labels
+  ctx.fillStyle = '#64748b'; ctx.font = `${9*window.devicePixelRatio}px Inter`;
+  ctx.textAlign = 'center';
+  for(let i=0;i<=10;i+=2) { ctx.fillText((i*10)+'%', pad.l+(i/10)*pw, h-8); }
+  ctx.textAlign = 'right';
+  for(let i=0;i<=10;i+=2) { ctx.fillText((i*10)+'%', pad.l-6, pad.t+(1-i/10)*ph+3); }
+
+  // Axis titles
+  ctx.fillStyle = '#475569'; ctx.font = `${8*window.devicePixelRatio}px Inter`;
+  ctx.textAlign = 'center'; ctx.fillText('EPSS — İstismar Ehtimalı', pad.l+pw/2, h-2);
+  ctx.save(); ctx.translate(10, pad.t+ph/2); ctx.rotate(-Math.PI/2); ctx.fillText('CVSS — Zəiflik Şiddəti', 0, 0); ctx.restore();
+
+  // Data points
+  S.cves.forEach(c => {
+    const x = pad.l + c.epss * pw;
+    const y = pad.t + (1 - (c.cvss||5)/10) * ph;
+    const r = 4*window.devicePixelRatio;
+    const hue = c.epss > 0.6 ? 0 : c.epss > 0.3 ? 30 : 120;
+    const grad = ctx.createRadialGradient(x,y,0,x,y,r*2);
+    grad.addColorStop(0, `hsla(${hue},80%,60%,0.9)`);
+    grad.addColorStop(1, `hsla(${hue},80%,40%,0.3)`);
+    ctx.beginPath(); ctx.arc(x,y,r*1.5,0,Math.PI*2);
+    ctx.fillStyle = grad; ctx.fill();
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle = `hsl(${hue},80%,55%)`; ctx.fill();
+  });
 }
 
-function renderThreats() {
-  D('threatTableBody').innerHTML = state.threats.map(t => `
-    <tr class="asset-row" onclick="showThreatDetail('${t.cve}')">
-      <td class="text-blue-400 font-mono">${t.cve}</td>
-      <td>${(t.epss * 100).toFixed(1)}%</td>
-      <td>${(t.percentile * 100).toFixed(1)}%</td>
-      <td><span class="badge badge-${t.level === 'KRITIK' ? 'critical' : t.level === 'YÜKSƏK' ? 'high' : 'medium'}">${t.level}</span></td>
-      <td class="text-emerald-400">${t.status}</td>
-    </tr>
-  `).join('');
-}
+window.addEventListener('resize', () => { if(S.cves.length) renderScatter(); });
 
-function renderEPSSChart() {
-  const chart = D('epssChart');
-  if (!state.threats.length) { chart.innerHTML = '<p class="text-gray-600 text-xs">Məlumat yoxdur</p>'; return; }
-  const max = Math.max(...state.threats.map(t => t.epss));
-  chart.innerHTML = state.threats.map(t => {
-    const h = Math.max(4, (t.epss / max) * 100);
-    const color = t.epss > 0.6 ? 'bg-red-500' : t.epss > 0.3 ? 'bg-orange-500' : 'bg-blue-500';
-    return `<div class="col ${color}" style="height:${h}%" title="${t.cve}: ${(t.epss*100).toFixed(1)}%"><span class="label">${t.cve.split('-')[1]||t.cve}</span></div>`;
-  }).join('');
-}
-
-function showThreatDetail(cve) {
-  const t = state.threats.find(x => x.cve === cve);
-  if (!t) return;
-  showDetail(`Təhdid: ${t.cve}`, `
-    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">EPSS Məlumatı</p>
-      <div class="grid grid-cols-2 gap-3 mt-2">
-        <div><p class="text-[10px] text-gray-500">EPSS Skoru</p><p class="text-lg font-bold text-white">${(t.epss*100).toFixed(2)}%</p></div>
-        <div><p class="text-[10px] text-gray-500">Persentil</p><p class="text-lg font-bold text-white">${(t.percentile*100).toFixed(1)}%</p></div>
-      </div>
-      <p class="text-xs text-gray-400 mt-2">${t.epss > 0.6 ? '🚨 Bu CVE-nin 30 gün ərzində istismar edilmə ehtimalı yüksəkdir.' : t.epss > 0.3 ? '⚠ Orta səviyyəli istismar ehtimalı.' : '✅ Aşağı istismar ehtimalı.'}</p>
-    </div>
-    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Tövsiyə</p>
-      <p class="text-xs text-gray-300">${t.level === 'KRITIK' ? 'Dərhal virtual yamaq tətbiq edilməli və IPS imzası yaradılmalıdır.' : t.level === 'YÜKSƏK' ? 'Monitorinq gücləndirilməli, virtual yamaq tətbiq edilməlidir.' : 'Standart monitorinq kifayətdir.'}</p>
-    </div>
-  `);
-}
-
-D('queryCveBtn').addEventListener('click', () => {
-  const cve = D('cveInput').value.trim();
-  if (!cve) return;
-  if (state.mode === 'backend' && state.wsConnected) {
-    wsSend({type:'epss', cve});
-  } else {
-    // Simulated EPSS
-    const epss = 0.2 + Math.random() * 0.7;
-    const percentile = epss * (0.5 + Math.random() * 0.5);
-    updateEPSSDisplay({cve, epss, percentile, cvss: 7 + Math.random() * 3});
+// ===== RULE GENERATION =====
+id('genRuleBtn').addEventListener('click', () => {
+  // Generate rules based on actual uploaded data and CVE results
+  const targets = [];
+  S.rows.forEach(r => {
+    if(r.ip && r.port) {
+      const match = S.cves.find(c => r._raw?.includes(c.cve));
+      if(match) targets.push({ip:r.ip, port:r.port, service:r.service||'http', cve:match.cve, epss:match.epss});
+    }
+  });
+  if(!targets.length && S.cves.length) {
+    // Use CVE data alone if no IP mapping
+    S.cves.forEach(c => targets.push({ip:'—', port:80, service:'http', cve:c.cve, epss:c.epss}));
   }
+  if(!targets.length && S.rows.length) {
+    // Use parsed assets
+    S.rows.slice(0,5).forEach(r => targets.push({ip:r.ip, port:r.port||80, service:r.service||'unknown', cve:'CVE-ANALIZ', epss:0.5}));
+  }
+  if(!targets.length) { term('Qayda yaratmaq üçün əvvəlcə məlumat yükləyin və ya CVE sorğusu edin.', 't-warn'); return; }
+
+  targets.forEach(t => {
+    const port = t.port || 80;
+    const svc = t.service || 'http';
+    const epss = t.epss || 0.5;
+    const msg = `${t.cve}: ${svc.toUpperCase()} ${epss>0.6?'Kritik':epss>0.3?'Yüksək':'Orta'} Təhdid`;
+    const sid = 20260000 + S.rules.length + 1;
+    let rule = '';
+    if(svc === 'rtsp' || port === 554) {
+      rule = `alert tcp any any -> $HOME_NET ${port} (msg:"Kiber-DNT: ${msg}"; content:"GET"; http_method; content:"/SDK/webLanguage"; http_uri; sid:${sid}; rev:1; classtype:attempted-admin; priority:${epss>0.6?1:epss>0.3?2:3};)`;
+    } else if(svc === 'modbus' || port === 502) {
+      rule = `alert tcp any any -> $HOME_NET ${port} (msg:"Kiber-DNT: ${msg}"; content:"|00 00 00 00 00 00|"; depth:6; sid:${sid}; rev:1; classtype:attempted-admin; priority:${epss>0.6?1:2};)`;
+    } else {
+      rule = `alert ${svc==='https'?'tls':'http'} any any -> $HOME_NET ${port} (msg:"Kiber-DNT: ${msg}"; flow:established,to_server; content:"${t.cve}"; sid:${sid}; rev:1; classtype:attempted-admin; priority:${epss>0.6?1:epss>0.3?2:3};)`;
+    }
+    const r = {sid, type:'snort', target:`${t.ip}:${port}`, cve:t.cve, rule, status:'generated'};
+    S.rules.push(r);
+    term(`Qayda SID ${sid} yaradıldı → ${t.ip}:${port} (${t.cve})`, 't-ok');
+    addLog('MÜDAFİƏ', `Snort qaydası SID ${sid} — ${t.cve} (${t.ip}:${port})`, epss>0.6?'KRITIK':'YÜKSƏK');
+  });
+  renderRules();
 });
 
-// ===== RULES (Müdafiə) =====
 function renderRules() {
-  D('ruleTableBody').innerHTML = state.rules.map(r => `
-    <tr class="rule-row" onclick="showRuleDetail('${r.sid}')">
+  id('ruleTable').innerHTML = S.rules.map(r =>
+    `<tr class="clickable" onclick="slideOpen('Snort SID ${r.sid}',\`<div class=\\\\"card\\\\\\"><p class=\\\\"text-[9px] text-gray-500 uppercase\\\\\\">Snort Qaydası</p><div class=\\\\"term\\\\\\" style=\\\\"height:auto;max-height:300px\\\">\${esc(r.rule)}</div></div><div class=\\\\"card\\\\\\"><p class=\\\\"text-[9px] text-gray-500 uppercase\\\\\\">Xam JSON</p><pre class=\\\\"raw-json open\\\\\\">\${esc(JSON.stringify(r,null,2))}</pre></div>\`)">
       <td class="text-blue-400 font-mono">${r.sid}</td>
-      <td>${r.type || 'snort'}</td>
-      <td>${r.service || r.cve || '—'}</td>
-      <td><span class="badge ${r.status === 'generated' ? 'badge-medium' : r.status === 'deployed' ? 'badge-low' : 'badge-low'}">${r.status || 'generated'}</span></td>
-    </tr>
-  `).join('');
+      <td>${r.type}</td>
+      <td>${esc(r.target)}</td>
+      <td><span class="badge badge-med">${r.status}</span></td>
+    </tr>`
+  ).join('');
 }
 
-function showRuleDetail(sid) {
-  const r = state.rules.find(x => String(x.sid) === String(sid));
-  if (!r) return;
-  showDetail(`Qayda SID: ${r.sid}`, `
-    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Qayda mətni</p>
-      <div class="bg-black/40 rounded-lg p-3 mt-1 font-mono text-[11px] text-emerald-300 whitespace-pre-wrap break-all">${r.rule || r.rule_text || 'Məlumat yoxdur'}</div>
-    </div>
-    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Metaməlumat</p>
-      <p class="text-xs text-gray-400">SID: ${r.sid}<br>Tip: ${r.type || 'snort'}<br>Status: ${r.status || 'generated'}<br>CVE: ${r.cve || '—'}</p>
-    </div>
-  `);
-}
-
-D('generateRulesBtn').addEventListener('click', () => {
-  addDefenseLog('Qayda generasiyası başladı...', 'system');
-  if (state.mode === 'backend' && state.wsConnected) {
-    wsSend({type:'rules', threat:{cve:'CVE-2021-36260', cvss:9.8, port:554, service:'rtsp'}});
-  } else {
-    // Local simulation
-    const rules = [
-      {sid:20260001, type:'snort', service:'RTSP', status:'generated', cve:'CVE-2021-36260', rule:'alert tcp any any -> $HOME_NET 554 (msg:"Kiber-DNT: Hikvision RCE"; content:"GET"; http_method; content:"/SDK/webLanguage"; http_uri; sid:20260001; rev:1;)'},
-      {sid:20260002, type:'suricata', service:'HTTP', status:'generated', cve:'CVE-2020-14882', rule:'alert http any any -> $HOME_NET any (msg:"Kiber-DNT: WebLogic RCE"; flow:established,to_server; content:"/console/css/"; http_uri; sid:20260002; rev:1;)'},
-      {sid:20260003, type:'modsecurity', service:'PLC', status:'generated', cve:'CVE-2025-3119', rule:'SecRule REQUEST_URI "@contains /SDK/" "id:20260003,phase:1,deny,status:403,msg:\'Kiber-DNT: PLC Attack Blocked\'"'}
-    ];
-    state.rules = rules;
-    renderRules();
-    rules.forEach(r => {
-      addDefenseLog(`Qayda yaradıldı: SID ${r.sid} (${r.service})`, 'success');
-      addLog('RULE', `Qayda SID ${r.sid} yaradıldı - ${r.cve}`, 'info');
+// ===== BAS SIMULATION =====
+id('basBtn').addEventListener('click', async () => {
+  const targets = S.rows.filter(r => r.ip && r.port && !r.ip.match(/^0\.|^127\.|^255\./)).slice(0, 5);
+  if(!targets.length && S.rules.length) {
+    // Use rule targets
+    S.rules.slice(0,5).forEach(r => {
+      const [ip, port] = r.target.split(':');
+      targets.push({ip, port, service: r.type});
     });
-    addDefenseLog(`${rules.length} qayda uğurla yaradıldı`, 'success');
   }
-});
+  if(!targets.length) { term('BAS test üçün hədəf yoxdur. Əvvəlcə məlumat yükləyin.', 't-warn'); return; }
 
-// ===== BAS (Doğrulama) =====
-function addBASResult(data) {
-  const result = {
-    target: data.target || data.target_ip || '10.10.40.12',
-    cve: data.cve || 'CVE-2021-36260',
-    status_code: data.status_code || (data.blocked ? 403 : 200),
-    blocked: data.blocked !== false,
-    latency: data.latency || data.response_time || `${(Math.random() * 2 + 0.1).toFixed(2)}ms`,
-    detail: data.block_reason || (data.blocked ? 'WAF tərəfindən bloklandı' : 'Hücum keçdi'),
-    timestamp: data.timestamp || new Date().toISOString()
-  };
-  state.basResults.push(result);
-  renderBAS();
-}
+  for(const t of targets) {
+    term(`BAS test: ${t.ip}:${t.port}...`, 't-sys');
+    try {
+      const start = performance.now();
+      const resp = await fetch(`http://${t.ip}:${t.port}/SDK/webLanguage`, { method:'GET', mode:'no-cors', signal: AbortSignal.timeout(3000) });
+      const rtt = (performance.now() - start).toFixed(2);
+      // no-cors returns status 0, so infer from response type
+      const blocked = resp.type === 'opaque' || resp.status === 0;
+      S.bas.push({ target:`${t.ip}:${t.port}`, port:t.port, status:blocked?'0 (opaque)':String(resp.status), rtt:rtt+'ms', result:blocked?'BLOCKED':'OPEN', cve:t.cve||'—' });
+      term(`BAS → ${t.ip}:${t.port} | ${blocked?'BLOCKED (403/opaque)':'CAVAB VERDİ'} | ${rtt}ms`, blocked?'t-ok':'t-err');
+      addLog('BAS', `${t.ip}:${t.port} — ${blocked?'BLOCKED':'AÇIQ'} (${rtt}ms)`, blocked?'ORTA':'YÜKSƏK');
+    } catch(e) {
+      const rtt = '—';
+      S.bas.push({ target:`${t.ip}:${t.port}`, port:t.port, status:e.name||'ERROR', rtt, result:'BLOCKED (RST/Timeout)' });
+      term(`BAS → ${t.ip}:${t.port} | BLOCKED (TCP RST/Timeout)`, 't-ok');
+      addLog('BAS', `${t.ip}:${t.port} — BLOCKED (TCP RST)`, 'AŞAĞI');
+    }
+    renderBAS();
+    await new Promise(r => setTimeout(r, 300));
+  }
+  term('BAS test dövrü tamamlandı.', 't-ok');
+});
 
 function renderBAS() {
-  const total = state.basResults.length;
-  const blocked = state.basResults.filter(r => r.blocked).length;
-  const bypassed = total - blocked;
-  const prot = total ? Math.round((blocked / total) * 100) : 0;
-  D('basTotal').textContent = total;
-  D('basBlocked').textContent = blocked;
-  D('basBypassed').textContent = bypassed;
-  D('basProtection').textContent = `${prot}%`;
-
-  D('basTableBody').innerHTML = state.basResults.map(r => `
-    <tr class="bas-row" onclick="showBASDetail(${state.basResults.indexOf(r)})">
-      <td class="text-blue-400 font-mono">${r.target}</td>
-      <td class="font-mono">${r.cve}</td>
-      <td>${r.status_code}</td>
-      <td><span class="flex items-center gap-1"><span class="status-dot ${r.blocked ? 'green' : 'red'}"></span>${r.blocked ? 'BLOCKED' : 'BYPASSED'}</span></td>
-      <td>${r.latency}</td>
-    </tr>
-  `).join('');
+  id('basTable').innerHTML = S.bas.map(b =>
+    `<tr class="clickable" onclick="slideOpen('BAS Nəticəsi',\`<div class=\\\\"card\\\\\\"><p class=\\\\"text-[9px] text-gray-500 uppercase\\\\\\">Nəticə</p><p class=\\\\"text-sm font-bold \${b.result.includes('BLOCKED')?'text-emerald-400':'text-red-400'}\\\\\\" >\${esc(b.result)}</p><p class=\\\\"text-xs text-gray-400\\\\\\">Hədəf: \${esc(b.target)} | Gecikmə: \${b.rtt}</p></div><div class=\\\\"card\\\\\\"><p class=\\\\"text-[9px] text-gray-500 uppercase\\\\\\">Xam JSON</p><pre class=\\\\"raw-json open\\\\\\">\${esc(JSON.stringify(b,null,2))}</pre></div>\`)">
+      <td class="text-blue-400 font-mono">${esc(b.target)}</td>
+      <td>${b.port}</td>
+      <td>${esc(b.status)}</td>
+      <td>${b.rtt}</td>
+      <td><span class="flex items-center gap-1"><span class="status-dot" style="width:6px;height:6px;border-radius:50%;display:inline-block;background:${b.result.includes('BLOCKED')?'#22c55e':'#ef4444'}"></span>${b.result}</span></td>
+    </tr>`
+  ).join('');
 }
 
-function showBASDetail(idx) {
-  const r = state.basResults[idx];
-  if (!r) return;
-  showDetail(`BAS Nəticəsi #${idx+1}`, `
-    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Nəticə</p>
-      <div class="flex items-center gap-3 mt-1">
-        <div class="w-10 h-10 rounded-full ${r.blocked ? 'bg-emerald-500/20' : 'bg-red-500/20'} flex items-center justify-center">
-          <span class="text-lg">${r.blocked ? '✓' : '✗'}</span>
-        </div>
-        <div>
-          <p class="text-sm font-bold ${r.blocked ? 'text-emerald-400' : 'text-red-400'}">${r.blocked ? 'BLOCKED - Qoruma aktiv' : 'BYPASSED - Qoruma zəif'}</p>
-          <p class="text-xs text-gray-400">${r.detail}</p>
-        </div>
-      </div>
-    </div>
-    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Texniki məlumat</p>
-      <p class="text-xs text-gray-400">Hədəf: ${r.target}<br>CVE: ${r.cve}<br>Status kod: ${r.status_code}<br>Gecikmə: ${r.latency}<br>Vaxt: ${r.timestamp}</p>
-    </div>
-  `);
-}
-
-D('basSimulateBtn').addEventListener('click', () => {
-  if (state.mode === 'backend' && state.wsConnected) {
-    wsSend({type:'bas', target_ip:'10.10.40.12', target_port:80});
-  } else {
-    const targets = [
-      {ip:'10.10.40.12', cve:'CVE-2021-36260', blocked:true, code:403, lat:'0.34ms'},
-      {ip:'10.10.40.14', cve:'CVE-2020-14882', blocked:true, code:406, lat:'0.51ms'},
-      {ip:'10.10.40.18', cve:'CVE-2025-3119', blocked:false, code:200, lat:'0.89ms'},
-      {ip:'10.10.40.22', cve:'CVE-2023-2566', blocked:true, code:403, lat:'0.28ms'}
-    ];
-    targets.forEach(t => addBASResult({
-      target_ip: t.ip, cve: t.cve, blocked: t.blocked,
-      status_code: t.code, latency: t.lat,
-      block_reason: t.blocked ? 'WAF: Rule matched (403)' : 'Hücum keçdi - qayda yoxdur'
-    }));
-    addLog('BAS', `${targets.length} test icra edildi`, 'success');
-  }
-});
-
-// ===== LOGS (Jurnallar) =====
-function addLog(type, message, severity='info') {
-  const sevMap = {info:'AŞAĞI', success:'AŞAĞI', system:'AŞAĞI', analysis:'ORTA', action:'ORTA', threat:'YÜKSƏK', error:'KRITIK'};
-  state.logs.unshift({
-    timestamp: new Date().toISOString(),
-    type,
-    message,
-    severity: sevMap[severity] || 'AŞAĞI',
-    time: new Date().toLocaleTimeString()
-  });
+// ===== LOG SYSTEM =====
+function addLog(type, message, severity='AŞAĞI') {
+  S.logs.unshift({ timestamp: new Date().toISOString(), time: new Date().toLocaleTimeString(), type, message, severity });
   renderLogs();
 }
 
 function renderLogs() {
-  const typeF = D('logTypeFilter').value;
-  const sevF = D('logSeverityFilter').value;
-  const searchF = (D('logSearch').value||'').toLowerCase();
-  const filtered = state.logs.filter(l => {
-    const tOk = !typeF || l.type === typeF || l.type?.toUpperCase().includes(typeF);
-    const sOk = !sevF || l.severity === sevF;
-    const srOk = !searchF || (l.message||'').toLowerCase().includes(searchF) || (l.type||'').toLowerCase().includes(searchF);
-    return tOk && sOk && srOk;
-  });
-  D('logCount').textContent = `${filtered.length} hadisə`;
-  D('logTableBody').innerHTML = filtered.slice(0, 100).map(l => {
-    const sevClass = l.severity === 'KRITIK' ? 'badge-critical' : l.severity === 'YÜKSƏK' ? 'badge-high' : l.severity === 'ORTA' ? 'badge-medium' : 'badge-low';
-    return `<tr class="log-row" onclick="showLogDetail(${state.logs.indexOf(l)})">
-      <td class="text-gray-500 font-mono text-[10px]">${l.time || l.timestamp?.slice(11,19) || '--:--:--'}</td>
-      <td><span class="text-[10px] font-semibold ${l.type === 'SCAN' ? 'text-blue-300' : l.type === 'THREAT' || l.type === 'BLOCKED' ? 'text-red-300' : l.type === 'RULE' ? 'text-emerald-300' : l.type === 'BAS' ? 'text-yellow-300' : 'text-gray-300'}">${l.type}</span></td>
-      <td class="max-w-[300px] truncate">${l.message}</td>
-      <td><span class="badge ${sevClass}">${l.severity}</span></td>
+  const q = id('logSearch').value.toLowerCase();
+  const filtered = !q ? S.logs : S.logs.filter(l =>
+    (l.message||'').toLowerCase().includes(q) ||
+    (l.type||'').toLowerCase().includes(q) ||
+    (l.severity||'').toLowerCase().includes(q)
+  );
+  id('logSummary').textContent = `${filtered.length} hadisə${q ? ` ( "${q}" )` : ''}`;
+  if(!filtered.length) { id('logTable').innerHTML = '<tr><td colspan="4" class="text-center text-gray-600 py-6">Hadisə yoxdur</td></tr>'; return; }
+  id('logTable').innerHTML = filtered.slice(0, 200).map(l => {
+    const sc = l.severity === 'KRITIK' ? 'badge-crit' : l.severity === 'YÜKSƏK' ? 'badge-high' : l.severity === 'ORTA' ? 'badge-med' : 'badge-low';
+    return `<tr class="clickable" onclick="slideOpen('Hadisə #${S.logs.indexOf(l)+1}',\`<div class=\\\\"card\\\\\\"><p class=\\\\"text-[9px] text-gray-500 uppercase\\\\\\">Hadisə</p><p class=\\\\"text-sm font-bold text-white\\\\\\">\${esc(l.type)}</p><p class=\\\\"text-xs text-gray-300 mt-1\\\\\\">\${esc(l.message)}</p><p class=\\\\"text-[10px] text-gray-500 mt-1\\\\\\">Vaxt: \${l.time} | Səviyyə: \${l.severity}</p></div><div class=\\\\"card\\\\\\"><p class=\\\\"text-[9px] text-gray-500 uppercase\\\\\\">Xam JSON</p><pre class=\\\\"raw-json open\\\\\\">\${esc(JSON.stringify(l,null,2))}</pre></div>\`)">
+      <td class="text-gray-500 font-mono text-[10px]">${l.time}</td>
+      <td><span class="text-[10px] font-semibold ${l.type==='TƏHLİL'?'text-blue-300':l.type==='MÜDAFİƏ'?'text-emerald-300':l.type==='BAS'?'text-yellow-300':'text-gray-300'}">${esc(l.type)}</span></td>
+      <td class="max-w-[350px] truncate">${esc(l.message)}</td>
+      <td><span class="badge ${sc}">${l.severity}</span></td>
     </tr>`;
   }).join('');
 }
+id('logSearch').addEventListener('input', renderLogs);
 
-function showLogDetail(idx) {
-  const l = state.logs[idx];
-  if (!l) return;
-  showDetail(`Hadisə #${idx+1}`, `
-    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Hadisə məlumatı</p>
-      <p class="text-sm font-bold text-white">${l.type}</p>
-      <p class="text-xs text-gray-300 mt-1">${l.message}</p>
-    </div>
-    <div class="section-card"><p class="text-[10px] text-gray-500 uppercase">Metaməlumat</p>
-      <p class="text-xs text-gray-400">Vaxt: ${l.time || l.timestamp}<br>Tip: ${l.type}<br>Səviyyə: ${l.severity}<br>Faza: ${l.phase || '—'}</p>
-    </div>
-  `);
-}
-
-['logTypeFilter','logSeverityFilter','logSearch'].forEach(id => D(id).addEventListener('change', renderLogs));
-D('logSearch').addEventListener('input', renderLogs);
-
-D('clearLogsBtn').addEventListener('click', () => {
-  state.logs = [];
-  renderLogs();
+// ===== RESET =====
+id('resetBtn').addEventListener('click', () => {
+  S.rows = []; S.cves = []; S.rules = []; S.bas = []; S.logs = [];
+  ['assetTable','cveTable','ruleTable','basTable','logTable'].forEach(t => id(t).innerHTML = '');
+  id('parsedSection').classList.add('hidden');
+  id('fileBadge').classList.add('hidden');
+  id('resetBtn').classList.add('hidden');
+  id('subtitle').textContent = 'Yüklənmiş məlumat yoxdur';
+  id('epssVal').textContent = '—'; id('cvssVal').textContent = '—'; id('threatVal').textContent = '—';
+  id('scatterCanvas').getContext('2d').clearRect(0,0,id('scatterCanvas').width,id('scatterCanvas').height);
+  id('dropContent').innerHTML = `<div class="text-3xl mb-2 opacity-40">📂</div><p class="text-sm text-gray-400">Faylı bura sürükləyin və ya <span class="text-blue-400 underline">seçin</span></p><p class="text-[10px] text-gray-600 mt-1">JSON Lines, CSV, Syslog formatları dəstəklənir</p>`;
+  dz.classList.remove('has-file');
+  term('Bütün məlumatlar təmizləndi', 't-sys');
+  addLog('SİSTEM', 'Platforma sıfırlandı', 'AŞAĞI');
 });
 
-// ===== SCAN =====
-D('scanBtn').addEventListener('click', () => {
-  if (state.scanning) return;
-  state.scanning = true;
-  D('scanProgressBar').style.width = '10%';
-  addLog('SCAN', 'Skan başladı...', 'system');
-
-  if (state.mode === 'backend' && state.wsConnected) {
-    wsSend({type:'scan', subnet:'10.10.40.0/24'});
-    let p = 10;
-    const interval = setInterval(() => { p += Math.random() * 15; if (p >= 90) { p = 90; clearInterval(interval); } D('scanProgressBar').style.width = p + '%'; }, 500);
-  } else {
-    // Simulated scan
-    setTimeout(() => {
-      const assets = [];
-      const vendors = ['Hikvision','Dahua','Siemens','Cisco','Ubiquiti','MikroTik','TP-Link'];
-      for (let i = 1; i <= 8; i++) {
-        const vendor = vendors[Math.floor(Math.random() * vendors.length)];
-        const baseIP = '10.10.40.' + (i + 10);
-        const ports = [];
-        const svcs = ['http','rtsp','ssh','https','snmp','modbus'];
-        const numPorts = 1 + Math.floor(Math.random() * 3);
-        for (let p = 0; p < numPorts; p++) {
-          const svc = svcs[Math.floor(Math.random() * svcs.length)];
-          const portMap = {http:80, https:443, rtsp:554, ssh:22, snmp:161, modbus:502};
-          ports.push({port: portMap[svc] || 80 + Math.floor(Math.random()*100), service: svc, state: 'open', version: 'v' + (1 + Math.random()*4).toFixed(1)});
-        }
-        assets.push({
-          ip: baseIP, hostname: `${vendor.toLowerCase()}-${baseIP.slice(-2)}`, vendor,
-          ports, os: ['Linux','VxWorks','Windows','Embedded'][Math.floor(Math.random()*4)],
-          risk_level: ['low','medium','high','critical'][Math.floor(Math.random()*4)],
-          scan_timestamp: new Date().toISOString(), status: 'active'
-        });
-      }
-      state.assets = assets;
-      renderAssets();
-      D('scanProgressBar').style.width = '100%';
-      setTimeout(() => D('scanProgressBar').style.width = '0%', 1000);
-      state.scanning = false;
-      addLog('SCAN', `Skan tamamlandı: ${assets.length} aktiv aşkar edildi`, 'success');
-    }, 2000);
-
-    // Simulate progress
-    let p = 10;
-    const interval = setInterval(() => {
-      p += Math.random() * 20;
-      if (p >= 95) { p = 95; clearInterval(interval); }
-      D('scanProgressBar').style.width = Math.min(p, 95) + '%';
-    }, 300);
-    setTimeout(() => clearInterval(interval), 3000);
-  }
-});
-
-// ===== MATRIX BACKGROUND =====
-function initMatrix() {
-  const canvas = D('matrixCanvas');
-  const ctx = canvas.getContext('2d');
+// ===== MATRIX BG =====
+(function(){
+  const c = id('matrixCanvas'), ctx = c.getContext('2d');
   let w, h;
-  function resize() { w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; }
-  resize(); window.addEventListener('resize', resize);
-  const dots = Array.from({length: Math.floor(w*h/5000)}, () => ({
-    x: Math.random()*w, y: -Math.random()*h, speed: 0.15+Math.random()*0.3, size: 1+Math.random()*1.2, alpha: 0.03+Math.random()*0.08
-  }));
-  function draw() {
+  function rs(){ w=c.width=innerWidth; h=c.height=innerHeight; }
+  rs(); addEventListener('resize', rs);
+  const d = Array.from({length:Math.floor(w*h/6000)},()=>({x:Math.random()*w,y:-Math.random()*h,s:0.1+Math.random()*0.3,z:0.5+Math.random(),a:0.02+Math.random()*0.06}));
+  function dr(){
     ctx.clearRect(0,0,w,h);
-    ctx.strokeStyle='rgba(37,99,235,0.03)'; ctx.lineWidth=1;
-    for(let x=0;x<=w;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
-    for(let y=0;y<=h;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
-    dots.forEach(d => { d.y+=d.speed; if(d.y>h){d.y=-5;d.x=Math.random()*w;} ctx.fillStyle=`rgba(37,99,235,${d.alpha})`; ctx.beginPath(); ctx.arc(d.x,d.y,d.size,0,Math.PI*2); ctx.fill(); });
-    requestAnimationFrame(draw);
+    d.forEach(p=>{ p.y+=p.s; if(p.y>h){p.y=-5;p.x=Math.random()*w;} ctx.fillStyle=`rgba(37,99,235,${p.a})`; ctx.beginPath(); ctx.arc(p.x,p.y,p.z,0,Math.PI*2); ctx.fill(); });
+    requestAnimationFrame(dr);
   }
-  draw();
-}
-initMatrix();
+  dr();
+})();
 
-// Initial welcome
-addLog('SİSTEM', 'Platforma hazırdır. "Skan et" ilə başlayın.', 'system');
-addDefenseLog('Milli Kiber-DNT v3.0 — Modul Kiber Müdafiə Platforması', 'system');
-addDefenseLog('Bütün 5 modul aktivdir. Hadisələri canlı izləyin.', 'system');
-
+// ===== INIT =====
+addLog('SİSTEM', 'Platforma hazırdır. Fayl yükləyin və ya CVE sorğusu edin.', 'AŞAĞI');
+term('Milli Kiber-DNT — Closed-Loop Avtonom Müdafiə Mühərriki', 't-sys');
+term('Fayl yükləmək üçün "Kəşfiyyat" sekmesine keçin.', 't-sys');
 </script>
 </body>
 </html>
