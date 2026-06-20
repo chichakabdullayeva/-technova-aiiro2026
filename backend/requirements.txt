@@ -1,0 +1,14 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+websockets==12.0
+python-nmap==0.7.1
+requests==2.32.0
+python-multipart==0.0.9
+pydantic==2.9.0
+aiofiles==24.1.0
+# Optional (for LLM reports):
+# ollama==0.4.0
+# langchain==0.3.0
+# langchain-ollama==0.2.0
+# Optional (for advanced packet crafting in BAS):
+# scapy==2.5.0
